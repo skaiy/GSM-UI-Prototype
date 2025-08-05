@@ -55,7 +55,6 @@ out/
 
 # IDE 和编辑器配置
 .vscode/
-!.vscode/extensions.json
 .idea/
 *.suo
 *.ntvs*
@@ -122,13 +121,29 @@ pids
 # DynamoDB Local files
 .dynamodb/
 
+# ===================================
+# 项目特定的非业务代码文件夹排除
+# ===================================
+
+# 业务文档文件夹（非代码内容）
+biz-docs/
+
+# 模板文件夹（非代码内容）
+template/
+
+# 平台分析文档（非代码内容）
+platform-analysis/
+
+# 任务记录文档（非代码内容）
+task-records/
+
+# 增强配置文件夹（非业务代码）
+.augment/
+
 # 项目特定的排除文件
 # 业务文档的临时文件
-biz-docs/*.tmp
-biz-docs/~$*
-
-# 模板文件的下载文件
-template/**/*.下载
+*.tmp
+~$*
 
 # 备份文件
 *.bak
