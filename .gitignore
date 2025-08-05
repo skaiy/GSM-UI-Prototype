@@ -1,0 +1,172 @@
+# ===================================
+# 时空数据安全监测平台 Git 忽略配置
+# ===================================
+
+# 系统生成的文件
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+desktop.ini
+
+# Windows 系统文件
+*.stackdump
+bash.exe.stackdump
+
+# 临时文件和缓存
+*.tmp
+*.temp
+*.cache
+*.swp
+*.swo
+*~
+
+# 日志文件
+*.log
+logs/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+# 依赖目录
+node_modules/
+bower_components/
+jspm_packages/
+
+# 构建输出目录
+dist/
+build/
+out/
+.next/
+.nuxt/
+.vuepress/dist/
+
+# 环境配置文件
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# IDE 和编辑器配置
+.vscode/
+!.vscode/extensions.json
+.idea/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+.project
+.classpath
+.settings/
+
+# 包管理器锁定文件（可选择性忽略）
+# package-lock.json
+# yarn.lock
+# pnpm-lock.yaml
+
+# 测试覆盖率报告
+coverage/
+*.lcov
+.nyc_output/
+
+# 运行时数据
+pids
+*.pid
+*.seed
+*.pid.lock
+
+# 可选的 npm 缓存目录
+.npm
+
+# 可选的 eslint 缓存
+.eslintcache
+
+# TypeScript 缓存
+*.tsbuildinfo
+
+# 可选的 REPL 历史
+.node_repl_history
+
+# 输出的 npm 包
+*.tgz
+
+# Yarn 完整性文件
+.yarn-integrity
+
+# parcel-bundler 缓存 (https://parceljs.org/)
+.cache
+.parcel-cache
+
+# next.js build output
+.next
+
+# nuxt.js build output
+.nuxt
+
+# vuepress build output
+.vuepress/dist
+
+# Serverless directories
+.serverless
+
+# FuseBox cache
+.fusebox/
+
+# DynamoDB Local files
+.dynamodb/
+
+# 项目特定的排除文件
+# 业务文档的临时文件
+biz-docs/*.tmp
+biz-docs/~$*
+
+# 模板文件的下载文件
+template/**/*.下载
+
+# 备份文件
+*.bak
+*.backup
+
+# 压缩文件
+*.zip
+*.rar
+*.7z
+*.tar.gz
+
+# 敏感信息文件
+config/secrets.json
+config/private.json
+*.key
+*.pem
+*.p12
+*.pfx
+
+# 数据库文件
+*.db
+*.sqlite
+*.sqlite3
+
+# 媒体文件（大文件）
+*.mp4
+*.avi
+*.mov
+*.wmv
+*.flv
+*.webm
+
+# 大型图片文件
+*.psd
+*.ai
+*.eps
+
+# 文档的临时版本
+*_temp.*
+*_临时.*
+*_backup.*
