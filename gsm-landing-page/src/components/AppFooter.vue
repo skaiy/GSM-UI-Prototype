@@ -23,11 +23,56 @@
         </div>
       </div>
       <div class="footer-bottom">
+        <div class="government-links">
+          <div class="flex items-center space-x-4">
+            <span class="text-sm text-slate-400">相关链接:</span>
+            <a
+              href="https://www.miit.gov.cn"
+              class="flex items-center space-x-1 text-slate-400 hover:text-white transition-colors duration-200 text-sm"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              <span>工信部</span>
+              <ExternalLinkIcon class="w-3 h-3" />
+            </a>
+            <a
+              href="https://www.mot.gov.cn"
+              class="flex items-center space-x-1 text-slate-400 hover:text-white transition-colors duration-200 text-sm"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              <span>交通运输部</span>
+              <ExternalLinkIcon class="w-3 h-3" />
+            </a>
+            <a
+              href="https://www.mnr.gov.cn"
+              class="flex items-center space-x-1 text-slate-400 hover:text-white transition-colors duration-200 text-sm"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              <span>自然资源部</span>
+              <ExternalLinkIcon class="w-3 h-3" />
+            </a>
+          </div>
+        </div>
         <p class="footer-copyright">© 2025 智能网联汽车时空数据安全监测平台. 依据国家相关法律法规建设运营.</p>
       </div>
     </div>
   </footer>
 </template>
+
+<script setup lang="ts">
+// 外部链接图标组件
+const ExternalLinkIcon = {
+  template: `
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/>
+      <polyline points="15,3 21,3 21,9"/>
+      <line x1="10" y1="14" x2="21" y2="3"/>
+    </svg>
+  `
+}
+</script>
 
 <style scoped>
 /* 页脚样式 */
@@ -86,6 +131,54 @@
   text-align: center;
   padding-top: 2rem;
   border-top: 1px solid var(--gray-color);
+}
+
+.government-links {
+  margin-bottom: 1.5rem;
+  display: flex;
+  justify-content: center;
+}
+
+.government-links .flex {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.government-links .space-x-4 > * + * {
+  margin-left: 1rem;
+}
+
+.government-links .space-x-1 > * + * {
+  margin-left: 0.25rem;
+}
+
+.government-links .text-sm {
+  font-size: 0.875rem;
+}
+
+.government-links .text-slate-400 {
+  color: var(--gray-light);
+}
+
+.government-links a {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  color: var(--gray-light);
+  text-decoration: none;
+  transition: color 0.2s ease;
+}
+
+.government-links a:hover {
+  color: var(--background-color);
+}
+
+.government-links .w-3 {
+  width: 0.75rem;
+  height: 0.75rem;
 }
 
 .footer-copyright {

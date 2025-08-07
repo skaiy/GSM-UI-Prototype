@@ -28,24 +28,31 @@
 const newsItems = [
   {
     id: 1,
-    category: '政策解读',
-    date: '2025-01-15',
-    title: '《数据安全法》在智能网联汽车领域的实施要点解读',
-    summary: '深入解读数据安全法在智能网联汽车行业的具体要求，为政府监管部门和企业提供权威的政策指导和合规建议。'
+    category: '国家标准',
+    date: '2024-08-23',
+    title: '三项智能网联汽车强制性国家标准正式发布',
+    summary: '工信部发布GB 44495-2024《汽车整车信息安全技术要求》等三项强制性国家标准，为我国汽车产品信息安全防护技术水平提供规范。'
   },
   {
     id: 2,
-    category: '监管指南',
-    date: '2025-01-10',
-    title: '智能网联汽车数据安全监管实施指南正式发布',
-    summary: '明确监管职责分工、监管流程标准、技术要求规范，为各级监管部门开展数据安全监管工作提供操作指南。'
+    category: '数据要素',
+    date: '2024-01-04',
+    title: '国家数据局发布"数据要素X"三年行动计划',
+    summary: '17部门联合印发《"数据要素X"三年行动计划（2024-2026年）》，明确智能网联汽车产业数据合规发展路径。'
   },
   {
     id: 3,
-    category: '合规服务',
-    date: '2025-01-08',
-    title: '企业数据安全合规服务体系全面上线',
-    summary: '平台正式推出企业合规服务体系，包括在线备案、合规评估、风险预警等一站式服务，助力企业快速达成合规要求。'
+    category: '产业政策',
+    date: '2024-10-30',
+    title: '北京经开区发布智能网联汽车产业高质量发展政策',
+    summary: '北京经济技术开发区出台若干政策措施，支持智能网联汽车产业高质量发展，推动技术创新和应用示范。'
+  },
+  {
+    id: 4,
+    category: '安全管理',
+    date: '2024-07-15',
+    title: '自然资源部加强智能网联汽车测绘地理信息安全管理',
+    summary: '发布《关于加强智能网联汽车有关测绘地理信息安全管理的通知》，规范智能网联汽车地理信息数据安全管理。'
   }
 ]
 </script>
@@ -54,9 +61,10 @@ const newsItems = [
 /* 新闻动态区域 */
 .news-section {
   padding: 6rem 0;
-  background: var(--gray-extra-light);
+  background: var(--background-color);
   width: 100vw;
   margin-left: calc(-50vw + 50%);
+  position: relative;
 }
 
 .container {
@@ -72,30 +80,53 @@ const newsItems = [
 
 .section-title {
   font-size: 2.5rem;
-  font-weight: 600;
+  font-weight: 700;
   color: var(--text-color);
   margin-bottom: 1rem;
+  background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-hover) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
 }
 
 .news-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+  grid-template-columns: repeat(2, 1fr);
   gap: 2rem;
   max-width: none;
 }
 
 .news-card {
   padding: 2rem;
-  background: var(--background-color);
+  background: var(--gray-extra-light);
   border: 1px solid var(--border-color);
-  border-radius: 12px;
+  border-radius: 16px;
   transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.news-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: linear-gradient(90deg, var(--primary-color), var(--primary-hover));
+  opacity: 0;
+  transition: opacity 0.3s ease;
 }
 
 .news-card:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+  transform: translateY(-4px);
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.15);
   border-color: var(--primary-color);
+  background: var(--background-color);
+}
+
+.news-card:hover::before {
+  opacity: 1;
 }
 
 .news-meta {

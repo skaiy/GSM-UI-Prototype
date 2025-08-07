@@ -8,6 +8,12 @@
       <!-- 英雄区域 -->
       <HeroSection />
 
+      <!-- 政策动态 -->
+      <NewsSection />
+
+      <!-- 实时数据监控面板 -->
+      <RealTimeStatsSection />
+
       <!-- 平台特色功能 -->
       <FeaturesSection />
 
@@ -16,9 +22,6 @@
 
       <!-- 服务企业展示 -->
       <EnterprisesSection />
-
-      <!-- 政策动态 -->
-      <NewsSection />
     </main>
 
     <!-- 页脚 -->
@@ -29,10 +32,11 @@
 <script setup lang="ts">
 import AppHeader from './AppHeader.vue'
 import HeroSection from './HeroSection.vue'
+import NewsSection from './NewsSection.vue'
+import RealTimeStatsSection from './RealTimeStatsSection.vue'
 import FeaturesSection from './FeaturesSection.vue'
 import StatsSection from './StatsSection.vue'
 import EnterprisesSection from './EnterprisesSection.vue'
-import NewsSection from './NewsSection.vue'
 import AppFooter from './AppFooter.vue'
 </script>
 

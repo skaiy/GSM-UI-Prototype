@@ -50,8 +50,9 @@ const toggleTheme = () => {
 }
 
 onMounted(() => {
-  // 初始化主题
-  document.documentElement.setAttribute('data-theme', 'light')
+  // 初始化主题为暗色主题，体现专业监管平台形象
+  isDark.value = true
+  document.documentElement.setAttribute('data-theme', 'dark')
 })
 </script>
 
