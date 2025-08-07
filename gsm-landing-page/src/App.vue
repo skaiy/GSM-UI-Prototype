@@ -10,42 +10,43 @@
 
 <style>
 :root {
-  /* Light theme colors */
-  --primary-color: #409EFF;
-  --primary-hover: #66b1ff;
-  --primary-active: #3a8ee6;
-  --gray-color: #909399;
-  --gray-light: #c0c4cc;
-  --gray-lighter: #e4e7ed;
-  --gray-extra-light: #f2f6fc;
+  /* Light theme colors - 深化蓝色主题 */
+  --primary-color: #1e40af;
+  --primary-hover: #3b82f6;
+  --primary-active: #1d4ed8;
+  --gray-color: #6b7280;
+  --gray-light: #9ca3af;
+  --gray-lighter: #d1d5db;
+  --gray-extra-light: #f3f4f6;
   --background-color: #FFFFFF;
-  --text-color: #303133;
-  --text-color-regular: #606266;
-  --text-color-secondary: #909399;
-  --text-color-placeholder: #c0c4cc;
-  --border-color: #dcdfe6;
-  --border-color-light: #e4e7ed;
-  --border-color-lighter: #ebeef5;
-  --border-color-extra-light: #f2f6fc;
+  --text-color: #111827;
+  --text-color-regular: #374151;
+  --text-color-secondary: #6b7280;
+  --text-color-placeholder: #9ca3af;
+  --border-color: #d1d5db;
+  --border-color-light: #e5e7eb;
+  --border-color-lighter: #f3f4f6;
+  --border-color-extra-light: #f9fafb;
 }
 
 [data-theme="dark"] {
-  --primary-color: #3D63DD;
-  --primary-hover: #5a7ae4;
-  --primary-active: #2952cc;
-  --gray-color: #8B8D98;
-  --gray-light: #6c6e7b;
-  --gray-lighter: #4c4e5a;
-  --gray-extra-light: #2c2e3a;
-  --background-color: #111111;
-  --text-color: #e4e7ed;
-  --text-color-regular: #cfcfcf;
-  --text-color-secondary: #a8abb2;
-  --text-color-placeholder: #6c6e7b;
-  --border-color: #4c4e5a;
-  --border-color-light: #414243;
-  --border-color-lighter: #363637;
-  --border-color-extra-light: #2c2d2f;
+  /* 深色主题 - bolt.new风格 */
+  --primary-color: #3b82f6;
+  --primary-hover: #60a5fa;
+  --primary-active: #2563eb;
+  --gray-color: #6b7280;
+  --gray-light: #9ca3af;
+  --gray-lighter: #4b5563;
+  --gray-extra-light: #1f2937;
+  --background-color: #0f172a;
+  --text-color: #f8fafc;
+  --text-color-regular: #e2e8f0;
+  --text-color-secondary: #94a3b8;
+  --text-color-placeholder: #64748b;
+  --border-color: #334155;
+  --border-color-light: #475569;
+  --border-color-lighter: #1e293b;
+  --border-color-extra-light: #0f172a;
 }
 
 * {
