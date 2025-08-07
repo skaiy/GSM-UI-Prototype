@@ -132,10 +132,10 @@ biz-docs/
 template/
 
 # 平台分析文档（非代码内容）
-platform-analysis/
+#platform-analysis/
 
 # 任务记录文档（非代码内容）
-task-records/
+#task-records/
 
 # 增强配置文件夹（非业务代码）
 .augment/
