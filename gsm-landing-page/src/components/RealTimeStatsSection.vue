@@ -11,7 +11,7 @@
         <div v-for="stat in realTimeStats" :key="stat.id" class="stat-card">
           <!-- 背景折线图 -->
           <div class="chart-background">
-            <svg class="mini-chart" viewBox="0 0 120 40" preserveAspectRatio="none">
+            <svg class="mini-chart" viewBox="0 0 300 200" preserveAspectRatio="none">
               <defs>
                 <linearGradient :id="`gradient-${stat.id}`" x1="0%" y1="0%" x2="0%" y2="100%">
                   <stop offset="0%" :style="`stop-color:${stat.chartColor};stop-opacity:0.3`" />
@@ -115,9 +115,9 @@ const ActivityIcon = markRaw({
 
 // 生成图表路径的函数
 const generateChartPath = (data: number[]) => {
-  const width = 120
-  const height = 40
-  const padding = 5
+  const width = 300
+  const height = 200
+  const padding = 20
 
   const maxValue = Math.max(...data)
   const minValue = Math.min(...data)
@@ -133,9 +133,9 @@ const generateChartPath = (data: number[]) => {
 }
 
 const generateChartAreaPath = (data: number[]) => {
-  const width = 120
-  const height = 40
-  const padding = 5
+  const width = 300
+  const height = 200
+  const padding = 20
 
   const maxValue = Math.max(...data)
   const minValue = Math.min(...data)
@@ -434,11 +434,11 @@ onUnmounted(() => {
 /* 图表背景样式 */
 .chart-background {
   position: absolute;
-  bottom: 0;
-  right: 0;
-  width: 120px;
-  height: 40px;
-  opacity: 0.6;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  opacity: 0.15;
   pointer-events: none;
   z-index: 1;
 }
@@ -456,7 +456,7 @@ onUnmounted(() => {
 }
 
 .chart-area {
-  opacity: 0.8;
+  opacity: 0.3;
   animation: fillArea 2s ease-in-out;
 }
 
@@ -480,13 +480,13 @@ onUnmounted(() => {
     opacity: 0;
   }
   100% {
-    opacity: 0.8;
+    opacity: 0.3;
   }
 }
 
 /* 悬停时图表增强效果 */
 .stat-card:hover .chart-background {
-  opacity: 0.9;
+  opacity: 0.25;
 }
 
 .stat-card:hover .chart-line {

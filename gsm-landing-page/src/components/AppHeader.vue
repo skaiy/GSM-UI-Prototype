@@ -149,7 +149,7 @@ onMounted(() => {
   display: inline-flex;
   align-items: center;
   justify-content: flex-start;
-  width: 40px;
+  width: 20px;
   height: 20px;
   border: 1px solid var(--vp-c-border);
   border-radius: 10px;
@@ -183,8 +183,8 @@ onMounted(() => {
   position: absolute;
   top: 1px;
   left: 1px;
-  width: 16px;
-  height: 16px;
+  width: 18px;
+  height: 18px;
   background: var(--vp-c-bg);
   border-radius: 50%;
   transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
@@ -196,7 +196,7 @@ onMounted(() => {
 }
 
 [data-theme="dark"] .switch-thumb {
-  transform: translateX(20px);
+  transform: translateX(18px);
   background: var(--vp-c-bg);
 }
 
