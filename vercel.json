@@ -1,14 +1,7 @@
 {
-  "version": 2,
-  "builds": [
-    {
-      "src": "gsm-landing-page/package.json",
-      "use": "@vercel/static-build",
-      "config": {
-        "distDir": "dist"
-      }
-    }
-  ],
+  "buildCommand": "cd gsm-landing-page && npm run build",
+  "outputDirectory": "gsm-landing-page/dist",
+  "installCommand": "cd gsm-landing-page && npm install",
   "routes": [
     {
       "src": "/assets/(.*)",
@@ -23,6 +16,5 @@
       "src": "/(.*)",
       "dest": "/index.html"
     }
-  ],
-  "outputDirectory": "gsm-landing-page/dist"
+  ]
 }
