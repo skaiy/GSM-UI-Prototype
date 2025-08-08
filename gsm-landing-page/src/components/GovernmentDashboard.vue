@@ -1,0 +1,1390 @@
+<template>
+  <div class="government-dashboard" :data-theme="isDark ? 'dark' : 'light'">
+    <!-- Header 导航栏 -->
+    <header class="dashboard-header">
+      <div class="header-content">
+        <div class="header-left">
+          <img src="/logo.svg" alt="平台Logo" class="header-logo" />
+          <h1 class="header-title">地理信息安全监测平台</h1>
+        </div>
+        <div class="header-right">
+          <button class="theme-toggle" @click="toggleTheme">
+            <span v-if="isDark">🌞</span>
+            <span v-else>🌙</span>
+          </button>
+          <div class="user-info">
+            <span class="user-name">政府管理员</span>
+            <button class="logout-btn" @click="logout">退出</button>
+          </div>
+        </div>
+      </div>
+      
+      <!-- 一级菜单 -->
+      <nav class="main-nav">
+        <button 
+          v-for="item in mainMenus" 
+          :key="item.key"
+          :class="['nav-item', { active: activeMainMenu === item.key }]"
+          @click="setActiveMainMenu(item.key)"
+        >
+          {{ item.label }}
+        </button>
+      </nav>
+    </header>
+
+    <div class="dashboard-body">
+      <!-- 左侧二级菜单 -->
+      <aside class="sidebar">
+        <nav class="sub-nav">
+          <div v-for="group in currentSubMenus" :key="group.title" class="menu-group">
+            <h3 class="menu-group-title">{{ group.title }}</h3>
+            <ul class="menu-list">
+              <li v-for="item in group.items" :key="item.key">
+                <button 
+                  :class="['menu-item', { active: activeSubMenu === item.key }]"
+                  @click="setActiveSubMenu(item.key)"
+                >
+                  {{ item.label }}
+                </button>
+              </li>
+            </ul>
+          </div>
+        </nav>
+      </aside>
+
+      <!-- 主内容区域 -->
+      <main class="main-content">
+        <!-- 综合概览页面 -->
+        <div v-if="activeMainMenu === 'overview'" class="overview-content">
+          <!-- 顶部统计卡片 -->
+          <div class="stats-cards">
+            <div class="stat-card">
+              <div class="stat-icon vehicle">🚗</div>
+              <div class="stat-info">
+                <h3>车辆总数</h3>
+                <p class="stat-number">{{ stats.totalVehicles.toLocaleString() }}</p>
+              </div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-icon online">🟢</div>
+              <div class="stat-info">
+                <h3>在线车辆总数</h3>
+                <p class="stat-number">{{ stats.onlineVehicles.toLocaleString() }}</p>
+              </div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-icon risk-vehicle">⚠️</div>
+              <div class="stat-info">
+                <h3>累计车端风险总数</h3>
+                <p class="stat-number">{{ stats.vehicleRisks.toLocaleString() }}</p>
+              </div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-icon risk-cloud">☁️</div>
+              <div class="stat-info">
+                <h3>累计云端风险总数</h3>
+                <p class="stat-number">{{ stats.cloudRisks.toLocaleString() }}</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- 主要内容区域 -->
+          <div class="content-grid">
+            <!-- 地图区域 -->
+            <div class="map-section">
+              <div class="section-header">
+                <h2>属地试点城市区域地图 - 天津市</h2>
+                <div class="map-controls">
+                  <button class="control-btn" @click="zoomIn">🔍+</button>
+                  <button class="control-btn" @click="zoomOut">🔍-</button>
+                  <button class="control-btn" @click="resetView">🎯</button>
+                </div>
+              </div>
+              <div class="map-container" ref="mapContainer">
+                <div class="map-placeholder">
+                  <div class="city-boundary">
+                    <h3>天津市地理围栏</h3>
+                    <!-- 模拟地图节点 -->
+                    <div class="map-nodes">
+                      <div 
+                        v-for="node in mapNodes" 
+                        :key="node.id"
+                        :class="['map-node', node.type]"
+                        :style="{ left: node.x + '%', top: node.y + '%' }"
+                        @mouseenter="showNodeInfo(node)"
+                        @mouseleave="hideNodeInfo"
+                        @click="selectNode(node)"
+                      >
+                        <span class="node-icon">{{ node.type === 'vehicle' ? '🚗' : '☁️' }}</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <!-- 节点信息提示 -->
+                <div v-if="hoveredNode" class="node-tooltip" :style="tooltipStyle">
+                  <h4>{{ hoveredNode.name }}</h4>
+                  <p>类型: {{ hoveredNode.type === 'vehicle' ? '车端节点' : '云端节点' }}</p>
+                  <p>状态: {{ hoveredNode.status }}</p>
+                  <p>风险等级: {{ hoveredNode.riskLevel }}</p>
+                </div>
+              </div>
+            </div>
+
+            <!-- 左侧统计区域 -->
+            <div class="left-stats">
+              <!-- 车辆信息统计 -->
+              <div class="stats-panel">
+                <h3>车辆信息统计</h3>
+                <div class="chart-container">
+                  <div class="chart-placeholder">
+                    <div class="pie-chart">
+                      <div class="chart-legend">
+                        <div class="legend-item">
+                          <span class="legend-color" style="background: #409EFF"></span>
+                          <span>M类 (45%)</span>
+                        </div>
+                        <div class="legend-item">
+                          <span class="legend-color" style="background: #67C23A"></span>
+                          <span>N类 (30%)</span>
+                        </div>
+                        <div class="legend-item">
+                          <span class="legend-color" style="background: #E6A23C"></span>
+                          <span>O类 (15%)</span>
+                        </div>
+                        <div class="legend-item">
+                          <span class="legend-color" style="background: #F56C6C"></span>
+                          <span>低速无人驾驶 (10%)</span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- 车端风险统计 -->
+              <div class="stats-panel">
+                <h3>车端风险统计</h3>
+                <div class="chart-controls">
+                  <select v-model="vehicleTimeFilter" class="time-filter">
+                    <option value="day">日</option>
+                    <option value="week">周</option>
+                    <option value="month">月</option>
+                    <option value="year">年</option>
+                  </select>
+                  <div class="chart-type-buttons">
+                    <button 
+                      v-for="type in chartTypes" 
+                      :key="type.key"
+                      :class="['chart-btn', { active: vehicleChartType === type.key }]"
+                      @click="vehicleChartType = type.key"
+                    >
+                      {{ type.label }}
+                    </button>
+                  </div>
+                </div>
+                <div class="chart-container">
+                  <div class="chart-placeholder">
+                    <div v-if="vehicleChartType === 'bar'" class="bar-chart">
+                      <div class="bar-item" v-for="item in vehicleRiskData" :key="item.stage">
+                        <div class="bar" :style="{ height: item.value + '%', background: item.color }"></div>
+                        <span class="bar-label">{{ item.stage }}</span>
+                      </div>
+                    </div>
+                    <div v-else-if="vehicleChartType === 'pie'" class="pie-chart-small">
+                      <div class="pie-center">风险分布</div>
+                    </div>
+                    <div v-else class="line-chart">
+                      <div class="line-placeholder">风险趋势图</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- 车端风险预警 -->
+              <div class="stats-panel">
+                <h3>车端风险预警</h3>
+                <div class="filter-buttons">
+                  <button 
+                    v-for="filter in timeFilters" 
+                    :key="filter"
+                    :class="['filter-btn', { active: vehicleRiskFilter === filter }]"
+                    @click="vehicleRiskFilter = filter"
+                  >
+                    {{ filter }}
+                  </button>
+                </div>
+                <div class="risk-list">
+                  <div class="risk-item" v-for="risk in vehicleRisks" :key="risk.id">
+                    <span class="risk-id">{{ risk.id }}</span>
+                    <span class="risk-vin">{{ risk.vin }}</span>
+                    <span :class="['risk-level', risk.level]">{{ risk.levelText }}</span>
+                    <span class="risk-stage">{{ risk.stage }}</span>
+                    <span class="risk-event">{{ risk.event }}</span>
+                    <span class="risk-time">{{ risk.time }}</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- 右侧统计区域 -->
+            <div class="right-stats">
+              <!-- 企业信息统计 -->
+              <div class="stats-panel">
+                <h3>企业信息统计</h3>
+                <div class="chart-container">
+                  <div class="chart-placeholder">
+                    <div class="pie-chart">
+                      <div class="chart-legend">
+                        <div class="legend-item">
+                          <span class="legend-color" style="background: #409EFF"></span>
+                          <span>地图服务商 (35%)</span>
+                        </div>
+                        <div class="legend-item">
+                          <span class="legend-color" style="background: #67C23A"></span>
+                          <span>汽车企业 (40%)</span>
+                        </div>
+                        <div class="legend-item">
+                          <span class="legend-color" style="background: #E6A23C"></span>
+                          <span>智驾方案提供商 (15%)</span>
+                        </div>
+                        <div class="legend-item">
+                          <span class="legend-color" style="background: #F56C6C"></span>
+                          <span>平台运营方 (10%)</span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- 云端风险统计 -->
+              <div class="stats-panel">
+                <h3>云端风险统计</h3>
+                <div class="chart-controls">
+                  <select v-model="cloudTimeFilter" class="time-filter">
+                    <option value="day">日</option>
+                    <option value="week">周</option>
+                    <option value="month">月</option>
+                    <option value="year">年</option>
+                  </select>
+                  <div class="chart-type-buttons">
+                    <button 
+                      v-for="type in chartTypes" 
+                      :key="type.key"
+                      :class="['chart-btn', { active: cloudChartType === type.key }]"
+                      @click="cloudChartType = type.key"
+                    >
+                      {{ type.label }}
+                    </button>
+                  </div>
+                </div>
+                <div class="chart-container">
+                  <div class="chart-placeholder">
+                    <div v-if="cloudChartType === 'bar'" class="bar-chart">
+                      <div class="bar-item" v-for="item in cloudRiskData" :key="item.stage">
+                        <div class="bar" :style="{ height: item.value + '%', background: item.color }"></div>
+                        <span class="bar-label">{{ item.stage }}</span>
+                      </div>
+                    </div>
+                    <div v-else-if="cloudChartType === 'pie'" class="pie-chart-small">
+                      <div class="pie-center">风险分布</div>
+                    </div>
+                    <div v-else class="line-chart">
+                      <div class="line-placeholder">风险趋势图</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- 云端风险预警 -->
+              <div class="stats-panel">
+                <h3>云端风险预警</h3>
+                <div class="filter-buttons">
+                  <button 
+                    v-for="filter in timeFilters" 
+                    :key="filter"
+                    :class="['filter-btn', { active: cloudRiskFilter === filter }]"
+                    @click="cloudRiskFilter = filter"
+                  >
+                    {{ filter }}
+                  </button>
+                </div>
+                <div class="risk-list">
+                  <div class="risk-item" v-for="risk in cloudRisks" :key="risk.id">
+                    <span class="risk-id">{{ risk.id }}</span>
+                    <span class="risk-company">{{ risk.company }}</span>
+                    <span :class="['risk-level', risk.level]">{{ risk.levelText }}</span>
+                    <span class="risk-operation">{{ risk.operation }}</span>
+                    <span class="risk-event">{{ risk.event }}</span>
+                    <span class="risk-time">{{ risk.time }}</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- 处理活动信息 -->
+          <div class="activity-section">
+            <h2>处理活动信息</h2>
+            <div class="activity-tabs">
+              <button 
+                :class="['tab-btn', { active: activeActivityTab === 'vehicle' }]"
+                @click="activeActivityTab = 'vehicle'"
+              >
+                车端操作日志
+              </button>
+              <button 
+                :class="['tab-btn', { active: activeActivityTab === 'cloud' }]"
+                @click="activeActivityTab = 'cloud'"
+              >
+                云端操作日志
+              </button>
+            </div>
+            <div class="activity-content">
+              <div v-if="activeActivityTab === 'vehicle'" class="activity-table">
+                <table>
+                  <thead>
+                    <tr>
+                      <th>序号</th>
+                      <th>VIN码</th>
+                      <th>车辆品牌</th>
+                      <th>车辆型号</th>
+                      <th>处理阶段</th>
+                      <th>处理时间</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr v-for="log in vehicleLogs" :key="log.id">
+                      <td>{{ log.id }}</td>
+                      <td>{{ log.vin }}</td>
+                      <td>{{ log.brand }}</td>
+                      <td>{{ log.model }}</td>
+                      <td>{{ log.stage }}</td>
+                      <td>{{ log.time }}</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+              <div v-else class="activity-table">
+                <table>
+                  <thead>
+                    <tr>
+                      <th>序号</th>
+                      <th>企业名称</th>
+                      <th>企业类型</th>
+                      <th>处理阶段</th>
+                      <th>处理时间</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr v-for="log in cloudLogs" :key="log.id">
+                      <td>{{ log.id }}</td>
+                      <td>{{ log.company }}</td>
+                      <td>{{ log.type }}</td>
+                      <td>{{ log.stage }}</td>
+                      <td>{{ log.time }}</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 其他菜单内容占位 -->
+        <div v-else class="placeholder-content">
+          <h2>{{ getActiveMenuLabel() }}</h2>
+          <p>该功能模块正在开发中...</p>
+        </div>
+      </main>
+    </div>
+  </div>
+</template>
+
+<script setup lang="ts">
+import { ref, reactive, computed, onMounted, onUnmounted } from 'vue'
+import { useRouter } from 'vue-router'
+
+const router = useRouter()
+
+// 主题切换
+const isDark = ref(false)
+const toggleTheme = () => {
+  isDark.value = !isDark.value
+  document.documentElement.setAttribute('data-theme', isDark.value ? 'dark' : 'light')
+}
+
+// 菜单状态
+const activeMainMenu = ref('overview')
+const activeSubMenu = ref('')
+
+// 主菜单配置
+const mainMenus = [
+  { key: 'overview', label: '综合概览' },
+  { key: 'registration', label: '备案审核' },
+  { key: 'monitoring', label: '风险监测' },
+  { key: 'system', label: '系统管理' }
+]
+
+// 二级菜单配置
+const subMenus = {
+  registration: [
+    {
+      title: '备案审核',
+      items: [
+        { key: 'reg-info', label: '注册信息管理' },
+        { key: 'reg-approval', label: '备案审批管理' }
+      ]
+    }
+  ],
+  monitoring: [
+    {
+      title: '风险监测',
+      items: [
+        { key: 'risk-mgmt', label: '风险管理' },
+        { key: 'event-mgmt', label: '事件管理' },
+        { key: 'emergency-trace', label: '应急溯源管理' },
+        { key: 'operation-info', label: '操作信息管理' }
+      ]
+    }
+  ],
+  system: [
+    {
+      title: '系统管理',
+      items: [
+        { key: 'user-mgmt', label: '用户管理' },
+        { key: 'area-mgmt', label: '区域管理' },
+        { key: 'risk-rules', label: '风险规则管理' },
+        { key: 'system-config', label: '系统配置' },
+        { key: 'log-mgmt', label: '日志管理' },
+        { key: 'monitor-ops', label: '监控运维' },
+        { key: 'system-security', label: '系统安全' }
+      ]
+    }
+  ]
+}
+
+// 当前二级菜单
+const currentSubMenus = computed(() => {
+  return subMenus[activeMainMenu.value] || []
+})
+
+// 统计数据
+const stats = reactive({
+  totalVehicles: 125680,
+  onlineVehicles: 98432,
+  vehicleRisks: 1247,
+  cloudRisks: 856
+})
+
+// 地图节点数据
+const mapNodes = ref([
+  { id: 1, name: '滨海新区车端节点', type: 'vehicle', x: 75, y: 45, status: '在线', riskLevel: '低' },
+  { id: 2, name: '和平区车端节点', type: 'vehicle', x: 45, y: 35, status: '在线', riskLevel: '中' },
+  { id: 3, name: '河西区云端节点', type: 'cloud', x: 40, y: 50, status: '在线', riskLevel: '低' },
+  { id: 4, name: '南开区车端节点', type: 'vehicle', x: 35, y: 40, status: '离线', riskLevel: '高' },
+  { id: 5, name: '河东区云端节点', type: 'cloud', x: 55, y: 45, status: '在线', riskLevel: '中' }
+])
+
+// 节点悬停信息
+const hoveredNode = ref(null)
+const tooltipStyle = ref({})
+
+// 图表类型
+const chartTypes = [
+  { key: 'bar', label: '柱状图' },
+  { key: 'pie', label: '饼图' },
+  { key: 'line', label: '折线图' }
+]
+
+// 车端相关状态
+const vehicleTimeFilter = ref('day')
+const vehicleChartType = ref('bar')
+const vehicleRiskFilter = ref('日')
+
+// 云端相关状态
+const cloudTimeFilter = ref('day')
+const cloudChartType = ref('bar')
+const cloudRiskFilter = ref('日')
+
+// 时间过滤器
+const timeFilters = ['年', '月', '日']
+
+// 活动日志标签页
+const activeActivityTab = ref('vehicle')
+
+// 风险数据
+const vehicleRiskData = [
+  { stage: '收集', value: 60, color: '#409EFF' },
+  { stage: '存储', value: 80, color: '#67C23A' },
+  { stage: '传输', value: 45, color: '#E6A23C' }
+]
+
+const cloudRiskData = [
+  { stage: '收集', value: 70, color: '#409EFF' },
+  { stage: '存储', value: 55, color: '#67C23A' },
+  { stage: '传输', value: 65, color: '#E6A23C' },
+  { stage: '加工', value: 40, color: '#F56C6C' },
+  { stage: '提供', value: 30, color: '#909399' },
+  { stage: '公开', value: 20, color: '#C0C4CC' },
+  { stage: '销毁', value: 15, color: '#E4E7ED' }
+]
+
+// 风险列表数据
+const vehicleRisks = ref([
+  { id: 1, vin: 'LSGJ****1234', level: 'high', levelText: '高', stage: '传输', event: '数据泄露风险', time: '2024-01-15 14:30' },
+  { id: 2, vin: 'WBAV****5678', level: 'medium', levelText: '中', stage: '存储', event: '访问异常', time: '2024-01-15 13:45' },
+  { id: 3, vin: 'LFPH****9012', level: 'low', levelText: '低', stage: '收集', event: '数据格式异常', time: '2024-01-15 12:20' }
+])
+
+const cloudRisks = ref([
+  { id: 1, company: '某地图服务商', level: 'high', levelText: '高', operation: '数据提供', event: '未授权访问', time: '2024-01-15 15:20' },
+  { id: 2, company: '某汽车企业', level: 'medium', levelText: '中', operation: '数据收集', event: '超范围收集', time: '2024-01-15 14:15' },
+  { id: 3, company: '某智驾方案商', level: 'low', levelText: '低', operation: '数据加工', event: '处理延迟', time: '2024-01-15 13:30' }
+])
+
+// 操作日志数据
+const vehicleLogs = ref([
+  { id: 1, vin: 'LSGJ****1234', brand: '比亚迪', model: '汉EV', stage: '数据收集', time: '2024-01-15 15:30' },
+  { id: 2, vin: 'WBAV****5678', brand: '宝马', model: 'iX3', stage: '数据存储', time: '2024-01-15 15:25' },
+  { id: 3, vin: 'LFPH****9012', brand: '理想', model: 'L9', stage: '数据传输', time: '2024-01-15 15:20' }
+])
+
+const cloudLogs = ref([
+  { id: 1, company: '高德地图', type: '地图服务商', stage: '数据收集', time: '2024-01-15 15:35' },
+  { id: 2, company: '比亚迪汽车', type: '汽车企业', stage: '数据存储', time: '2024-01-15 15:30' },
+  { id: 3, company: '百度Apollo', type: '智驾方案提供商', stage: '数据加工', time: '2024-01-15 15:25' }
+])
+
+// 方法
+const setActiveMainMenu = (key: string) => {
+  activeMainMenu.value = key
+  activeSubMenu.value = ''
+}
+
+const setActiveSubMenu = (key: string) => {
+  activeSubMenu.value = key
+}
+
+const getActiveMenuLabel = () => {
+  const mainMenu = mainMenus.find(m => m.key === activeMainMenu.value)
+  return mainMenu?.label || '未知菜单'
+}
+
+const showNodeInfo = (node: any) => {
+  hoveredNode.value = node
+  // 这里可以添加更复杂的tooltip定位逻辑
+}
+
+const hideNodeInfo = () => {
+  hoveredNode.value = null
+}
+
+const selectNode = (node: any) => {
+  console.log('选中节点:', node)
+}
+
+const zoomIn = () => {
+  console.log('放大地图')
+}
+
+const zoomOut = () => {
+  console.log('缩小地图')
+}
+
+const resetView = () => {
+  console.log('重置视图')
+}
+
+const logout = () => {
+  router.push('/')
+}
+
+// 生命周期
+onMounted(() => {
+  // 初始化主题
+  const savedTheme = localStorage.getItem('theme')
+  if (savedTheme === 'dark') {
+    isDark.value = true
+    document.documentElement.setAttribute('data-theme', 'dark')
+  }
+})
+</script>
+
+<style scoped>
+.government-dashboard {
+  min-height: 100vh;
+  background: var(--bg-color);
+  color: var(--text-color);
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+
+/* Header 样式 */
+.dashboard-header {
+  background: var(--header-bg);
+  border-bottom: 1px solid var(--border-color);
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+
+.header-content {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem 2rem;
+}
+
+.header-left {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.header-logo {
+  width: 40px;
+  height: 40px;
+}
+
+.header-title {
+  font-size: 1.5rem;
+  font-weight: 600;
+  margin: 0;
+}
+
+.header-right {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.theme-toggle {
+  background: none;
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+  padding: 0.5rem;
+  cursor: pointer;
+  font-size: 1.2rem;
+}
+
+.user-info {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.user-name {
+  font-weight: 500;
+}
+
+.logout-btn {
+  background: var(--danger-color);
+  color: white;
+  border: none;
+  border-radius: 6px;
+  padding: 0.5rem 1rem;
+  cursor: pointer;
+  font-size: 0.9rem;
+}
+
+/* 主导航 */
+.main-nav {
+  display: flex;
+  background: var(--nav-bg);
+  border-top: 1px solid var(--border-color);
+  padding: 0 2rem;
+}
+
+.nav-item {
+  background: none;
+  border: none;
+  padding: 1rem 1.5rem;
+  cursor: pointer;
+  color: var(--text-color);
+  border-bottom: 3px solid transparent;
+  transition: all 0.3s ease;
+}
+
+.nav-item:hover {
+  background: var(--hover-bg);
+}
+
+.nav-item.active {
+  border-bottom-color: var(--primary-color);
+  color: var(--primary-color);
+  font-weight: 600;
+}
+
+/* 主体布局 */
+.dashboard-body {
+  display: flex;
+  min-height: calc(100vh - 140px);
+}
+
+/* 侧边栏 */
+.sidebar {
+  width: 280px;
+  background: var(--sidebar-bg);
+  border-right: 1px solid var(--border-color);
+  padding: 1.5rem 0;
+}
+
+.menu-group {
+  margin-bottom: 2rem;
+}
+
+.menu-group-title {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+  margin: 0 0 1rem 1.5rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.menu-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.menu-item {
+  display: block;
+  width: 100%;
+  background: none;
+  border: none;
+  padding: 0.75rem 1.5rem;
+  text-align: left;
+  cursor: pointer;
+  color: var(--text-color);
+  transition: all 0.3s ease;
+  border-left: 3px solid transparent;
+}
+
+.menu-item:hover {
+  background: var(--hover-bg);
+  color: var(--primary-color);
+}
+
+.menu-item.active {
+  background: var(--primary-bg);
+  color: var(--primary-color);
+  border-left-color: var(--primary-color);
+  font-weight: 500;
+}
+
+/* 主内容区 */
+.main-content {
+  flex: 1;
+  padding: 2rem;
+  overflow-y: auto;
+}
+
+/* 统计卡片 */
+.stats-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 1.5rem;
+  margin-bottom: 2rem;
+}
+
+.stat-card {
+  background: var(--card-bg);
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  padding: 1.5rem;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  transition: all 0.3s ease;
+}
+
+.stat-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+}
+
+.stat-icon {
+  width: 60px;
+  height: 60px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.8rem;
+}
+
+.stat-icon.vehicle { background: linear-gradient(135deg, #409EFF, #66b1ff); }
+.stat-icon.online { background: linear-gradient(135deg, #67C23A, #85ce61); }
+.stat-icon.risk-vehicle { background: linear-gradient(135deg, #E6A23C, #ebb563); }
+.stat-icon.risk-cloud { background: linear-gradient(135deg, #F56C6C, #f78989); }
+
+.stat-info h3 {
+  margin: 0 0 0.5rem 0;
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+  font-weight: 500;
+}
+
+.stat-number {
+  margin: 0;
+  font-size: 2rem;
+  font-weight: 700;
+  color: var(--text-color);
+}
+
+/* 内容网格 */
+.content-grid {
+  display: grid;
+  grid-template-columns: 1fr 350px 350px;
+  gap: 2rem;
+  margin-bottom: 2rem;
+}
+
+/* 地图区域 */
+.map-section {
+  grid-column: 1;
+  background: var(--card-bg);
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  padding: 1.5rem;
+}
+
+.section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+
+.section-header h2 {
+  margin: 0;
+  font-size: 1.2rem;
+  font-weight: 600;
+}
+
+.map-controls {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.control-btn {
+  background: var(--primary-color);
+  color: white;
+  border: none;
+  border-radius: 6px;
+  padding: 0.5rem;
+  cursor: pointer;
+  font-size: 0.9rem;
+}
+
+.map-container {
+  position: relative;
+  height: 500px;
+  background: var(--map-bg);
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.map-placeholder {
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
+  position: relative;
+}
+
+.city-boundary {
+  position: absolute;
+  top: 20%;
+  left: 20%;
+  right: 20%;
+  bottom: 20%;
+  border: 2px dashed var(--primary-color);
+  border-radius: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(64, 158, 255, 0.1);
+}
+
+.city-boundary h3 {
+  margin: 0;
+  color: var(--primary-color);
+  font-weight: 600;
+}
+
+.map-nodes {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+}
+
+.map-node {
+  position: absolute;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  transform: translate(-50%, -50%);
+}
+
+.map-node.vehicle {
+  background: var(--primary-color);
+  color: white;
+}
+
+.map-node.cloud {
+  background: var(--success-color);
+  color: white;
+}
+
+.map-node:hover {
+  transform: translate(-50%, -50%) scale(1.2);
+  z-index: 10;
+}
+
+.node-tooltip {
+  position: absolute;
+  background: var(--tooltip-bg);
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  padding: 1rem;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  z-index: 20;
+  min-width: 200px;
+}
+
+.node-tooltip h4 {
+  margin: 0 0 0.5rem 0;
+  font-size: 1rem;
+  font-weight: 600;
+}
+
+.node-tooltip p {
+  margin: 0.25rem 0;
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+}
+
+/* 统计面板 */
+.left-stats, .right-stats {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.stats-panel {
+  background: var(--card-bg);
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  padding: 1.5rem;
+}
+
+.stats-panel h3 {
+  margin: 0 0 1rem 0;
+  font-size: 1.1rem;
+  font-weight: 600;
+}
+
+/* 图表控制 */
+.chart-controls {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+  gap: 1rem;
+}
+
+.time-filter {
+  background: var(--input-bg);
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+  padding: 0.5rem;
+  color: var(--text-color);
+}
+
+.chart-type-buttons {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.chart-btn {
+  background: var(--button-bg);
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+  padding: 0.4rem 0.8rem;
+  cursor: pointer;
+  font-size: 0.8rem;
+  color: var(--text-color);
+  transition: all 0.3s ease;
+}
+
+.chart-btn:hover {
+  background: var(--hover-bg);
+}
+
+.chart-btn.active {
+  background: var(--primary-color);
+  color: white;
+  border-color: var(--primary-color);
+}
+
+/* 图表容器 */
+.chart-container {
+  height: 200px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.chart-placeholder {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--chart-bg);
+  border-radius: 8px;
+  border: 1px solid var(--border-color);
+}
+
+/* 柱状图 */
+.bar-chart {
+  display: flex;
+  align-items: end;
+  justify-content: space-around;
+  height: 80%;
+  width: 90%;
+  gap: 1rem;
+}
+
+.bar-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  flex: 1;
+}
+
+.bar {
+  width: 100%;
+  min-height: 20px;
+  border-radius: 4px 4px 0 0;
+  margin-bottom: 0.5rem;
+}
+
+.bar-label {
+  font-size: 0.8rem;
+  color: var(--text-secondary);
+}
+
+/* 饼图 */
+.pie-chart, .pie-chart-small {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+}
+
+.pie-center {
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+}
+
+.chart-legend {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin-top: 1rem;
+}
+
+.legend-item {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.9rem;
+}
+
+.legend-color {
+  width: 12px;
+  height: 12px;
+  border-radius: 2px;
+}
+
+/* 折线图 */
+.line-chart {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+}
+
+.line-placeholder {
+  font-size: 1rem;
+  color: var(--text-secondary);
+}
+
+/* 过滤按钮 */
+.filter-buttons {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+}
+
+.filter-btn {
+  background: var(--button-bg);
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+  padding: 0.4rem 0.8rem;
+  cursor: pointer;
+  font-size: 0.8rem;
+  color: var(--text-color);
+  transition: all 0.3s ease;
+}
+
+.filter-btn:hover {
+  background: var(--hover-bg);
+}
+
+.filter-btn.active {
+  background: var(--primary-color);
+  color: white;
+  border-color: var(--primary-color);
+}
+
+/* 风险列表 */
+.risk-list {
+  max-height: 200px;
+  overflow-y: auto;
+}
+
+.risk-item {
+  display: grid;
+  grid-template-columns: 40px 1fr 60px 80px 1fr 100px;
+  gap: 0.5rem;
+  padding: 0.75rem;
+  border-bottom: 1px solid var(--border-color);
+  font-size: 0.9rem;
+  align-items: center;
+}
+
+.risk-item:last-child {
+  border-bottom: none;
+}
+
+.risk-level {
+  padding: 0.2rem 0.5rem;
+  border-radius: 4px;
+  font-size: 0.8rem;
+  font-weight: 500;
+  text-align: center;
+}
+
+.risk-level.high {
+  background: #fef2f2;
+  color: #dc2626;
+  border: 1px solid #fecaca;
+}
+
+.risk-level.medium {
+  background: #fffbeb;
+  color: #d97706;
+  border: 1px solid #fed7aa;
+}
+
+.risk-level.low {
+  background: #f0fdf4;
+  color: #16a34a;
+  border: 1px solid #bbf7d0;
+}
+
+/* 活动信息区域 */
+.activity-section {
+  background: var(--card-bg);
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  padding: 1.5rem;
+}
+
+.activity-section h2 {
+  margin: 0 0 1rem 0;
+  font-size: 1.2rem;
+  font-weight: 600;
+}
+
+.activity-tabs {
+  display: flex;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.tab-btn {
+  background: none;
+  border: none;
+  padding: 1rem 1.5rem;
+  cursor: pointer;
+  color: var(--text-secondary);
+  border-bottom: 2px solid transparent;
+  transition: all 0.3s ease;
+}
+
+.tab-btn:hover {
+  color: var(--text-color);
+}
+
+.tab-btn.active {
+  color: var(--primary-color);
+  border-bottom-color: var(--primary-color);
+  font-weight: 600;
+}
+
+/* 活动表格 */
+.activity-table {
+  overflow-x: auto;
+}
+
+.activity-table table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.activity-table th,
+.activity-table td {
+  padding: 1rem;
+  text-align: left;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.activity-table th {
+  background: var(--table-header-bg);
+  font-weight: 600;
+  color: var(--text-secondary);
+  font-size: 0.9rem;
+}
+
+.activity-table td {
+  font-size: 0.9rem;
+}
+
+.activity-table tr:hover {
+  background: var(--hover-bg);
+}
+
+/* 占位内容 */
+.placeholder-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 400px;
+  text-align: center;
+}
+
+.placeholder-content h2 {
+  margin: 0 0 1rem 0;
+  color: var(--text-color);
+}
+
+.placeholder-content p {
+  margin: 0;
+  color: var(--text-secondary);
+  font-size: 1.1rem;
+}
+
+/* 响应式设计 */
+@media (max-width: 1400px) {
+  .content-grid {
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+  }
+  
+  .left-stats, .right-stats {
+    flex-direction: row;
+    gap: 1rem;
+  }
+  
+  .stats-panel {
+    flex: 1;
+  }
+}
+
+@media (max-width: 768px) {
+  .dashboard-body {
+    flex-direction: column;
+  }
+  
+  .sidebar {
+    width: 100%;
+    border-right: none;
+    border-bottom: 1px solid var(--border-color);
+  }
+  
+  .main-content {
+    padding: 1rem;
+  }
+  
+  .stats-cards {
+    grid-template-columns: 1fr;
+  }
+  
+  .left-stats, .right-stats {
+    flex-direction: column;
+  }
+}
+
+/* CSS 变量定义 */
+:root {
+  --bg-color: #f8fafc;
+  --text-color: #1e293b;
+  --text-secondary: #64748b;
+  --header-bg: #ffffff;
+  --nav-bg: #f1f5f9;
+  --sidebar-bg: #ffffff;
+  --card-bg: #ffffff;
+  --border-color: #e2e8f0;
+  --hover-bg: #f1f5f9;
+  --primary-color: #1e40af;
+  --primary-bg: #eff6ff;
+  --success-color: #16a34a;
+  --danger-color: #dc2626;
+  --button-bg: #f8fafc;
+  --input-bg: #ffffff;
+  --chart-bg: #f8fafc;
+  --map-bg: #f0f9ff;
+  --tooltip-bg: #ffffff;
+  --table-header-bg: #f8fafc;
+}
+
+[data-theme="dark"] {
+  --bg-color: #0f172a;
+  --text-color: #f1f5f9;
+  --text-secondary: #94a3b8;
+  --header-bg: #1e293b;
+  --nav-bg: #334155;
+  --sidebar-bg: #1e293b;
+  --card-bg: #1e293b;
+  --border-color: #334155;
+  --hover-bg: #334155;
+  --primary-color: #3b82f6;
+  --primary-bg: #1e3a8a;
+  --success-color: #22c55e;
+  --danger-color: #ef4444;
+  --button-bg: #334155;
+  --input-bg: #334155;
+  --chart-bg: #334155;
+  --map-bg: #1e3a8a;
+  --tooltip-bg: #1e293b;
+  --table-header-bg: #334155;
+}
+</style>

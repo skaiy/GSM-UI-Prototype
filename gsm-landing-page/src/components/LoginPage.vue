@@ -364,9 +364,10 @@ const handleLogin = async () => {
     
     // 登录成功，根据用户类型跳转到对应页面
     if (props.userType === 'government') {
-      router.push('/government-dashboard')
+      router.push('/dashboard/government')
     } else {
-      router.push('/enterprise-dashboard')
+      // 企业端首页暂未实现，先跳转到首页
+      router.push('/')
     }
     
   } catch (error) {
