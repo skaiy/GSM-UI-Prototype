@@ -62,16 +62,25 @@
 </template>
 
 <script setup lang="ts">
-// 外部链接图标组件
-const ExternalLinkIcon = {
-  template: `
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-      <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/>
-      <polyline points="15,3 21,3 21,9"/>
-      <line x1="10" y1="14" x2="21" y2="3"/>
-    </svg>
-  `
-}
+import { markRaw, h } from 'vue'
+
+// 外部链接图标组件（使用渲染函数）
+const ExternalLinkIcon = markRaw({
+  render() {
+    return h('svg', {
+      viewBox: '0 0 24 24',
+      fill: 'none',
+      stroke: 'currentColor',
+      'stroke-width': '2',
+      'stroke-linecap': 'round',
+      'stroke-linejoin': 'round'
+    }, [
+      h('path', { d: 'M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6' }),
+      h('polyline', { points: '15,3 21,3 21,9' }),
+      h('line', { x1: '10', y1: '14', x2: '21', y2: '3' })
+    ])
+  }
+})
 </script>
 
 <style scoped>

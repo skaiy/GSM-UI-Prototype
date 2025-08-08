@@ -54,44 +54,64 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, onUnmounted } from 'vue'
+import { ref, onMounted, onUnmounted, markRaw, h } from 'vue'
 
-// 图标组件（简化版SVG）
-const CarIcon = {
-  template: `
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-      <path d="M19 17h2c.6 0 1-.4 1-1v-3c0-.9-.7-1.7-1.5-1.9L18 10h-1.3l-1.4-2.9A3.5 3.5 0 0 0 12.2 5H5.8a3.5 3.5 0 0 0-3.1 2.1L1.3 10H0l-2.5 1.1c-.8.2-1.5 1-1.5 1.9v3c0 .6.4 1 1 1h2"/>
-      <circle cx="7" cy="17" r="2"/>
-      <circle cx="17" cy="17" r="2"/>
-    </svg>
-  `
-}
+// 图标组件（使用渲染函数）
+const CarIcon = markRaw({
+  render() {
+    return h('svg', {
+      viewBox: '0 0 24 24',
+      fill: 'none',
+      stroke: 'currentColor',
+      'stroke-width': '2'
+    }, [
+      h('path', { d: 'M19 17h2c.6 0 1-.4 1-1v-3c0-.9-.7-1.7-1.5-1.9L18 10h-1.3l-1.4-2.9A3.5 3.5 0 0 0 12.2 5H5.8a3.5 3.5 0 0 0-3.1 2.1L1.3 10H0l-2.5 1.1c-.8.2-1.5 1-1.5 1.9v3c0 .6.4 1 1 1h2' }),
+      h('circle', { cx: '7', cy: '17', r: '2' }),
+      h('circle', { cx: '17', cy: '17', r: '2' })
+    ])
+  }
+})
 
-const ShieldIcon = {
-  template: `
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-      <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
-    </svg>
-  `
-}
+const ShieldIcon = markRaw({
+  render() {
+    return h('svg', {
+      viewBox: '0 0 24 24',
+      fill: 'none',
+      stroke: 'currentColor',
+      'stroke-width': '2'
+    }, [
+      h('path', { d: 'M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z' })
+    ])
+  }
+})
 
-const AlertIcon = {
-  template: `
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-      <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/>
-      <line x1="12" y1="9" x2="12" y2="13"/>
-      <line x1="12" y1="17" x2="12.01" y2="17"/>
-    </svg>
-  `
-}
+const AlertIcon = markRaw({
+  render() {
+    return h('svg', {
+      viewBox: '0 0 24 24',
+      fill: 'none',
+      stroke: 'currentColor',
+      'stroke-width': '2'
+    }, [
+      h('path', { d: 'M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z' }),
+      h('line', { x1: '12', y1: '9', x2: '12', y2: '13' }),
+      h('line', { x1: '12', y1: '17', x2: '12.01', y2: '17' })
+    ])
+  }
+})
 
-const ActivityIcon = {
-  template: `
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-      <polyline points="22,12 18,12 15,21 9,3 6,12 2,12"/>
-    </svg>
-  `
-}
+const ActivityIcon = markRaw({
+  render() {
+    return h('svg', {
+      viewBox: '0 0 24 24',
+      fill: 'none',
+      stroke: 'currentColor',
+      'stroke-width': '2'
+    }, [
+      h('polyline', { points: '22,12 18,12 15,21 9,3 6,12 2,12' })
+    ])
+  }
+})
 
 // 生成图表路径的函数
 const generateChartPath = (data: number[]) => {
