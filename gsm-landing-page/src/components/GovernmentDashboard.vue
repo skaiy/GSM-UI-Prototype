@@ -8,9 +8,25 @@
           <h1 class="header-title">地理信息安全监测平台</h1>
         </div>
         <div class="header-right">
-          <button class="theme-toggle" @click="toggleTheme">
-            <span v-if="isDark">🌞</span>
-            <span v-else>🌙</span>
+          <button
+            class="theme-switch"
+            type="button"
+            role="switch"
+            :title="isDark ? 'Switch to light theme' : 'Switch to dark theme'"
+            :aria-checked="isDark"
+            @click="toggleTheme"
+          >
+            <span class="switch-track">
+              <span class="switch-thumb">
+                <svg class="sun-icon" :class="{ active: !isDark }" width="12" height="12" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <circle cx="12" cy="12" r="4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                  <path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+                <svg class="moon-icon" :class="{ active: isDark }" width="12" height="12" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+              </span>
+            </span>
           </button>
           <div class="user-info">
             <span class="user-name">政府管理员</span>
@@ -658,13 +674,94 @@ onMounted(() => {
   gap: 1rem;
 }
 
-.theme-toggle {
-  background: none;
-  border: 1px solid var(--border-color);
-  border-radius: 6px;
-  padding: 0.5rem;
+/* VitePress风格的主题切换按钮 */
+.theme-switch {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: flex-start;
+  width: 40px;
+  height: 20px;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.1);
   cursor: pointer;
-  font-size: 1.2rem;
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  outline: none;
+  padding: 2px;
+}
+
+.theme-switch:hover {
+  border-color: rgba(255, 255, 255, 0.5);
+  background: rgba(255, 255, 255, 0.15);
+}
+
+.theme-switch:focus-visible {
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 2px var(--primary-color);
+  outline: none;
+}
+
+.switch-track {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+.switch-thumb {
+  position: absolute;
+  top: -1px;
+  left: 0px;
+  width: 16px;
+  height: 16px;
+  background: var(--background-color);
+  border-radius: 50%;
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+  border: 1px solid var(--border-color);
+}
+
+[data-theme="dark"] .switch-thumb {
+  transform: translateX(18px);
+  background: var(--background-color);
+}
+
+/* 主题切换图标 */
+.sun-icon, .moon-icon {
+  position: absolute;
+  width: 10px;
+  height: 10px;
+  color: var(--text-color-secondary);
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  opacity: 0;
+  transform: scale(0.6) rotate(180deg);
+}
+
+.sun-icon.active, .moon-icon.active {
+  opacity: 1;
+  transform: scale(1) rotate(0deg);
+  color: var(--text-color);
+}
+
+/* 深色主题下的主题切换按钮样式调整 */
+[data-theme="dark"] .theme-switch {
+  background: rgba(51, 65, 85, 0.6);
+  border-color: rgba(71, 85, 105, 0.8);
+}
+
+[data-theme="dark"] .theme-switch:hover {
+  background: rgba(71, 85, 105, 0.8);
+  border-color: rgba(100, 116, 139, 0.8);
+}
+
+[data-theme="dark"] .switch-thumb {
+  background: #f8fafc;
+  border-color: rgba(148, 163, 184, 0.3);
 }
 
 .user-info {
