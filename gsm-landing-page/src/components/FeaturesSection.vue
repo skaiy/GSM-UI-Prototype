@@ -8,7 +8,7 @@
         </p>
       </div>
       <div class="features-grid">
-        <div v-for="feature in features" :key="feature.id" class="feature-card">
+        <div v-for="(feature, index) in features" :key="index" class="feature-card">
           <div class="feature-icon">
             <ElementIcon :name="feature.icon" size="48" color="#3b82f6" />
           </div>

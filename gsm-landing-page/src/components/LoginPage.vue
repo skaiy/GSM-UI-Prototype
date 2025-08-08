@@ -221,6 +221,7 @@
 import { ref, computed, onMounted, onBeforeUnmount } from 'vue'
 import QRCodeScan from './QRCodeScan.vue'
 import { useRouter } from 'vue-router'
+// @ts-ignore
 import Vcode from 'vue3-puzzle-vcode'
 
 interface Props {
@@ -253,7 +254,7 @@ const captchaVerified = ref(false)
 
 // 短信验证码相关状态
 const smsCountdown = ref(0)
-const smsTimer = ref<NodeJS.Timeout | null>(null)
+const smsTimer = ref<number | null>(null)
 
 // 二维码扫描
 const showQRScan = ref(false)
@@ -317,7 +318,7 @@ const sendSmsCode = async () => {
     
     // 开始倒计时
     smsCountdown.value = 60
-    smsTimer.value = setInterval(() => {
+    smsTimer.value = window.setInterval(() => {
       smsCountdown.value--
       if (smsCountdown.value <= 0) {
         if (smsTimer.value) {
