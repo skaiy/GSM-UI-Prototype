@@ -16,7 +16,9 @@
           :class="['tab-button', { active: activeCategory === category.key }]"
           @click="setActiveCategory(category.key)"
         >
-          <span class="tab-icon">{{ category.icon }}</span>
+          <span class="tab-icon">
+            <ElementIcon :name="category.icon" size="20" />
+          </span>
           <span class="tab-text">{{ category.name }}</span>
           <span class="tab-count">({{ getEnterprisesByType(category.type).length }})</span>
         </button>
@@ -33,7 +35,7 @@
               :style="{ animationDelay: `${index * 0.1}s` }"
             >
               <div class="enterprise-logo">
-                <img :src="`/logos/${enterprise.logo}.svg`" :alt="enterprise.name" @error="handleImageError" />
+                <img :src="`/assets/logos/${enterprise.logo}.svg`" :alt="enterprise.name" @error="handleImageError" />
               </div>
               <span class="enterprise-name">{{ enterprise.name }}</span>
             </div>
@@ -46,15 +48,16 @@
 
 <script setup lang="ts">
 import { ref, computed } from 'vue'
+import ElementIcon from './ElementIcon.vue'
 
 // 当前激活的分类
 const activeCategory = ref('automotive')
 
 // 分类定义
 const categories = [
-  { key: 'automotive', name: '整车厂商', type: '汽车企业', icon: '🚗' },
-  { key: 'map', name: '地图服务商', type: '地图服务商', icon: '🗺️' },
-  { key: 'autonomous', name: '智驾方案提供商', type: '智驾方案提供商', icon: '🤖' }
+  { key: 'automotive', name: '整车厂商', type: '汽车企业', icon: 'truck' },
+  { key: 'map', name: '地图服务商', type: '地图服务商', icon: 'map-location' },
+  { key: 'autonomous', name: '智驾方案提供商', type: '智驾方案提供商', icon: 'cpu' }
 ]
 
 // 设置激活分类
@@ -172,18 +175,20 @@ const enterprises = [
 .tab-button {
   display: flex;
   align-items: center;
-  gap: 0.5rem;
-  padding: 1rem 2rem;
+  gap: 0.75rem;
+  padding: 1.2rem 2.5rem;
   background: var(--background-color);
-  border: 2px solid var(--border-color);
-  border-radius: 12px;
+  border: 1px solid var(--border-color);
+  border-radius: 16px;
   color: var(--text-color-secondary);
   font-weight: 500;
   font-size: 1rem;
   cursor: pointer;
-  transition: all 0.3s ease;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   position: relative;
   overflow: hidden;
+  backdrop-filter: blur(10px);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
 }
 
 .tab-button::before {
@@ -204,20 +209,22 @@ const enterprises = [
 .tab-button:hover {
   border-color: var(--primary-color);
   color: var(--primary-color);
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  transform: translateY(-3px);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1), 0 2px 6px rgba(var(--primary-color-rgb), 0.2);
+  background: rgba(var(--primary-color-rgb), 0.02);
 }
 
 .tab-button.active {
   background: linear-gradient(135deg, var(--primary-color), var(--primary-hover));
   border-color: var(--primary-color);
   color: white;
-  box-shadow: 0 4px 15px rgba(var(--primary-color-rgb), 0.3);
+  box-shadow: 0 6px 20px rgba(var(--primary-color-rgb), 0.4), 0 2px 8px rgba(0, 0, 0, 0.1);
+  transform: translateY(-2px);
 }
 
 .tab-button.active:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 6px 20px rgba(var(--primary-color-rgb), 0.4);
+  transform: translateY(-4px);
+  box-shadow: 0 8px 25px rgba(var(--primary-color-rgb), 0.5), 0 4px 12px rgba(0, 0, 0, 0.15);
 }
 
 .tab-icon {
@@ -229,17 +236,81 @@ const enterprises = [
 }
 
 .tab-count {
-  font-size: 0.875rem;
-  opacity: 0.8;
-  background: rgba(255, 255, 255, 0.2);
-  padding: 0.25rem 0.5rem;
-  border-radius: 6px;
-  font-weight: 500;
+  font-size: 0.8rem;
+  font-weight: 600;
+  padding: 0.3rem 0.6rem;
+  border-radius: 8px;
+  min-width: 1.8rem;
+  text-align: center;
+  line-height: 1;
+  transition: all 0.3s ease;
+  border: 1px solid transparent;
 }
 
+/* 激活状态下的统计数字 */
+.tab-button.active .tab-count {
+  background: rgba(255, 255, 255, 0.25);
+  color: rgba(255, 255, 255, 0.95);
+  border-color: rgba(255, 255, 255, 0.3);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+/* 非激活状态下的统计数字 */
 .tab-button:not(.active) .tab-count {
-  background: var(--gray-light);
-  color: var(--text-color-secondary);
+  background: var(--primary-color);
+  color: white;
+  font-weight: 700;
+  box-shadow: 0 2px 6px rgba(var(--primary-color-rgb), 0.3);
+}
+
+/* 悬停效果 */
+.tab-button:not(.active):hover .tab-count {
+  background: var(--primary-hover);
+  transform: scale(1.05);
+  box-shadow: 0 3px 8px rgba(var(--primary-color-rgb), 0.4);
+}
+
+/* 暗色主题下的统计数字优化 */
+[data-theme="dark"] .tab-button:not(.active) .tab-count {
+  background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-hover) 100%);
+  color: #ffffff;
+  border-color: rgba(255, 255, 255, 0.1);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3), 0 0 0 1px rgba(255, 255, 255, 0.1);
+}
+
+[data-theme="dark"] .tab-button:not(.active):hover .tab-count {
+  background: linear-gradient(135deg, var(--primary-hover) 0%, #4f46e5 100%);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4), 0 0 0 1px rgba(255, 255, 255, 0.2);
+  border-color: rgba(255, 255, 255, 0.2);
+}
+
+[data-theme="dark"] .tab-button.active .tab-count {
+  background: rgba(0, 0, 0, 0.3);
+  color: rgba(255, 255, 255, 0.95);
+  border-color: rgba(255, 255, 255, 0.2);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+}
+
+/* 暗色主题下的分类选项卡整体优化 */
+[data-theme="dark"] .tab-button {
+  background: rgba(255, 255, 255, 0.05);
+  border-color: rgba(255, 255, 255, 0.1);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+}
+
+[data-theme="dark"] .tab-button:hover {
+  background: rgba(255, 255, 255, 0.08);
+  border-color: var(--primary-color);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3), 0 2px 6px rgba(var(--primary-color-rgb), 0.3);
+}
+
+[data-theme="dark"] .tab-button.active {
+  background: linear-gradient(135deg, var(--primary-color), var(--primary-hover));
+  box-shadow: 0 6px 20px rgba(var(--primary-color-rgb), 0.4), 0 2px 8px rgba(0, 0, 0, 0.3);
+}
+
+[data-theme="dark"] .tab-button.active:hover {
+  box-shadow: 0 8px 25px rgba(var(--primary-color-rgb), 0.5), 0 4px 12px rgba(0, 0, 0, 0.4);
 }
 
 /* 企业展示区域 */
@@ -250,7 +321,7 @@ const enterprises = [
   border: 1px solid var(--border-color);
   box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
   transition: all 0.3s ease;
-  min-height: 400px;
+  min-height: fit-content;
 }
 
 .enterprises-display:hover {
@@ -259,8 +330,11 @@ const enterprises = [
 
 .enterprises-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(180px, min(250px, 1fr)));
   gap: 1.5rem;
+  align-content: start;
+  justify-content: center;
+  max-width: 100%;
 }
 
 /* 切换动画 */
@@ -331,7 +405,7 @@ const enterprises = [
   height: 64px;
   border-radius: 12px;
   background: var(--background-color);
-  border: 2px solid var(--border-color);
+  border: 1px solid var(--border-color);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -435,7 +509,7 @@ const enterprises = [
 
   .enterprises-display {
     padding: 1.5rem;
-    min-height: 300px;
+    min-height: fit-content;
   }
 
   .enterprises-grid {

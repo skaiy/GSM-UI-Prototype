@@ -35,16 +35,16 @@ const imageUrls = [
   }
 ];
 
-// 确保public目录存在
-const publicDir = path.join(__dirname, 'public');
-if (!fs.existsSync(publicDir)) {
-  fs.mkdirSync(publicDir, { recursive: true });
+// 确保public/assets/images目录存在
+const imagesDir = path.join(__dirname, 'public', 'assets', 'images');
+if (!fs.existsSync(imagesDir)) {
+  fs.mkdirSync(imagesDir, { recursive: true });
 }
 
 // 下载图片函数
 function downloadImage(imageInfo) {
   return new Promise((resolve, reject) => {
-    const filePath = path.join(publicDir, imageInfo.filename);
+    const filePath = path.join(imagesDir, imageInfo.filename);
     
     // 如果文件已存在，跳过下载
     if (fs.existsSync(filePath)) {

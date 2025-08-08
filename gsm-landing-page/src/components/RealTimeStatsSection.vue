@@ -520,6 +520,67 @@ onUnmounted(() => {
   box-shadow: 0 0 8px rgba(245, 158, 11, 0.6);
 }
 
+/* 亮色主题下的样式 */
+[data-theme="light"] .realtime-stats-section {
+  background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+}
+
+[data-theme="light"] .realtime-stats-section::before {
+  background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grid-light" width="10" height="10" patternUnits="userSpaceOnUse"><path d="M 10 0 L 0 0 0 10" fill="none" stroke="%23cbd5e1" stroke-width="0.5" opacity="0.4"/></pattern></defs><rect width="100" height="100" fill="url(%23grid-light)"/></svg>');
+  opacity: 0.6;
+}
+
+[data-theme="light"] .section-title {
+  color: #1e293b;
+  background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+[data-theme="light"] .section-subtitle {
+  color: #475569;
+}
+
+[data-theme="light"] .stat-card {
+  background: rgba(255, 255, 255, 0.9);
+  border: 1px solid rgba(203, 213, 225, 0.8);
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+}
+
+[data-theme="light"] .stat-card::before {
+  background: linear-gradient(90deg, #3b82f6, #60a5fa);
+}
+
+[data-theme="light"] .stat-card:hover {
+  border-color: rgba(59, 130, 246, 0.3);
+  box-shadow: 0 10px 25px rgba(59, 130, 246, 0.15);
+}
+
+[data-theme="light"] .stat-icon {
+  color: #3b82f6;
+}
+
+[data-theme="light"] .stat-value {
+  color: #1e293b;
+}
+
+[data-theme="light"] .stat-title {
+  color: #334155;
+}
+
+[data-theme="light"] .stat-desc {
+  color: #64748b;
+}
+
+[data-theme="light"] .chart-background {
+  opacity: 0.08;
+}
+
+[data-theme="light"] .stat-card:hover .chart-background {
+  opacity: 0.12;
+}
+
 /* 响应式设计 */
 @media (max-width: 768px) {
   .realtime-stats-section {

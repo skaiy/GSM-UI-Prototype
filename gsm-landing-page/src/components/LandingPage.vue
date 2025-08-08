@@ -1,7 +1,7 @@
 <template>
   <div class="landing-page">
     <!-- 导航栏 -->
-    <AppHeader />
+    <LandingHeader />
 
     <!-- 主要内容区域 -->
     <main class="main-content">
@@ -25,19 +25,19 @@
     </main>
 
     <!-- 页脚 -->
-    <AppFooter />
+    <LandingFooter />
   </div>
 </template>
 
 <script setup lang="ts">
-import AppHeader from './AppHeader.vue'
+import LandingHeader from './LandingHeader.vue'
 import HeroSection from './HeroSection.vue'
 import NewsSection from './NewsSection.vue'
 import RealTimeStatsSection from './RealTimeStatsSection.vue'
 import FeaturesSection from './FeaturesSection.vue'
 import StatsSection from './StatsSection.vue'
 import EnterprisesSection from './EnterprisesSection.vue'
-import AppFooter from './AppFooter.vue'
+import LandingFooter from './LandingFooter.vue'
 </script>
 
 <style scoped>

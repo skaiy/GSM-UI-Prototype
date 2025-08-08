@@ -195,4 +195,47 @@ const ExternalLinkIcon = markRaw({
   color: var(--gray-light);
   margin: 0;
 }
+
+/* 暗色主题下的样式调整 */
+[data-theme="dark"] .footer {
+  background: rgba(15, 23, 42, 0.95);
+  border-top: 1px solid rgba(51, 65, 85, 0.6);
+}
+
+[data-theme="dark"] .footer-title {
+  color: #f8fafc;
+}
+
+[data-theme="dark"] .footer-desc,
+[data-theme="dark"] .footer-contact {
+  color: #94a3b8;
+}
+
+[data-theme="dark"] .footer-links a {
+  color: #94a3b8;
+}
+
+[data-theme="dark"] .footer-links a:hover {
+  color: #60a5fa;
+}
+
+[data-theme="dark"] .footer-bottom {
+  border-top: 1px solid rgba(51, 65, 85, 0.6);
+}
+
+[data-theme="dark"] .government-links .text-slate-400 {
+  color: #94a3b8;
+}
+
+[data-theme="dark"] .government-links a {
+  color: #94a3b8;
+}
+
+[data-theme="dark"] .government-links a:hover {
+  color: #f8fafc;
+}
+
+[data-theme="dark"] .footer-copyright {
+  color: #94a3b8;
+}
 </style>

@@ -12,47 +12,111 @@
           </p>
         </div>
 
+        <!-- 登录方式切换 -->
+        <div class="login-mode-switch">
+          <button 
+            type="button" 
+            class="mode-btn"
+            :class="{ active: loginMode === 'password' }"
+            @click="loginMode = 'password'"
+          >
+            密码登录
+          </button>
+          <button 
+            type="button" 
+            class="mode-btn"
+            :class="{ active: loginMode === 'sms' }"
+            @click="loginMode = 'sms'"
+          >
+            短信登录
+          </button>
+        </div>
+
+
+
         <form @submit.prevent="handleLogin" class="login-form">
+          <!-- 手机号输入 -->
           <div class="form-group">
-            <label for="username" class="form-label">
-              {{ userType === 'government' ? '用户名' : '企业ID' }}
-            </label>
+            <label for="phone" class="form-label">手机号</label>
             <input
-              id="username"
-              v-model="loginForm.username"
-              type="text"
+              id="phone"
+              v-model="loginForm.phone"
+              type="tel"
               class="form-input"
-              :placeholder="userType === 'government' ? '请输入用户名' : '请输入企业唯一标识'"
+              placeholder="请输入手机号"
+              maxlength="11"
               required
             />
           </div>
 
-          <div class="form-group">
+          <!-- 密码登录模式 -->
+          <div v-if="loginMode === 'password'" class="form-group">
             <label for="password" class="form-label">密码</label>
-            <input
-              id="password"
-              v-model="loginForm.password"
-              type="password"
-              class="form-input"
-              placeholder="请输入密码"
-              required
-            />
-          </div>
-
-          <div class="form-group" v-if="userType === 'government'">
-            <label for="captcha" class="form-label">验证码</label>
-            <div class="captcha-group">
+            <div class="password-input-container">
               <input
-                id="captcha"
-                v-model="loginForm.captcha"
-                type="text"
+                id="password"
+                v-model="loginForm.password"
+                :type="showPassword ? 'text' : 'password'"
                 class="form-input"
-                placeholder="请输入验证码"
+                placeholder="请输入密码"
                 required
               />
-              <div class="captcha-image" @click="refreshCaptcha">
-                <span class="captcha-text">{{ captchaText }}</span>
-              </div>
+              <button
+                type="button"
+                class="password-toggle"
+                @click="showPassword = !showPassword"
+              >
+                {{ showPassword ? '👁️' : '👁️‍🗨️' }}
+              </button>
+            </div>
+          </div>
+
+          <!-- 短信验证码模式 -->
+          <div v-if="loginMode === 'sms'" class="form-group">
+            <label for="smsCode" class="form-label">短信验证码</label>
+            <div class="sms-input-container">
+              <input
+                id="smsCode"
+                v-model="loginForm.smsCode"
+                type="text"
+                class="form-input sms-input"
+                placeholder="请输入验证码"
+                maxlength="6"
+                required
+              />
+              <button
+                type="button"
+                class="sms-btn"
+                :disabled="smsCountdown > 0 || !isValidPhone"
+                @click="sendSmsCode"
+              >
+                {{ smsCountdown > 0 ? `${smsCountdown}s` : '获取验证码' }}
+              </button>
+            </div>
+          </div>
+
+          <!-- 人机验证 -->
+          <div class="form-group">
+            <label class="form-label">人机验证</label>
+            <div class="captcha-container">
+              <button 
+                type="button" 
+                class="captcha-trigger-btn"
+                @click="showCaptcha = true"
+                :disabled="captchaVerified"
+              >
+                <span v-if="!captchaVerified">点击进行人机验证</span>
+                <span v-else class="verified-text">✓ 验证通过</span>
+              </button>
+              
+              <Vcode 
+                :show="showCaptcha"
+                @success="onCaptchaSuccess"
+                @close="showCaptcha = false"
+                :imgs="captchaImages"
+                :accuracy="0.85"
+                :explain="'拖动滑块完成拼图'"
+              />
             </div>
           </div>
 
@@ -73,11 +137,40 @@
           <button
             type="submit"
             class="login-button"
-            :disabled="isLoading"
+            :disabled="isLoading || !isFormValid"
           >
             {{ isLoading ? '登录中...' : '登录' }}
           </button>
         </form>
+
+        <!-- 第三方登录 -->
+        <div class="third-party-login">
+          <div class="divider">
+            <span class="divider-text">其他登录方式</span>
+          </div>
+          
+          <div class="third-party-buttons">
+            <button type="button" class="third-party-btn wechat" @click="thirdPartyLogin('wechat')">
+              <img src="/assets/icons/微信图标.svg" alt="微信" class="third-party-icon">
+              <span>微信</span>
+            </button>
+
+            <button type="button" class="third-party-btn work-wechat" @click="thirdPartyLogin('work-wechat')">
+              <img src="/assets/icons/企微_企微.svg" alt="企业微信" class="third-party-icon">
+              <span>企业微信</span>
+            </button>
+
+            <button type="button" class="third-party-btn dingtalk" @click="thirdPartyLogin('dingtalk')">
+              <img src="/assets/icons/钉钉.svg" alt="钉钉" class="third-party-icon">
+              <span>钉钉</span>
+            </button>
+
+            <button type="button" class="third-party-btn feishu" @click="thirdPartyLogin('feishu')">
+              <img src="/assets/icons/飞书.svg" alt="飞书" class="third-party-icon">
+              <span>飞书</span>
+            </button>
+          </div>
+        </div>
 
         <div class="login-footer">
           <p class="footer-text">
@@ -114,12 +207,21 @@
       <div class="decoration-circle circle-2"></div>
       <div class="decoration-circle circle-3"></div>
     </div>
+    
+    <!-- 二维码扫描弹窗 -->
+    <QRCodeScan 
+      v-if="showQRScan"
+      :platform="currentPlatform"
+      @close="closeQRScan"
+    />
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
+import { ref, computed, onMounted, onBeforeUnmount } from 'vue'
+import QRCodeScan from './QRCodeScan.vue'
 import { useRouter } from 'vue-router'
+import Vcode from 'vue3-puzzle-vcode'
 
 interface Props {
   userType: 'government' | 'enterprise'
@@ -128,56 +230,164 @@ interface Props {
 const props = defineProps<Props>()
 const router = useRouter()
 
+// 登录模式
+const loginMode = ref<'password' | 'sms'>('password')
+
+// 表单数据 - 根据用户类型初始化默认值
 const loginForm = ref({
-  username: '',
-  password: '',
-  captcha: '',
+  phone: props.userType === 'government' ? '13800138001' : '13800138002',
+  password: props.userType === 'government' ? 'gov123456' : 'ent123456',
+  smsCode: props.userType === 'government' ? '123456' : '654321',
   rememberMe: false
 })
 
-const isLoading = ref(false)
-const captchaText = ref('ABCD')
+// 密码显示状态
+const showPassword = ref(false)
 
-const refreshCaptcha = () => {
-  const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789'
-  let result = ''
-  for (let i = 0; i < 4; i++) {
-    result += chars.charAt(Math.floor(Math.random() * chars.length))
+// 加载状态
+const isLoading = ref(false)
+
+// 拼图验证码相关状态
+const showCaptcha = ref(false)
+const captchaVerified = ref(false)
+
+// 短信验证码相关状态
+const smsCountdown = ref(0)
+const smsTimer = ref<NodeJS.Timeout | null>(null)
+
+// 二维码扫描
+const showQRScan = ref(false)
+const currentPlatform = ref<'wechat' | 'work-wechat' | 'dingtalk' | 'feishu'>('wechat')
+
+// 验证码图片数组
+const captchaImages = ref([
+  '/assets/images/hero-bg-1.jpg',
+  '/assets/images/hero-bg-2.jpg', 
+  '/assets/images/hero-bg-3.jpg',
+  '/assets/images/hero-bg-4.jpg',
+  '/assets/images/hero-bg-5.jpg'
+])
+
+
+
+// 计算属性
+const isValidPhone = computed(() => {
+  return /^1[3-9]\d{9}$/.test(loginForm.value.phone)
+})
+
+const isFormValid = computed(() => {
+  if (!captchaVerified.value || !isValidPhone.value) {
+    return false
   }
-  captchaText.value = result
+  
+  if (loginMode.value === 'password') {
+    return loginForm.value.password.length >= 6
+  } else {
+    return loginForm.value.smsCode.length === 6
+  }
+})
+
+// 验证码成功回调
+const onCaptchaSuccess = () => {
+  captchaVerified.value = true
+  showCaptcha.value = false
+  console.log('验证码验证成功')
 }
 
+// 切换用户类型
 const switchUserType = () => {
   const newType = props.userType === 'government' ? 'enterprise' : 'government'
   router.push(`/login/${newType}`)
 }
 
+
+
+// 发送短信验证码
+const sendSmsCode = async () => {
+  if (!isValidPhone.value) {
+    alert('请输入正确的手机号')
+    return
+  }
+  
+  try {
+    // 模拟发送短信验证码
+    await new Promise(resolve => setTimeout(resolve, 1000))
+    
+    alert('验证码已发送')
+    
+    // 开始倒计时
+    smsCountdown.value = 60
+    smsTimer.value = setInterval(() => {
+      smsCountdown.value--
+      if (smsCountdown.value <= 0) {
+        if (smsTimer.value) {
+          clearInterval(smsTimer.value)
+          smsTimer.value = null
+        }
+      }
+    }, 1000)
+  } catch (error) {
+    alert('验证码发送失败，请稍后重试')
+  }
+}
+
+// 第三方登录
+const thirdPartyLogin = (platform: 'wechat' | 'work-wechat' | 'dingtalk' | 'feishu') => {
+  currentPlatform.value = platform
+  showQRScan.value = true
+}
+
+// 关闭二维码扫描
+const closeQRScan = () => {
+  showQRScan.value = false
+}
+
+// 处理登录
 const handleLogin = async () => {
+  if (!captchaVerified.value) {
+    alert('请先完成人机验证')
+    showCaptcha.value = true
+    return
+  }
+  
+  if (!isFormValid.value) {
+    alert('请完善登录信息')
+    return
+  }
+
   isLoading.value = true
   
   try {
     // 模拟登录请求
-    await new Promise(resolve => setTimeout(resolve, 1500))
+    await new Promise(resolve => setTimeout(resolve, 1000))
     
-    // 这里应该调用实际的登录API
-    console.log('登录信息:', {
-      userType: props.userType,
-      ...loginForm.value
-    })
-    
-    // 登录成功后的处理
-    alert(`${props.userType === 'government' ? '政府端' : '企业端'}登录成功！`)
+    // 登录成功，根据用户类型跳转到对应页面
+    if (props.userType === 'government') {
+      router.push('/government-dashboard')
+    } else {
+      router.push('/enterprise-dashboard')
+    }
     
   } catch (error) {
     console.error('登录失败:', error)
-    alert('登录失败，请检查用户名和密码')
+    alert('登录失败，请检查登录信息')
+    // 登录失败时重置验证码
+    captchaVerified.value = false
   } finally {
     isLoading.value = false
   }
 }
 
+// 组件挂载
 onMounted(() => {
-  refreshCaptcha()
+  // 组件挂载完成
+})
+
+// 组件卸载前清理定时器
+onBeforeUnmount(() => {
+  if (smsTimer.value) {
+    clearInterval(smsTimer.value)
+  }
 })
 </script>
 
@@ -194,7 +404,7 @@ onMounted(() => {
 
 .login-container {
   width: 100%;
-  max-width: 400px;
+  max-width: 672px;
   padding: 2rem;
   position: relative;
   z-index: 10;
@@ -202,11 +412,80 @@ onMounted(() => {
 
 .login-card {
   padding: 3rem;
-  background: var(--color-background);
-  border: 1px solid var(--gray-6);
-  border-radius: 16px;
-  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
-  backdrop-filter: blur(10px);
+  background: rgba(255, 255, 255, 0.95);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  border-radius: 20px;
+  box-shadow: 
+    0 25px 50px rgba(0, 0, 0, 0.15),
+    0 0 0 1px rgba(255, 255, 255, 0.5),
+    inset 0 1px 0 rgba(255, 255, 255, 0.8);
+  backdrop-filter: blur(20px);
+  position: relative;
+  overflow: hidden;
+}
+
+.login-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(64, 158, 255, 0.3), transparent);
+}
+
+/* 暗色主题优化 */
+[data-theme="dark"] .login-card {
+  background: rgba(15, 23, 42, 0.95);
+  border: 1px solid rgba(71, 85, 105, 0.4);
+  box-shadow: 
+    0 25px 50px rgba(0, 0, 0, 0.6),
+    0 0 0 1px rgba(148, 163, 184, 0.1),
+    inset 0 1px 0 rgba(255, 255, 255, 0.05);
+}
+
+[data-theme="dark"] .form-input {
+  background: rgba(30, 41, 59, 0.8);
+  border: 1px solid rgba(71, 85, 105, 0.6);
+  color: #f1f5f9;
+}
+
+[data-theme="dark"] .form-input:focus {
+  border-color: #60a5fa;
+  box-shadow: 0 0 0 3px rgba(96, 165, 250, 0.2);
+  background: rgba(30, 41, 59, 0.9);
+}
+
+[data-theme="dark"] .form-input::placeholder {
+  color: #94a3b8;
+}
+
+[data-theme="dark"] .form-input:hover:not(:focus) {
+  border-color: rgba(96, 165, 250, 0.4);
+  background: rgba(30, 41, 59, 0.85);
+}
+
+[data-theme="dark"] .captcha-trigger-btn {
+  background: rgba(50, 50, 50, 0.8);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  color: #ffffff;
+}
+
+[data-theme="dark"] .captcha-trigger-btn:hover:not(:disabled) {
+  background: rgba(60, 60, 60, 0.9);
+  border-color: var(--primary-color);
+  color: var(--primary-color);
+}
+
+[data-theme="dark"] .captcha-trigger-btn:disabled {
+  background: rgba(34, 197, 94, 0.2);
+  border-color: rgba(34, 197, 94, 0.5);
+  color: #22c55e;
+}
+
+[data-theme="dark"] .decoration-circle {
+  background: linear-gradient(135deg, rgba(64, 158, 255, 0.1), rgba(100, 200, 255, 0.15));
+  opacity: 0.15;
 }
 
 .login-header {
@@ -228,52 +507,148 @@ onMounted(() => {
 }
 
 .login-title {
-  font-size: 1.5rem;
-  font-weight: 600;
-  color: var(--primary-color);
+  font-size: 1.75rem;
+  font-weight: 700;
+  color: #1e293b;
   margin: 0;
+  letter-spacing: -0.025em;
+  background: linear-gradient(135deg, #1e293b, #475569);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
 }
 
 .login-subtitle {
-  color: var(--gray-11);
+  color: #64748b;
   margin: 0;
   font-size: 1rem;
+  font-weight: 400;
+  letter-spacing: 0.025em;
 }
 
-.login-form {
+/* 登录方式切换 */
+.login-mode-switch {
   display: flex;
-  flex-direction: column;
-  gap: 1.5rem;
+  background: rgba(248, 250, 252, 0.8);
+  border-radius: 12px;
+  padding: 0.25rem;
+  margin-bottom: 2rem;
+  border: 1px solid rgba(226, 232, 240, 0.8);
+  box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.05);
 }
+
+.mode-btn {
+  flex: 1;
+  padding: 0.75rem 1rem;
+  border: none;
+  background: transparent;
+  color: #64748b;
+  font-weight: 500;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  font-size: 0.875rem;
+}
+
+.mode-btn.active {
+  background: linear-gradient(135deg, #409eff, #66b3ff);
+  color: white;
+  box-shadow: 0 2px 8px rgba(64, 158, 255, 0.3);
+  transform: translateY(-1px);
+}
+
+.mode-btn:hover:not(.active) {
+  background: rgba(64, 158, 255, 0.1);
+  color: #409eff;
+}
+
+[data-theme="dark"] .login-title {
+  color: #f8fafc;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+  background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+[data-theme="dark"] .login-subtitle {
+  color: #cbd5e1;
+}
+
+[data-theme="dark"] .form-label {
+  color: #e2e8f0;
+  font-weight: 500;
+}
+
+[data-theme="dark"] .login-mode-switch {
+  background: rgba(30, 41, 59, 0.8);
+  border: 1px solid rgba(71, 85, 105, 0.5);
+}
+
+[data-theme="dark"] .mode-btn {
+  color: #cbd5e1;
+  background: transparent;
+}
+
+[data-theme="dark"] .mode-btn:hover:not(.active) {
+  background: rgba(71, 85, 105, 0.3);
+  color: #e2e8f0;
+}
+
+[data-theme="dark"] .mode-btn.active {
+  background: linear-gradient(135deg, #3b82f6, #60a5fa);
+  color: white;
+  box-shadow: 0 2px 8px rgba(59, 130, 246, 0.3);
+}
+
+
+
+  .login-form {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+  }
 
 .form-group {
   display: flex;
   flex-direction: column;
-  gap: 0.5rem;
+  gap: 0.25rem;
 }
 
 .form-label {
-  color: var(--gray-12);
-  font-weight: 500;
+  color: #374151;
+  font-weight: 600;
   font-size: 0.875rem;
+  margin-bottom: 0.25rem;
+  letter-spacing: 0.025em;
 }
 
 .form-input {
   width: 100%;
-  padding: 0.75rem;
-  border: 1px solid var(--gray-6);
-  border-radius: 8px;
-  background: var(--color-background);
-  color: var(--gray-12);
-  font-size: 1rem;
-  transition: all 0.2s ease;
+  padding: 0.625rem 0.875rem;
+  border: 1px solid #e1e5e9;
+  border-radius: 6px;
+  background: rgba(255, 255, 255, 0.9);
+  color: #1e293b;
+  font-size: 0.875rem;
+  transition: all 0.3s ease;
   box-sizing: border-box;
 }
 
 .form-input:focus {
   outline: none;
   border-color: var(--primary-color);
-  box-shadow: 0 0 0 3px rgba(64, 158, 255, 0.1);
+  background: rgba(255, 255, 255, 0.95);
+  box-shadow: 
+    0 0 0 4px rgba(64, 158, 255, 0.1),
+    0 4px 12px rgba(64, 158, 255, 0.15),
+    inset 0 1px 2px rgba(255, 255, 255, 0.9);
+  transform: translateY(-1px);
+}
+
+.form-input:hover:not(:focus) {
+  border-color: rgba(64, 158, 255, 0.3);
+  background: rgba(255, 255, 255, 0.9);
 }
 
 .form-input:disabled {
@@ -282,32 +657,55 @@ onMounted(() => {
   cursor: not-allowed;
 }
 
-.captcha-group {
+.captcha-container {
   display: flex;
+  flex-direction: column;
   gap: 0.75rem;
-  align-items: center;
 }
 
-.captcha-image {
-  min-width: 80px;
-  height: 40px;
-  background: var(--gray-3);
-  border: 1px solid var(--gray-6);
-  border-radius: 6px;
+.captcha-trigger-btn {
+  width: 100%;
+  padding: 0.875rem 1rem;
+  background: linear-gradient(135deg, rgba(248, 250, 252, 0.9), rgba(241, 245, 249, 0.9));
+  border: 1.5px solid rgba(226, 232, 240, 0.8);
+  border-radius: 12px;
+  color: #475569;
+  cursor: pointer;
+  font-size: 0.875rem;
+  font-weight: 500;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   display: flex;
   align-items: center;
   justify-content: center;
-  cursor: pointer;
-  user-select: none;
-  font-family: monospace;
-  font-weight: bold;
-  color: var(--accent-11);
-  transition: all 0.2s ease;
+  gap: 0.5rem;
+  box-shadow: 
+    0 1px 3px rgba(0, 0, 0, 0.05),
+    inset 0 1px 2px rgba(255, 255, 255, 0.9);
 }
 
-.captcha-image:hover {
-  background: var(--gray-4);
-  border-color: var(--accent-7);
+.captcha-trigger-btn:hover:not(:disabled) {
+  background: linear-gradient(135deg, rgba(64, 158, 255, 0.05), rgba(64, 158, 255, 0.1));
+  border-color: var(--primary-color);
+  color: var(--primary-color);
+  transform: translateY(-1px);
+  box-shadow: 
+    0 4px 12px rgba(64, 158, 255, 0.15),
+    inset 0 1px 2px rgba(255, 255, 255, 0.9);
+}
+
+.captcha-trigger-btn:disabled {
+  background: linear-gradient(135deg, rgba(34, 197, 94, 0.1), rgba(34, 197, 94, 0.15));
+  border-color: rgba(34, 197, 94, 0.3);
+  color: #059669;
+  cursor: not-allowed;
+  box-shadow: 
+    0 2px 8px rgba(34, 197, 94, 0.1),
+    inset 0 1px 2px rgba(255, 255, 255, 0.9);
+}
+
+.verified-text {
+  color: var(--success-11);
+  font-weight: 500;
 }
 
 .form-options {
@@ -323,6 +721,199 @@ onMounted(() => {
   cursor: pointer;
 }
 
+/* 密码输入容器 */
+.password-input-container {
+  position: relative;
+}
+
+.password-toggle {
+  position: absolute;
+  right: 0.75rem;
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0.25rem;
+  color: #64748b;
+  font-size: 1.2rem;
+  transition: color 0.3s ease;
+  z-index: 1;
+}
+
+.password-toggle:hover {
+  color: #409eff;
+}
+
+[data-theme="dark"] .password-toggle {
+  color: #94a3b8;
+}
+
+[data-theme="dark"] .password-toggle:hover {
+  color: #66b3ff;
+}
+
+/* 短信验证码输入容器 */
+.sms-input-container {
+  display: flex;
+  gap: 0.75rem;
+}
+
+.sms-input {
+  flex: 1;
+}
+
+.sms-btn {
+  padding: 0.75rem 1rem;
+  background: linear-gradient(135deg, #409eff, #66b3ff);
+  color: white;
+  border: none;
+  border-radius: 12px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  white-space: nowrap;
+  font-size: 0.875rem;
+  min-width: 100px;
+  box-shadow: 0 2px 8px rgba(64, 158, 255, 0.3);
+}
+
+.sms-btn:hover:not(:disabled) {
+  background: linear-gradient(135deg, #337ecc, #409eff);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(64, 158, 255, 0.4);
+}
+
+.sms-btn:disabled {
+  background: linear-gradient(135deg, #e2e8f0, #cbd5e1);
+  color: #94a3b8;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+/* 第三方登录 */
+.third-party-login {
+  margin-top: 1rem;
+}
+
+.divider {
+  position: relative;
+  text-align: center;
+  margin: 2rem 0 1.5rem;
+}
+
+.divider::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(226, 232, 240, 0.8), transparent);
+}
+
+.divider-text {
+  background: rgba(255, 255, 255, 0.95);
+  padding: 0 1rem;
+  color: #64748b;
+  font-size: 0.875rem;
+  font-weight: 400;
+  position: relative;
+  z-index: 1;
+}
+
+[data-theme="dark"] .divider::before {
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.15), transparent);
+}
+
+[data-theme="dark"] .divider-text {
+  background: rgba(30, 30, 30, 0.95);
+  color: #94a3b8;
+}
+
+.third-party-buttons {
+  display: flex;
+  justify-content: center;
+  gap: 1rem;
+}
+
+.third-party-btn {
+  min-width: 100px;
+  height: 48px;
+  padding: 0 12px;
+  border: 1px solid #e1e5e9;
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.9);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-size: 14px;
+  font-weight: 500;
+  color: #374151;
+}
+
+.third-party-btn:hover {
+  background: rgba(255, 255, 255, 0.95);
+  border-color: var(--primary-color);
+  color: var(--primary-color);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(64, 158, 255, 0.15);
+}
+
+.third-party-btn span {
+  font-size: 13px;
+  font-weight: 500;
+}
+
+.third-party-icon {
+  width: 20px;
+  height: 20px;
+  flex-shrink: 0;
+  object-fit: contain;
+}
+
+.third-party-btn.wechat:hover {
+  border-color: #07c160;
+  color: #07c160;
+}
+
+.third-party-btn.work-wechat:hover {
+  border-color: #4e83fd;
+  color: #4e83fd;
+}
+
+.third-party-btn.dingtalk:hover {
+  border-color: #1890ff;
+  color: #1890ff;
+}
+
+.third-party-btn.feishu:hover {
+  border-color: #00d4aa;
+  color: #00d4aa;
+}
+
+[data-theme="dark"] .third-party-btn {
+  background: rgba(30, 41, 59, 0.8);
+  border-color: rgba(71, 85, 105, 0.6);
+  color: #e2e8f0;
+}
+
+[data-theme="dark"] .third-party-btn:hover {
+  background: rgba(51, 65, 85, 0.9);
+  border-color: rgba(96, 165, 250, 0.5);
+  color: #f1f5f9;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+[data-theme="dark"] .third-party-btn span {
+  color: inherit;
+}
+
 .form-checkbox {
   width: 16px;
   height: 16px;
@@ -331,49 +922,129 @@ onMounted(() => {
 }
 
 .checkbox-text {
-  font-size: 0.875rem;
-  color: var(--gray-11);
+    font-size: 0.875rem;
+    color: #64748b;
+    font-weight: 400;
+  }
+
+  [data-theme="dark"] .checkbox-text {
+    color: #e2e8f0;
+  }
+
+  .link-button {
+    background: none;
+    border: none;
+    color: #409eff;
+    cursor: pointer;
+    font-size: 0.875rem;
+    font-weight: 500;
+    text-decoration: none;
+    transition: all 0.2s ease;
+    position: relative;
+  }
+
+  .link-button:hover {
+    color: #337ecc;
+    text-decoration: none;
+  }
+
+  [data-theme="dark"] .link-button {
+    color: #66b3ff;
+  }
+
+  [data-theme="dark"] .link-button:hover {
+    color: #93c5fd;
+  }
+
+.link-button::after {
+  content: '';
+  position: absolute;
+  bottom: -2px;
+  left: 0;
+  width: 0;
+  height: 2px;
+  background: linear-gradient(90deg, #409eff, #66b3ff);
+  transition: width 0.3s ease;
 }
 
-.link-button {
-  background: none;
-  border: none;
-  color: var(--primary-color);
-  cursor: pointer;
-  font-size: 0.875rem;
-  text-decoration: none;
-  transition: color 0.2s ease;
-}
-
-.link-button:hover {
-  color: var(--primary-hover);
-  text-decoration: underline;
+.link-button:hover::after {
+  width: 100%;
 }
 
 .login-button {
   width: 100%;
-  margin-top: 1rem;
-  padding: 0.75rem;
-  background: var(--primary-color);
+  margin-top: 1.5rem;
+  padding: 0.625rem;
+  background: linear-gradient(135deg, #409eff, #66b3ff);
   color: white;
   border: none;
-  border-radius: 8px;
-  font-size: 1rem;
-  font-weight: 500;
+  border-radius: 6px;
+  font-size: 0.875rem;
+  font-weight: 600;
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 
+    0 4px 12px rgba(64, 158, 255, 0.3),
+    inset 0 1px 2px rgba(255, 255, 255, 0.2);
+  position: relative;
+  overflow: hidden;
+}
+
+.login-button::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+  transition: left 0.5s ease;
 }
 
 .login-button:hover:not(:disabled) {
-  background: var(--primary-hover);
+  background: linear-gradient(135deg, #337ecc, #409eff);
+  transform: translateY(-2px);
+  box-shadow: 
+    0 8px 25px rgba(64, 158, 255, 0.4),
+    inset 0 1px 2px rgba(255, 255, 255, 0.2);
+}
+
+.login-button:hover:not(:disabled)::before {
+  left: 100%;
+}
+
+.login-button:active:not(:disabled) {
   transform: translateY(-1px);
+  box-shadow: 
+    0 4px 12px rgba(64, 158, 255, 0.3),
+    inset 0 1px 2px rgba(255, 255, 255, 0.2);
 }
 
 .login-button:disabled {
-  background: var(--gray-6);
-  color: var(--gray-8);
+  background: linear-gradient(135deg, #e2e8f0, #cbd5e1);
+  color: #94a3b8;
   cursor: not-allowed;
   transform: none;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+[data-theme="dark"] .login-button {
+  background: linear-gradient(135deg, #3b82f6, #60a5fa);
+  box-shadow: 
+    0 4px 12px rgba(59, 130, 246, 0.4),
+    inset 0 1px 2px rgba(255, 255, 255, 0.1);
+}
+
+[data-theme="dark"] .login-button:hover:not(:disabled) {
+  background: linear-gradient(135deg, #2563eb, #3b82f6);
+  box-shadow: 
+    0 8px 25px rgba(59, 130, 246, 0.5),
+    inset 0 1px 2px rgba(255, 255, 255, 0.1);
+}
+
+[data-theme="dark"] .login-button:disabled {
+  background: linear-gradient(135deg, #374151, #4b5563);
+  color: #6b7280;
 }
 
 .login-footer {
@@ -382,23 +1053,37 @@ onMounted(() => {
 }
 
 .footer-text {
-  margin: 0 0 1rem 0;
-  color: var(--gray-10);
-  font-size: 0.875rem;
-}
+    margin: 0 0 1rem 0;
+    color: #64748b;
+    font-size: 0.875rem;
+    font-weight: 400;
+  }
 
-.footer-links {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.5rem;
-  color: var(--gray-9);
-}
+  [data-theme="dark"] .footer-text {
+    color: #cbd5e1;
+  }
 
-.separator {
-  color: var(--gray-7);
-  font-size: 0.75rem;
-}
+  .footer-links {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    color: #94a3b8;
+    font-weight: 400;
+  }
+
+  [data-theme="dark"] .footer-links {
+    color: #cbd5e1;
+  }
+
+  .separator {
+    color: #cbd5e1;
+    font-size: 0.75rem;
+  }
+
+  [data-theme="dark"] .separator {
+    color: #94a3b8;
+  }
 
 /* 背景装饰 */
 .background-decoration {
@@ -414,9 +1099,12 @@ onMounted(() => {
 .decoration-circle {
   position: absolute;
   border-radius: 50%;
-  background: linear-gradient(135deg, var(--accent-4), var(--accent-6));
-  opacity: 0.1;
+  background: linear-gradient(135deg, rgba(64, 158, 255, 0.08), rgba(100, 200, 255, 0.12));
+  opacity: 0.6;
   animation: float 6s ease-in-out infinite;
+  box-shadow: 
+    0 0 40px rgba(64, 158, 255, 0.1),
+    inset 0 0 20px rgba(255, 255, 255, 0.3);
 }
 
 .circle-1 {
@@ -453,7 +1141,7 @@ onMounted(() => {
 }
 
 /* 响应式设计 */
-@media (max-width: 480px) {
+@media (max-width: 672px) {
   .login-container {
     padding: 1rem;
   }
@@ -462,13 +1150,8 @@ onMounted(() => {
     padding: 2rem;
   }
   
-  .captcha-group {
-    flex-direction: column;
-    align-items: stretch;
-  }
-  
-  .captcha-image {
-    min-width: auto;
+  .captcha-container {
+    gap: 0.5rem;
   }
   
   .form-options {

@@ -9,7 +9,9 @@
       </div>
       <div class="features-grid">
         <div v-for="feature in features" :key="feature.id" class="feature-card">
-          <div class="feature-icon">{{ feature.icon }}</div>
+          <div class="feature-icon">
+            <ElementIcon :name="feature.icon" size="48" color="#3b82f6" />
+          </div>
           <h3 class="feature-title">{{ feature.title }}</h3>
           <p class="feature-description">{{ feature.description }}</p>
         </div>
@@ -19,44 +21,41 @@
 </template>
 
 <script setup lang="ts">
-const features = [
+import { ref } from 'vue'
+import ElementIcon from './ElementIcon.vue'
+
+const features = ref([
   {
-    id: 1,
-    icon: '📜',
-    title: '政策权威解读',
-    description: '第一时间发布国家数据安全政策法规，提供权威解读和实施指南，确保政策传达的准确性和时效性'
+    icon: 'document',
+    title: '政策法规管理',
+    description: '建立完善的政策法规体系，确保智能网联汽车数据安全合规运营'
   },
   {
-    id: 2,
-    icon: '🏛️',
-    title: '政府监管服务',
-    description: '为各级政府监管部门提供专业的数据安全监管工具，支持四级监管体系高效运行'
+    icon: 'office-building',
+    title: '政府监管平台',
+    description: '为政府部门提供统一的监管平台，实现对企业数据安全的有效监督'
   },
   {
-    id: 3,
-    icon: '🏢',
-    title: '企业合规助手',
-    description: '为企业提供一站式合规服务，包括在线备案、合规自查、技术咨询等全方位支持'
+    icon: 'shop',
+    title: '企业合规管理',
+    description: '帮助企业建立数据安全管理体系，确保符合国家相关法规要求'
   },
   {
-    id: 4,
-    icon: '⚠️',
-    title: '智能风险预警',
-    description: '基于大数据和AI技术，实时监测数据安全风险，提供分级预警和应急响应机制'
+    icon: 'warning',
+    title: '风险预警系统',
+    description: '实时监测数据安全风险，及时发现并处置潜在的安全威胁'
   },
   {
-    id: 5,
-    icon: '🔗',
-    title: '全链路监管',
-    description: '覆盖数据收集、存储、传输、处理、销毁全生命周期，确保监管无死角'
+    icon: 'connection',
+    title: '数据流向追踪',
+    description: '全程追踪数据流向，确保数据在传输和使用过程中的安全可控'
   },
   {
-    id: 6,
-    icon: '🤝',
-    title: '生态协同发展',
-    description: '促进政府、企业、技术服务商协同合作，共建智能网联汽车数据安全生态'
+    icon: 'user',
+    title: '多方协同治理',
+    description: '构建政府、企业、第三方机构协同治理的数据安全生态体系'
   }
-]
+])
 </script>
 
 <style scoped>
@@ -137,6 +136,63 @@ const features = [
     grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
     gap: 3rem;
   }
+}
+
+/* 亮色主题下的层次感优化 */
+[data-theme="light"] .features-section {
+  background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+  position: relative;
+}
+
+[data-theme="light"] .features-section::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grid-light-features" width="20" height="20" patternUnits="userSpaceOnUse"><path d="M 20 0 L 0 0 0 20" fill="none" stroke="%23cbd5e1" stroke-width="0.5" opacity="0.3"/></pattern></defs><rect width="100" height="100" fill="url(%23grid-light-features)"/></svg>');
+  opacity: 0.4;
+  z-index: 0;
+}
+
+[data-theme="light"] .container {
+  position: relative;
+  z-index: 1;
+}
+
+[data-theme="light"] .section-title {
+  background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  text-shadow: 0 2px 4px rgba(59, 130, 246, 0.1);
+}
+
+[data-theme="light"] .section-subtitle {
+  color: #475569;
+}
+
+[data-theme="light"] .feature-card {
+  background: rgba(255, 255, 255, 0.9);
+  border: 1px solid rgba(203, 213, 225, 0.6);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  backdrop-filter: blur(10px);
+}
+
+[data-theme="light"] .feature-card:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 12px 30px rgba(59, 130, 246, 0.15);
+  border-color: rgba(59, 130, 246, 0.4);
+  background: rgba(255, 255, 255, 0.95);
+}
+
+[data-theme="light"] .feature-title {
+  color: #1e293b;
+}
+
+[data-theme="light"] .feature-description {
+  color: #475569;
 }
 
 /* 响应式设计 */

@@ -16,15 +16,13 @@
         >
           <span class="switch-track">
             <span class="switch-thumb">
-              <span class="switch-icon">
-                <svg class="sun-icon vpi-sun" :class="{ active: !isDark }" width="12" height="12" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                  <circle cx="12" cy="12" r="4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                  <path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                </svg>
-                <svg class="moon-icon vpi-moon" :class="{ active: isDark }" width="12" height="12" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                  <path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                </svg>
-              </span>
+              <svg class="sun-icon" :class="{ active: !isDark }" width="12" height="12" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <circle cx="12" cy="12" r="4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                <path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+              <svg class="moon-icon" :class="{ active: isDark }" width="12" height="12" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
             </span>
           </span>
         </button>
@@ -62,8 +60,8 @@ onMounted(() => {
   position: sticky;
   top: 0;
   z-index: 50;
-  background: var(--background-color);
-  border-bottom: 1px solid var(--border-color);
+  background: var(--text-color);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
   backdrop-filter: blur(8px);
   width: 100%;
 }
@@ -91,7 +89,7 @@ onMounted(() => {
 .brand-title {
   font-size: 1.5rem;
   font-weight: 600;
-  color: var(--primary-color);
+  color: var(--background-color);
   margin: 0;
 }
 
@@ -134,13 +132,14 @@ onMounted(() => {
 }
 
 .btn-outline {
-  color: var(--primary-color);
-  border-color: var(--primary-color);
+  color: var(--background-color);
+  border-color: rgba(255, 255, 255, 0.3);
 }
 
 .btn-outline:hover {
-  background: var(--primary-color);
-  color: white;
+  background: var(--background-color);
+  color: var(--text-color);
+  border-color: var(--background-color);
 }
 
 /* VitePress风格的主题切换按钮 */
@@ -149,25 +148,25 @@ onMounted(() => {
   display: inline-flex;
   align-items: center;
   justify-content: flex-start;
-  width: 20px;
+  width: 40px;
   height: 20px;
-  border: 1px solid var(--vp-c-border);
+  border: 1px solid rgba(255, 255, 255, 0.3);
   border-radius: 10px;
-  background: var(--vp-c-bg-alt);
+  background: rgba(255, 255, 255, 0.1);
   cursor: pointer;
   transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
   outline: none;
-  padding: 1px;
+  padding: 2px;
 }
 
 .theme-switch:hover {
-  border-color: var(--vp-c-brand-1);
-  background: var(--vp-c-bg);
+  border-color: rgba(255, 255, 255, 0.5);
+  background: rgba(255, 255, 255, 0.15);
 }
 
 .theme-switch:focus-visible {
-  border-color: var(--vp-c-brand-1);
-  box-shadow: 0 0 0 2px var(--vp-c-brand-1);
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 2px var(--primary-color);
   outline: none;
 }
 
@@ -181,68 +180,31 @@ onMounted(() => {
 
 .switch-thumb {
   position: absolute;
-  top: 1px;
-  left: 1px;
-  width: 18px;
-  height: 18px;
-  background: var(--vp-c-bg);
+  top: -1px;
+  left: 0px;
+  width: 16px;
+  height: 16px;
+  background: var(--background-color);
   border-radius: 50%;
   transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
   display: flex;
   align-items: center;
   justify-content: center;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12), 0 1px 2px rgba(0, 0, 0, 0.24);
-  border: 1px solid var(--vp-c-border);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+  border: 1px solid var(--border-color);
 }
 
 [data-theme="dark"] .switch-thumb {
   transform: translateX(18px);
-  background: var(--vp-c-bg);
+  background: var(--background-color);
 }
 
-.switch-icon {
-  position: relative;
-  width: 10px;
-  height: 10px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-/* VitePress风格的图标系统 */
-.vpi-sun, .vpi-moon {
-  position: absolute;
-  width: 10px;
-  height: 10px;
-  color: var(--vp-c-text-2, #666);
-  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
-  opacity: 0;
-  transform: scale(0.6) rotate(180deg);
-}
-
-.vpi-sun.active, .vpi-moon.active {
-  opacity: 1;
-  transform: scale(1) rotate(0deg);
-  color: var(--vp-c-text-1, #333);
-}
-
-/* 深色主题下的图标颜色 */
-[data-theme="dark"] .vpi-sun,
-[data-theme="dark"] .vpi-moon {
-  color: var(--vp-c-text-2, #ccc);
-}
-
-[data-theme="dark"] .vpi-sun.active,
-[data-theme="dark"] .vpi-moon.active {
-  color: var(--vp-c-text-1, #fff);
-}
-
-/* 兼容旧的类名 */
+/* 主题切换图标 */
 .sun-icon, .moon-icon {
   position: absolute;
-  width: 12px;
-  height: 12px;
-  color: var(--vp-c-text-2, #666);
+  width: 10px;
+  height: 10px;
+  color: var(--text-color-secondary);
   transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
   opacity: 0;
   transform: scale(0.6) rotate(180deg);
@@ -251,18 +213,43 @@ onMounted(() => {
 .sun-icon.active, .moon-icon.active {
   opacity: 1;
   transform: scale(1) rotate(0deg);
-  color: var(--vp-c-text-1, #333);
+  color: var(--text-color);
 }
 
 /* 深色主题下的样式调整 */
+[data-theme="dark"] .header {
+  background: rgba(15, 23, 42, 0.95);
+  border-bottom: 1px solid rgba(51, 65, 85, 0.6);
+}
+
+[data-theme="dark"] .brand-title {
+  color: #f8fafc;
+}
+
+[data-theme="dark"] .btn-outline {
+  color: #e2e8f0;
+  border-color: rgba(226, 232, 240, 0.3);
+}
+
+[data-theme="dark"] .btn-outline:hover {
+  background: rgba(226, 232, 240, 0.1);
+  color: #f8fafc;
+  border-color: rgba(226, 232, 240, 0.5);
+}
+
 [data-theme="dark"] .theme-switch {
-  background: var(--primary-color);
-  border-color: var(--primary-color);
+  background: rgba(51, 65, 85, 0.6);
+  border-color: rgba(71, 85, 105, 0.8);
 }
 
 [data-theme="dark"] .theme-switch:hover {
-  background: var(--primary-hover);
-  border-color: var(--primary-hover);
+  background: rgba(71, 85, 105, 0.8);
+  border-color: rgba(100, 116, 139, 0.8);
+}
+
+[data-theme="dark"] .switch-thumb {
+  background: #f8fafc;
+  border-color: rgba(148, 163, 184, 0.3);
 }
 
 /* 响应式设计 */
