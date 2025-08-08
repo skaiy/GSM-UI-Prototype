@@ -23,5 +23,6 @@
       "src": "/(.*)",
       "dest": "/index.html"
     }
-  ]
+  ],
+  "outputDirectory": "gsm-landing-page/dist"
 }
