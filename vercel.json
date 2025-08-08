@@ -5,7 +5,7 @@
       "src": "gsm-landing-page/package.json",
       "use": "@vercel/static-build",
       "config": {
-        "distDir": "gsm-landing-page/dist"
+        "distDir": "dist"
       }
     }
   ],
