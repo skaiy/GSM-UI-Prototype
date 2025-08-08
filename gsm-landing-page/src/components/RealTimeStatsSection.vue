@@ -9,6 +9,30 @@
       </div>
       <div class="stats-grid">
         <div v-for="stat in realTimeStats" :key="stat.id" class="stat-card">
+          <!-- 背景折线图 -->
+          <div class="chart-background">
+            <svg class="mini-chart" viewBox="0 0 120 40" preserveAspectRatio="none">
+              <defs>
+                <linearGradient :id="`gradient-${stat.id}`" x1="0%" y1="0%" x2="0%" y2="100%">
+                  <stop offset="0%" :style="`stop-color:${stat.chartColor};stop-opacity:0.3`" />
+                  <stop offset="100%" :style="`stop-color:${stat.chartColor};stop-opacity:0.05`" />
+                </linearGradient>
+              </defs>
+              <path
+                :d="stat.chartPath"
+                :stroke="stat.chartColor"
+                stroke-width="1.5"
+                fill="none"
+                class="chart-line"
+              />
+              <path
+                :d="stat.chartAreaPath"
+                :fill="`url(#gradient-${stat.id})`"
+                class="chart-area"
+              />
+            </svg>
+          </div>
+
           <div class="stat-icon">
             <component :is="stat.icon" class="icon" />
           </div>
@@ -69,6 +93,48 @@ const ActivityIcon = {
   `
 }
 
+// 生成图表路径的函数
+const generateChartPath = (data: number[]) => {
+  const width = 120
+  const height = 40
+  const padding = 5
+
+  const maxValue = Math.max(...data)
+  const minValue = Math.min(...data)
+  const range = maxValue - minValue || 1
+
+  const points = data.map((value, index) => {
+    const x = (index / (data.length - 1)) * (width - padding * 2) + padding
+    const y = height - padding - ((value - minValue) / range) * (height - padding * 2)
+    return `${x},${y}`
+  })
+
+  return `M ${points.join(' L ')}`
+}
+
+const generateChartAreaPath = (data: number[]) => {
+  const width = 120
+  const height = 40
+  const padding = 5
+
+  const maxValue = Math.max(...data)
+  const minValue = Math.min(...data)
+  const range = maxValue - minValue || 1
+
+  const points = data.map((value, index) => {
+    const x = (index / (data.length - 1)) * (width - padding * 2) + padding
+    const y = height - padding - ((value - minValue) / range) * (height - padding * 2)
+    return `${x},${y}`
+  })
+
+  const firstPoint = points[0]
+  const lastPoint = points[points.length - 1]
+  const lastX = lastPoint.split(',')[0]
+  const firstX = firstPoint.split(',')[0]
+
+  return `M ${firstX},${height - padding} L ${points.join(' L ')} L ${lastX},${height - padding} Z`
+}
+
 const realTimeStats = ref([
   {
     id: 1,
@@ -78,7 +144,11 @@ const realTimeStats = ref([
     trendClass: 'positive',
     title: '接入车辆总数',
     description: '当前平台监控的智能网联汽车数量',
-    status: 'normal'
+    status: 'normal',
+    chartColor: '#60a5fa',
+    chartData: [1200000, 1210000, 1225000, 1235000, 1240000, 1247856],
+    chartPath: '',
+    chartAreaPath: ''
   },
   {
     id: 2,
@@ -88,7 +158,11 @@ const realTimeStats = ref([
     trendClass: 'positive',
     title: '数据安全合规率',
     description: '企业数据处理合规情况统计',
-    status: 'normal'
+    status: 'normal',
+    chartColor: '#10b981',
+    chartData: [99.92, 99.94, 99.95, 99.96, 99.96, 99.97],
+    chartPath: '',
+    chartAreaPath: ''
   },
   {
     id: 3,
@@ -98,7 +172,11 @@ const realTimeStats = ref([
     trendClass: 'negative',
     title: '风险事件数量',
     description: '24小时内检测到的风险事件',
-    status: 'warning'
+    status: 'warning',
+    chartColor: '#f59e0b',
+    chartData: [8, 6, 5, 4, 5, 3],
+    chartPath: '',
+    chartAreaPath: ''
   },
   {
     id: 4,
@@ -108,9 +186,21 @@ const realTimeStats = ref([
     trendClass: 'positive',
     title: '日数据处理量',
     description: '平台每日处理的数据总量',
-    status: 'normal'
+    status: 'normal',
+    chartColor: '#8b5cf6',
+    chartData: [140, 145, 148, 152, 154, 156.8],
+    chartPath: '',
+    chartAreaPath: ''
   }
 ])
+
+// 初始化图表路径
+const initializeCharts = () => {
+  realTimeStats.value.forEach(stat => {
+    stat.chartPath = generateChartPath(stat.chartData)
+    stat.chartAreaPath = generateChartAreaPath(stat.chartData)
+  })
+}
 
 // 模拟实时数据更新
 let updateInterval: number | null = null
@@ -122,11 +212,47 @@ const updateStats = () => {
       const current = parseInt(stat.value.replace(/,/g, ''))
       const newValue = current + Math.floor(Math.random() * 10)
       stat.value = newValue.toLocaleString()
+
+      // 更新图表数据
+      stat.chartData.shift()
+      stat.chartData.push(newValue)
+      stat.chartPath = generateChartPath(stat.chartData)
+      stat.chartAreaPath = generateChartAreaPath(stat.chartData)
+    } else if (stat.id === 2) {
+      // 合规率微调
+      const currentRate = parseFloat(stat.value.replace('%', ''))
+      const newRate = Math.max(99.90, Math.min(99.99, currentRate + (Math.random() - 0.5) * 0.02))
+      stat.value = newRate.toFixed(2) + '%'
+
+      stat.chartData.shift()
+      stat.chartData.push(newRate)
+      stat.chartPath = generateChartPath(stat.chartData)
+      stat.chartAreaPath = generateChartAreaPath(stat.chartData)
+    } else if (stat.id === 3) {
+      // 风险事件数量
+      const newCount = Math.max(0, Math.floor(Math.random() * 8))
+      stat.value = newCount.toString()
+
+      stat.chartData.shift()
+      stat.chartData.push(newCount)
+      stat.chartPath = generateChartPath(stat.chartData)
+      stat.chartAreaPath = generateChartAreaPath(stat.chartData)
+    } else if (stat.id === 4) {
+      // 数据处理量
+      const currentValue = parseFloat(stat.value.replace('TB', ''))
+      const newValue = currentValue + (Math.random() - 0.5) * 2
+      stat.value = newValue.toFixed(1) + 'TB'
+
+      stat.chartData.shift()
+      stat.chartData.push(newValue)
+      stat.chartPath = generateChartPath(stat.chartData)
+      stat.chartAreaPath = generateChartAreaPath(stat.chartData)
     }
   })
 }
 
 onMounted(() => {
+  initializeCharts()
   updateInterval = setInterval(updateStats, 30000) // 30秒更新一次
 })
 
@@ -285,6 +411,75 @@ onUnmounted(() => {
   line-height: 1.5;
 }
 
+/* 图表背景样式 */
+.chart-background {
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  width: 120px;
+  height: 40px;
+  opacity: 0.6;
+  pointer-events: none;
+  z-index: 1;
+}
+
+.mini-chart {
+  width: 100%;
+  height: 100%;
+}
+
+.chart-line {
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.3));
+  animation: drawLine 2s ease-in-out;
+}
+
+.chart-area {
+  opacity: 0.8;
+  animation: fillArea 2s ease-in-out;
+}
+
+/* 图表动画 */
+@keyframes drawLine {
+  0% {
+    stroke-dasharray: 200;
+    stroke-dashoffset: 200;
+  }
+  100% {
+    stroke-dasharray: 200;
+    stroke-dashoffset: 0;
+  }
+}
+
+@keyframes fillArea {
+  0% {
+    opacity: 0;
+  }
+  50% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 0.8;
+  }
+}
+
+/* 悬停时图表增强效果 */
+.stat-card:hover .chart-background {
+  opacity: 0.9;
+}
+
+.stat-card:hover .chart-line {
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.4));
+}
+
+/* 确保内容在图表之上 */
+.stat-icon,
+.stat-content {
+  position: relative;
+  z-index: 2;
+}
+
 .stat-indicator {
   position: absolute;
   top: 1rem;
@@ -292,6 +487,7 @@ onUnmounted(() => {
   width: 8px;
   height: 8px;
   border-radius: 50%;
+  z-index: 3;
 }
 
 .stat-indicator.normal {
