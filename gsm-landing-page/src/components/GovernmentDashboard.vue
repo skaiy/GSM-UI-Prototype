@@ -49,26 +49,7 @@
     </header>
 
     <div class="dashboard-body">
-      <!-- 左侧二级菜单 -->
-      <aside class="sidebar">
-        <nav class="sub-nav">
-          <div v-for="group in currentSubMenus" :key="group.title" class="menu-group">
-            <h3 class="menu-group-title">{{ group.title }}</h3>
-            <ul class="menu-list">
-              <li v-for="item in group.items" :key="item.key">
-                <button 
-                  :class="['menu-item', { active: activeSubMenu === item.key }]"
-                  @click="setActiveSubMenu(item.key)"
-                >
-                  {{ item.label }}
-                </button>
-              </li>
-            </ul>
-          </div>
-        </nav>
-      </aside>
-
-      <!-- 主内容区域 -->
+      <!-- 主内容区域 - 无二级菜单 -->
       <main class="main-content">
         <!-- 综合概览页面 -->
         <div v-if="activeMainMenu === 'overview'" class="overview-content">
@@ -104,50 +85,12 @@
             </div>
           </div>
 
-          <!-- 主要内容区域 -->
-          <div class="content-grid">
-            <!-- 地图区域 -->
-            <div class="map-section">
-              <div class="section-header">
-                <h2>属地试点城市区域地图 - 天津市</h2>
-                <div class="map-controls">
-                  <button class="control-btn" @click="zoomIn">🔍+</button>
-                  <button class="control-btn" @click="zoomOut">🔍-</button>
-                  <button class="control-btn" @click="resetView">🎯</button>
-                </div>
-              </div>
-              <div class="map-container" ref="mapContainer">
-                <div class="map-placeholder">
-                  <div class="city-boundary">
-                    <h3>天津市地理围栏</h3>
-                    <!-- 模拟地图节点 -->
-                    <div class="map-nodes">
-                      <div 
-                        v-for="node in mapNodes" 
-                        :key="node.id"
-                        :class="['map-node', node.type]"
-                        :style="{ left: node.x + '%', top: node.y + '%' }"
-                        @mouseenter="showNodeInfo(node)"
-                        @mouseleave="hideNodeInfo"
-                        @click="selectNode(node)"
-                      >
-                        <span class="node-icon">{{ node.type === 'vehicle' ? '🚗' : '☁️' }}</span>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-                <!-- 节点信息提示 -->
-                <div v-if="hoveredNode" class="node-tooltip" :style="tooltipStyle">
-                  <h4>{{ hoveredNode.name }}</h4>
-                  <p>类型: {{ hoveredNode.type === 'vehicle' ? '车端节点' : '云端节点' }}</p>
-                  <p>状态: {{ hoveredNode.status }}</p>
-                  <p>风险等级: {{ hoveredNode.riskLevel }}</p>
-                </div>
-              </div>
-            </div>
-
-            <!-- 左侧统计区域 -->
-            <div class="left-stats">
+          <!-- 新的三栏布局：左侧车端 - 中间地图 - 右侧云端 -->
+          <div class="three-column-layout">
+            <!-- 左侧车端区域 -->
+            <div class="left-column vehicle-section">
+              <h2 class="section-title">🚗 车端监控</h2>
+              
               <!-- 车辆信息统计 -->
               <div class="stats-panel">
                 <h3>车辆信息统计</h3>
@@ -242,8 +185,50 @@
               </div>
             </div>
 
-            <!-- 右侧统计区域 -->
-            <div class="right-stats">
+            <!-- 中间地图区域 -->
+            <div class="center-column map-section">
+              <div class="section-header">
+                <h2>🗺️ 属地试点城市区域地图 - 天津市</h2>
+                <div class="map-controls">
+                  <button class="control-btn" @click="zoomIn">🔍+</button>
+                  <button class="control-btn" @click="zoomOut">🔍-</button>
+                  <button class="control-btn" @click="resetView">🎯</button>
+                </div>
+              </div>
+              <div class="map-container" ref="mapContainer">
+                <div class="map-placeholder">
+                  <div class="city-boundary">
+                    <h3>天津市地理围栏</h3>
+                    <!-- 模拟地图节点 -->
+                    <div class="map-nodes">
+                      <div 
+                        v-for="node in mapNodes" 
+                        :key="node.id"
+                        :class="['map-node', node.type]"
+                        :style="{ left: node.x + '%', top: node.y + '%' }"
+                        @mouseenter="showNodeInfo(node)"
+                        @mouseleave="hideNodeInfo"
+                        @click="selectNode(node)"
+                      >
+                        <span class="node-icon">{{ node.type === 'vehicle' ? '🚗' : '☁️' }}</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <!-- 节点信息提示 -->
+                <div v-if="hoveredNode" class="node-tooltip" :style="tooltipStyle">
+                  <h4>{{ hoveredNode.name }}</h4>
+                  <p>类型: {{ hoveredNode.type === 'vehicle' ? '车端节点' : '云端节点' }}</p>
+                  <p>状态: {{ hoveredNode.status }}</p>
+                  <p>风险等级: {{ hoveredNode.riskLevel }}</p>
+                </div>
+              </div>
+            </div>
+
+            <!-- 右侧云端区域 -->
+            <div class="right-column cloud-section">
+              <h2 class="section-title">☁️ 云端监控</h2>
+              
               <!-- 企业信息统计 -->
               <div class="stats-panel">
                 <h3>企业信息统计</h3>
@@ -341,19 +326,19 @@
 
           <!-- 处理活动信息 -->
           <div class="activity-section">
-            <h2>处理活动信息</h2>
+            <h2>📊 处理活动信息</h2>
             <div class="activity-tabs">
               <button 
                 :class="['tab-btn', { active: activeActivityTab === 'vehicle' }]"
                 @click="activeActivityTab = 'vehicle'"
               >
-                车端操作日志
+                🚗 车端操作日志
               </button>
               <button 
                 :class="['tab-btn', { active: activeActivityTab === 'cloud' }]"
                 @click="activeActivityTab = 'cloud'"
               >
-                云端操作日志
+                ☁️ 云端操作日志
               </button>
             </div>
             <div class="activity-content">
@@ -442,48 +427,7 @@ const mainMenus = [
   { key: 'system', label: '系统管理' }
 ]
 
-// 二级菜单配置
-const subMenus = {
-  registration: [
-    {
-      title: '备案审核',
-      items: [
-        { key: 'reg-info', label: '注册信息管理' },
-        { key: 'reg-approval', label: '备案审批管理' }
-      ]
-    }
-  ],
-  monitoring: [
-    {
-      title: '风险监测',
-      items: [
-        { key: 'risk-mgmt', label: '风险管理' },
-        { key: 'event-mgmt', label: '事件管理' },
-        { key: 'emergency-trace', label: '应急溯源管理' },
-        { key: 'operation-info', label: '操作信息管理' }
-      ]
-    }
-  ],
-  system: [
-    {
-      title: '系统管理',
-      items: [
-        { key: 'user-mgmt', label: '用户管理' },
-        { key: 'area-mgmt', label: '区域管理' },
-        { key: 'risk-rules', label: '风险规则管理' },
-        { key: 'system-config', label: '系统配置' },
-        { key: 'log-mgmt', label: '日志管理' },
-        { key: 'monitor-ops', label: '监控运维' },
-        { key: 'system-security', label: '系统安全' }
-      ]
-    }
-  ]
-}
-
-// 当前二级菜单
-const currentSubMenus = computed(() => {
-  return subMenus[activeMainMenu.value] || []
-})
+// 注意：已移除二级菜单配置，采用简化的单级菜单结构
 
 // 统计数据
 const stats = reactive({
@@ -818,63 +762,203 @@ onMounted(() => {
   min-height: calc(100vh - 140px);
 }
 
-/* 侧边栏 */
-.sidebar {
-  width: 280px;
-  background: var(--sidebar-bg);
-  border-right: 1px solid var(--border-color);
-  padding: 1.5rem 0;
-}
-
-.menu-group {
-  margin-bottom: 2rem;
-}
-
-.menu-group-title {
-  font-size: 0.9rem;
-  font-weight: 600;
-  color: var(--text-secondary);
-  margin: 0 0 1rem 1.5rem;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-}
-
-.menu-list {
-  list-style: none;
-  margin: 0;
-  padding: 0;
-}
-
-.menu-item {
-  display: block;
-  width: 100%;
-  background: none;
-  border: none;
-  padding: 0.75rem 1.5rem;
-  text-align: left;
-  cursor: pointer;
-  color: var(--text-color);
-  transition: all 0.3s ease;
-  border-left: 3px solid transparent;
-}
-
-.menu-item:hover {
-  background: var(--hover-bg);
-  color: var(--primary-color);
-}
-
-.menu-item.active {
-  background: var(--primary-bg);
-  color: var(--primary-color);
-  border-left-color: var(--primary-color);
-  font-weight: 500;
-}
+/* 侧边栏样式已移除 - 采用无二级菜单的简化布局 */
 
 /* 主内容区 */
 .main-content {
   flex: 1;
   padding: 2rem;
   overflow-y: auto;
+}
+
+/* 三列布局 */
+.three-column-layout {
+  display: grid;
+  grid-template-columns: 1fr 2fr 1fr;
+  gap: 2rem;
+  margin-bottom: 2rem;
+}
+
+/* 左侧车端区域 */
+.left-column {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.vehicle-section .section-title {
+  color: var(--text-color);
+  font-size: 1.5rem;
+  font-weight: 600;
+  margin-bottom: 1.5rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+/* 中间地图区域 */
+.center-column {
+  display: flex;
+  flex-direction: column;
+}
+
+.map-section .section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+
+.map-section .section-header h2 {
+  color: var(--text-color);
+  font-size: 1.3rem;
+  font-weight: 600;
+  margin: 0;
+}
+
+.map-controls {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.control-btn {
+  background: var(--card-bg);
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+  padding: 0.5rem;
+  cursor: pointer;
+  color: var(--text-color);
+  transition: all 0.3s ease;
+  font-size: 0.9rem;
+}
+
+.control-btn:hover {
+  background: var(--hover-bg);
+  border-color: var(--primary-color);
+}
+
+.map-container {
+  background: var(--card-bg);
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  height: 500px;
+  position: relative;
+  overflow: hidden;
+}
+
+.map-placeholder {
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+}
+
+[data-theme="dark"] .map-placeholder {
+  background: linear-gradient(135deg, #1e293b 0%, #334155 100%);
+}
+
+.city-boundary {
+  width: 90%;
+  height: 90%;
+  border: 2px dashed var(--primary-color);
+  border-radius: 20px;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.city-boundary h3 {
+  position: absolute;
+  top: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  color: var(--text-color);
+  font-size: 1.1rem;
+  font-weight: 600;
+  margin: 0;
+}
+
+.map-nodes {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+}
+
+.map-node {
+  position: absolute;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  transform: translate(-50%, -50%);
+  border: 2px solid var(--card-bg);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.map-node.vehicle {
+  background: linear-gradient(135deg, #409EFF, #66b1ff);
+}
+
+.map-node.cloud {
+  background: linear-gradient(135deg, #67C23A, #85ce61);
+}
+
+.map-node:hover {
+  transform: translate(-50%, -50%) scale(1.2);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
+}
+
+.node-icon {
+  font-size: 1.2rem;
+  color: white;
+}
+
+.node-tooltip {
+  position: absolute;
+  background: var(--card-bg);
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  padding: 1rem;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  z-index: 1000;
+  min-width: 200px;
+}
+
+.node-tooltip h4 {
+  margin: 0 0 0.5rem 0;
+  color: var(--text-color);
+  font-size: 1rem;
+}
+
+.node-tooltip p {
+  margin: 0.25rem 0;
+  color: var(--text-color-secondary);
+  font-size: 0.9rem;
+}
+
+/* 右侧云端区域 */
+.right-column {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.cloud-section .section-title {
+  color: var(--text-color);
+  font-size: 1.5rem;
+  font-weight: 600;
+  margin-bottom: 1.5rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
 }
 
 /* 统计卡片 */
@@ -1401,6 +1485,11 @@ onMounted(() => {
 
 /* 响应式设计 */
 @media (max-width: 1400px) {
+  .three-column-layout {
+    grid-template-columns: 1fr 1.5fr 1fr;
+    gap: 1.5rem;
+  }
+  
   .content-grid {
     grid-template-columns: 1fr;
     gap: 1.5rem;
@@ -1416,17 +1505,18 @@ onMounted(() => {
   }
 }
 
+@media (max-width: 1200px) {
+  .three-column-layout {
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+  }
+  
+  .map-container {
+    height: 400px;
+  }
+}
+
 @media (max-width: 768px) {
-  .dashboard-body {
-    flex-direction: column;
-  }
-  
-  .sidebar {
-    width: 100%;
-    border-right: none;
-    border-bottom: 1px solid var(--border-color);
-  }
-  
   .main-content {
     padding: 1rem;
   }
@@ -1447,7 +1537,6 @@ onMounted(() => {
   --text-secondary: #64748b;
   --header-bg: #ffffff;
   --nav-bg: #f1f5f9;
-  --sidebar-bg: #ffffff;
   --card-bg: #ffffff;
   --border-color: #e2e8f0;
   --hover-bg: #f1f5f9;
@@ -1469,7 +1558,6 @@ onMounted(() => {
   --text-secondary: #94a3b8;
   --header-bg: #1e293b;
   --nav-bg: #334155;
-  --sidebar-bg: #1e293b;
   --card-bg: #1e293b;
   --border-color: #334155;
   --hover-bg: #334155;
