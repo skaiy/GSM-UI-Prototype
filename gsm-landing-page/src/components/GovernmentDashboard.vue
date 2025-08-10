@@ -6,6 +6,25 @@
         <div class="header-left">
           <img src="/logo.svg" alt="平台Logo" class="header-logo" />
           <h1 class="header-title">地理信息安全监测平台</h1>
+          
+          <!-- 一级菜单移到header内 -->
+          <nav class="main-nav">
+            <button 
+              v-for="item in mainMenus" 
+              :key="item.key"
+              :class="['nav-item', { active: activeMainMenu === item.key }]"
+              @click="setActiveMainMenu(item.key)"
+            >
+              <svg class="nav-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path v-if="item.key === 'overview'" d="M3 13h8V3H3v10zm0 8h8v-6H3v6zm10 0h8V11h-8v10zm0-18v6h8V3h-8z" fill="currentColor"/>
+                <path v-else-if="item.key === 'vehicle'" d="M18.92 6.01C18.72 5.42 18.16 5 17.5 5h-11c-.66 0-1.22.42-1.42 1.01L3 12v8c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-1h12v1c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-8l-2.08-5.99zM6.5 16c-.83 0-1.5-.67-1.5-1.5S5.67 13 6.5 13s1.5.67 1.5 1.5S7.33 16 6.5 16zm11 0c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5zM5 11l1.5-4.5h11L19 11H5z" fill="currentColor"/>
+                <path v-else-if="item.key === 'cloud'" d="M19.35 10.04C18.67 6.59 15.64 4 12 4 9.11 4 6.6 5.64 5.35 8.04 2.34 8.36 0 10.91 0 14c0 3.31 2.69 6 6 6h13c2.76 0 5-2.24 5-5 0-2.64-2.05-4.78-4.65-4.96z" fill="currentColor"/>
+                <path v-else-if="item.key === 'enterprise'" d="M12 7V3H2v18h20V7H12zM6 19H4v-2h2v2zm0-4H4v-2h2v2zm0-4H4V9h2v2zm0-4H4V5h2v2zm4 12H8v-2h2v2zm0-4H8v-2h2v2zm0-4H8V9h2v2zm0-4H8V5h2v2zm10 12h-8v-2h2v-2h-2v-2h2v-2h-2V9h8v10zm-2-8h-2v2h2v-2zm0 4h-2v2h2v-2z" fill="currentColor"/>
+                <path v-else d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" fill="currentColor"/>
+              </svg>
+              {{ item.label }}
+            </button>
+          </nav>
         </div>
         <div class="header-right">
           <button
@@ -34,18 +53,6 @@
           </div>
         </div>
       </div>
-      
-      <!-- 一级菜单 -->
-      <nav class="main-nav">
-        <button 
-          v-for="item in mainMenus" 
-          :key="item.key"
-          :class="['nav-item', { active: activeMainMenu === item.key }]"
-          @click="setActiveMainMenu(item.key)"
-        >
-          {{ item.label }}
-        </button>
-      </nav>
     </header>
 
     <div class="dashboard-body">
@@ -53,43 +60,62 @@
       <main class="main-content">
         <!-- 综合概览页面 -->
         <div v-if="activeMainMenu === 'overview'" class="overview-content">
-          <!-- 顶部统计卡片 -->
-          <div class="stats-cards">
-            <div class="stat-card">
-              <div class="stat-icon vehicle">🚗</div>
-              <div class="stat-info">
-                <h3>车辆总数</h3>
-                <p class="stat-number">{{ stats.totalVehicles.toLocaleString() }}</p>
+          <!-- 上栏：顶部统计卡片 -->
+          <div class="top-section">
+            <div class="stats-cards">
+              <div class="stat-card">
+                <div class="stat-icon vehicle">
+                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M18.92 6.01C18.72 5.42 18.16 5 17.5 5h-11c-.66 0-1.22.42-1.42 1.01L3 12v8c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-1h12v1c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-8l-2.08-5.99zM6.5 16c-.83 0-1.5-.67-1.5-1.5S5.67 13 6.5 13s1.5.67 1.5 1.5S7.33 16 6.5 16zm11 0c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5zM5 11l1.5-4.5h11L19 11H5z" fill="currentColor"/>
+                  </svg>
+                </div>
+                <div class="stat-info">
+                  <h3>车辆总数</h3>
+                  <p class="stat-number">{{ stats.totalVehicles.toLocaleString() }}</p>
+                </div>
               </div>
-            </div>
-            <div class="stat-card">
-              <div class="stat-icon online">🟢</div>
-              <div class="stat-info">
-                <h3>在线车辆总数</h3>
-                <p class="stat-number">{{ stats.onlineVehicles.toLocaleString() }}</p>
+              <div class="stat-card">
+                <div class="stat-icon online">
+                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <circle cx="12" cy="12" r="10" fill="#10B981"/>
+                    <path d="m9 12 2 2 4-4" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                  </svg>
+                </div>
+                <div class="stat-info">
+                  <h3>在线车辆总数</h3>
+                  <p class="stat-number">{{ stats.onlineVehicles.toLocaleString() }}</p>
+                </div>
               </div>
-            </div>
-            <div class="stat-card">
-              <div class="stat-icon risk-vehicle">⚠️</div>
-              <div class="stat-info">
-                <h3>累计车端风险总数</h3>
-                <p class="stat-number">{{ stats.vehicleRisks.toLocaleString() }}</p>
+              <div class="stat-card">
+                <div class="stat-icon risk-vehicle">
+                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z" stroke="#F59E0B" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="#F59E0B"/>
+                  </svg>
+                </div>
+                <div class="stat-info">
+                  <h3>累计车端风险总数</h3>
+                  <p class="stat-number">{{ stats.vehicleRisks.toLocaleString() }}</p>
+                </div>
               </div>
-            </div>
-            <div class="stat-card">
-              <div class="stat-icon risk-cloud">☁️</div>
-              <div class="stat-info">
-                <h3>累计云端风险总数</h3>
-                <p class="stat-number">{{ stats.cloudRisks.toLocaleString() }}</p>
+              <div class="stat-card">
+                <div class="stat-icon risk-cloud">
+                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M19.35 10.04C18.67 6.59 15.64 4 12 4 9.11 4 6.6 5.64 5.35 8.04 2.34 8.36 0 10.91 0 14c0 3.31 2.69 6 6 6h13c2.76 0 5-2.24 5-5 0-2.64-2.05-4.78-4.65-4.96z" fill="currentColor"/>
+                  </svg>
+                </div>
+                <div class="stat-info">
+                  <h3>累计云端风险总数</h3>
+                  <p class="stat-number">{{ stats.cloudRisks.toLocaleString() }}</p>
+                </div>
               </div>
             </div>
           </div>
 
-          <!-- 新的三栏布局：左侧车端 - 中间地图 - 右侧云端 -->
-          <div class="three-column-layout">
+          <!-- 下栏：左中右三栏布局 -->
+          <div class="bottom-section">
+            <div class="three-column-layout">
             <!-- 左侧车端区域 -->
             <div class="left-column vehicle-section">
-              <h2 class="section-title">🚗 车端监控</h2>
               
               <!-- 车辆信息统计 -->
               <div class="stats-panel">
@@ -188,46 +214,70 @@
             <!-- 中间地图区域 -->
             <div class="center-column map-section">
               <div class="section-header">
-                <h2>🗺️ 属地试点城市区域地图 - 天津市</h2>
                 <div class="map-controls">
-                  <button class="control-btn" @click="zoomIn">🔍+</button>
-                  <button class="control-btn" @click="zoomOut">🔍-</button>
-                  <button class="control-btn" @click="resetView">🎯</button>
+                  <button class="control-btn" @click="zoomIn">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                      <circle cx="11" cy="11" r="8" stroke="currentColor" stroke-width="2"/>
+                      <path d="m21 21-4.35-4.35M11 8v6M8 11h6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                  </button>
+                  <button class="control-btn" @click="zoomOut">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                      <circle cx="11" cy="11" r="8" stroke="currentColor" stroke-width="2"/>
+                      <path d="m21 21-4.35-4.35M8 11h6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                  </button>
+                  <button class="control-btn" @click="resetView">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                      <circle cx="12" cy="12" r="3" stroke="currentColor" stroke-width="2"/>
+                      <path d="M12 1v6M12 17v6M4.22 4.22l4.24 4.24M15.54 15.54l4.24 4.24M1 12h6M17 12h6M4.22 19.78l4.24-4.24M15.54 8.46l4.24-4.24" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                  </button>
                 </div>
               </div>
               <div class="map-container" ref="mapContainer">
-                <div class="map-placeholder">
-                  <div class="city-boundary">
-                    <h3>天津市地理围栏</h3>
-                    <!-- 模拟地图节点 -->
-                    <div class="map-nodes">
-                      <div 
-                        v-for="node in mapNodes" 
-                        :key="node.id"
-                        :class="['map-node', node.type]"
-                        :style="{ left: node.x + '%', top: node.y + '%' }"
-                        @mouseenter="showNodeInfo(node)"
-                        @mouseleave="hideNodeInfo"
-                        @click="selectNode(node)"
-                      >
-                        <span class="node-icon">{{ node.type === 'vehicle' ? '🚗' : '☁️' }}</span>
+                <LMap
+                  ref="mapRef"
+                  :zoom="mapZoom"
+                  :center="mapCenter"
+                  style="height: 100%; width: 100%;"
+                  :options="{ zoomControl: false }"
+                >
+                  <LTileLayer
+                    url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+                    attribution="&copy; <a href='https://www.openstreetmap.org/copyright'>OpenStreetMap</a> contributors"
+                  />
+                  
+                  <LMarker
+                    v-for="node in mapNodes"
+                    :key="node.id"
+                    :lat-lng="[node.lat, node.lng]"
+                    :icon="createCustomIcon(node.type, node.riskLevel)"
+                    @click="selectNode(node)"
+                  >
+                    <LPopup>
+                      <div class="node-popup">
+                        <h4>{{ node.name }}</h4>
+                        <p><strong>类型:</strong> {{ node.type === 'vehicle' ? '车端节点' : '云端节点' }}</p>
+                        <p><strong>状态:</strong> 
+                          <span :class="['status', node.status === '在线' ? 'online' : 'offline']">
+                            {{ node.status }}
+                          </span>
+                        </p>
+                        <p><strong>风险等级:</strong> 
+                          <span :class="['risk-level', node.riskLevel]">
+                            {{ node.riskLevel }}
+                          </span>
+                        </p>
                       </div>
-                    </div>
-                  </div>
-                </div>
-                <!-- 节点信息提示 -->
-                <div v-if="hoveredNode" class="node-tooltip" :style="tooltipStyle">
-                  <h4>{{ hoveredNode.name }}</h4>
-                  <p>类型: {{ hoveredNode.type === 'vehicle' ? '车端节点' : '云端节点' }}</p>
-                  <p>状态: {{ hoveredNode.status }}</p>
-                  <p>风险等级: {{ hoveredNode.riskLevel }}</p>
-                </div>
+                    </LPopup>
+                  </LMarker>
+                </LMap>
               </div>
             </div>
 
             <!-- 右侧云端区域 -->
             <div class="right-column cloud-section">
-              <h2 class="section-title">☁️ 云端监控</h2>
               
               <!-- 企业信息统计 -->
               <div class="stats-panel">
@@ -326,19 +376,24 @@
 
           <!-- 处理活动信息 -->
           <div class="activity-section">
-            <h2>📊 处理活动信息</h2>
             <div class="activity-tabs">
               <button 
                 :class="['tab-btn', { active: activeActivityTab === 'vehicle' }]"
                 @click="activeActivityTab = 'vehicle'"
               >
-                🚗 车端操作日志
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M18.92 6.01C18.72 5.42 18.16 5 17.5 5h-11c-.66 0-1.22.42-1.42 1.01L3 12v8c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-1h12v1c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-8l-2.08-5.99zM6.5 16c-.83 0-1.5-.67-1.5-1.5S5.67 13 6.5 13s1.5.67 1.5 1.5S7.33 16 6.5 16zm11 0c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5zM5 11l1.5-4.5h11L19 11H5z" fill="currentColor"/>
+                </svg>
+                车端操作日志
               </button>
               <button 
                 :class="['tab-btn', { active: activeActivityTab === 'cloud' }]"
                 @click="activeActivityTab = 'cloud'"
               >
-                ☁️ 云端操作日志
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M19.35 10.04C18.67 6.59 15.64 4 12 4 9.11 4 6.6 5.64 5.35 8.04 2.34 8.36 0 10.91 0 14c0 3.31 2.69 6 6 6h13c2.76 0 5-2.24 5-5 0-2.64-2.05-4.78-4.65-4.96z" fill="currentColor"/>
+                </svg>
+                云端操作日志
               </button>
             </div>
             <div class="activity-content">
@@ -390,7 +445,10 @@
               </div>
             </div>
           </div>
+          </div>
+          <!-- 结束 bottom-section -->
         </div>
+        <!-- 结束 overview-content -->
 
         <!-- 其他菜单内容占位 -->
         <div v-else class="placeholder-content">
@@ -405,6 +463,17 @@
 <script setup lang="ts">
 import { ref, reactive, computed, onMounted, onUnmounted } from 'vue'
 import { useRouter } from 'vue-router'
+import { LMap, LTileLayer, LMarker, LPopup } from '@vue-leaflet/vue-leaflet'
+import 'leaflet/dist/leaflet.css'
+import L from 'leaflet'
+
+// 修复Leaflet默认图标问题
+delete (L.Icon.Default.prototype as any)._getIconUrl
+L.Icon.Default.mergeOptions({
+  iconRetinaUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon-2x.png',
+  iconUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon.png',
+  shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-shadow.png',
+})
 
 const router = useRouter()
 
@@ -437,14 +506,21 @@ const stats = reactive({
   cloudRisks: 856
 })
 
-// 地图节点数据
+// 地图配置
+const mapCenter = ref([39.0851, 117.1993]) // 天津市中心坐标
+const mapZoom = ref(11)
+
+// 地图节点数据 - 使用真实坐标
 const mapNodes = ref([
-  { id: 1, name: '滨海新区车端节点', type: 'vehicle', x: 75, y: 45, status: '在线', riskLevel: '低' },
-  { id: 2, name: '和平区车端节点', type: 'vehicle', x: 45, y: 35, status: '在线', riskLevel: '中' },
-  { id: 3, name: '河西区云端节点', type: 'cloud', x: 40, y: 50, status: '在线', riskLevel: '低' },
-  { id: 4, name: '南开区车端节点', type: 'vehicle', x: 35, y: 40, status: '离线', riskLevel: '高' },
-  { id: 5, name: '河东区云端节点', type: 'cloud', x: 55, y: 45, status: '在线', riskLevel: '中' }
+  { id: 1, name: '滨海新区车端节点', type: 'vehicle', lat: 39.0458, lng: 117.7278, status: '在线', riskLevel: '低' },
+  { id: 2, name: '和平区车端节点', type: 'vehicle', lat: 39.1189, lng: 117.2075, status: '在线', riskLevel: '中' },
+  { id: 3, name: '河西区云端节点', type: 'cloud', lat: 39.0851, lng: 117.2075, status: '在线', riskLevel: '低' },
+  { id: 4, name: '南开区车端节点', type: 'vehicle', lat: 39.1042, lng: 117.1767, status: '离线', riskLevel: '高' },
+  { id: 5, name: '河东区云端节点', type: 'cloud', lat: 39.1278, lng: 117.2264, status: '在线', riskLevel: '中' }
 ])
+
+// 地图实例引用
+const mapRef = ref(null)
 
 // 节点悬停信息
 const hoveredNode = ref(null)
@@ -545,15 +621,51 @@ const selectNode = (node: any) => {
 }
 
 const zoomIn = () => {
-  console.log('放大地图')
+  if (mapRef.value?.leafletObject) {
+    mapRef.value.leafletObject.zoomIn()
+  }
 }
 
 const zoomOut = () => {
-  console.log('缩小地图')
+  if (mapRef.value?.leafletObject) {
+    mapRef.value.leafletObject.zoomOut()
+  }
 }
 
 const resetView = () => {
-  console.log('重置视图')
+  if (mapRef.value?.leafletObject) {
+    mapRef.value.leafletObject.setView(mapCenter.value, mapZoom.value)
+  }
+}
+
+// 创建自定义图标
+const createCustomIcon = (type: string, riskLevel: string) => {
+  const color = type === 'vehicle' ? '#00ff88' : '#00d4ff'
+  const size = riskLevel === '高' ? 30 : riskLevel === '中' ? 25 : 20
+  
+  return L.divIcon({
+    html: `
+      <div style="
+        width: ${size}px;
+        height: ${size}px;
+        background: ${color};
+        border: 2px solid white;
+        border-radius: 50%;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-size: 12px;
+        font-weight: bold;
+      ">
+        ${type === 'vehicle' ? '🚗' : '☁️'}
+      </div>
+    `,
+    className: 'custom-marker',
+    iconSize: [size, size],
+    iconAnchor: [size/2, size/2]
+  })
 }
 
 const logout = () => {
@@ -585,7 +697,7 @@ onMounted(() => {
 /* 添加背景科技感效果 */
 .government-dashboard::before {
   content: '';
-  position: fixed;
+  position: absolute;
   top: 0;
   left: 0;
   right: 0;
@@ -766,23 +878,42 @@ onMounted(() => {
   display: flex;
   background: var(--nav-bg);
   border-top: 1px solid var(--border-color);
-  padding: 0 2rem;
-  gap: 1rem;
+  padding: 1rem 2rem;
+  gap: 1.5rem;
   align-items: center;
+  backdrop-filter: blur(20px);
+  position: relative;
+}
+
+.main-nav::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: var(--gradient-secondary);
+  opacity: 0.1;
+  z-index: -1;
 }
 
 .nav-item {
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid transparent;
-  padding: 0.8rem 1.5rem;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid var(--border-color);
+  padding: 1rem 2rem;
   cursor: pointer;
   color: var(--text-color-secondary);
-  border-radius: 12px;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  border-radius: 16px;
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
   position: relative;
   overflow: hidden;
-  backdrop-filter: blur(10px);
-  font-weight: 500;
+  backdrop-filter: blur(15px);
+  font-weight: 600;
+  font-size: 0.95rem;
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
 }
 
 .nav-item::before {
@@ -792,41 +923,55 @@ onMounted(() => {
   left: -100%;
   width: 100%;
   height: 100%;
-  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
-  transition: left 0.5s ease;
+  background: linear-gradient(90deg, transparent, rgba(0, 212, 255, 0.15), transparent);
+  transition: left 0.6s ease;
+}
+
+.nav-item::after {
+  content: '';
+  position: absolute;
+  top: -2px;
+  left: -2px;
+  right: -2px;
+  bottom: -2px;
+  border-radius: 18px;
+  background: var(--gradient-primary);
+  opacity: 0;
+  transition: opacity 0.4s ease;
+  z-index: -1;
 }
 
 .nav-item:hover {
   background: var(--hover-bg);
   border-color: var(--primary-color);
   color: var(--primary-color);
-  transform: translateY(-2px);
-  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+  transform: translateY(-3px) scale(1.02);
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.2);
 }
 
 .nav-item:hover::before {
   left: 100%;
 }
 
+.nav-item:hover::after {
+  opacity: 0.3;
+}
+
 .nav-item.active {
   background: var(--gradient-primary);
   border-color: var(--primary-color);
   color: white;
-  font-weight: 600;
-  box-shadow: 0 0 20px var(--glow-color);
+  font-weight: 700;
+  box-shadow: 0 0 30px var(--glow-color);
+  transform: translateY(-2px);
+}
+
+.nav-item.active::before {
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
 }
 
 .nav-item.active::after {
-  content: '';
-  position: absolute;
-  bottom: -1px;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 30px;
-  height: 3px;
-  background: var(--accent-color);
-  border-radius: 2px;
-  box-shadow: 0 0 10px var(--accent-color);
+  opacity: 0.6;
 }
 
 /* 主体布局 */
@@ -844,15 +989,46 @@ onMounted(() => {
   overflow-y: auto;
 }
 
+/* 概览内容区 */
+.overview-content {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  max-width: 100%;
+  box-sizing: border-box;
+}
+
+/* 上栏布局 - 统计卡片区域 */
+.top-section {
+  position: relative;
+  width: 100%;
+  box-sizing: border-box;
+  margin-bottom: 1rem;
+}
+
+/* 下栏布局 - 三栏区域 + 活动日志 */
+.bottom-section {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  flex: 1;
+  position: relative;
+  width: 100%;
+  box-sizing: border-box;
+}
+
 /* 三列布局 */
 .three-column-layout {
   display: grid;
-  grid-template-columns: 1fr 2fr 1fr;
-  gap: 2rem;
-  height: calc(100vh - 200px);
-  padding: 2rem;
-  margin-bottom: 2rem;
+  grid-template-columns: 340px 0.8fr 340px;
+  grid-template-rows: auto auto;
+  gap: 1.5rem;
+  min-height: calc(100vh - 400px);
+  padding: 1.5rem;
   position: relative;
+  align-items: start;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 .three-column-layout::before {
@@ -871,8 +1047,13 @@ onMounted(() => {
 .left-column {
   display: flex;
   flex-direction: column;
-  gap: 2rem;
+  gap: 1.2rem;
   position: relative;
+  max-width: 340px;
+  width: 100%;
+  box-sizing: border-box;
+  grid-column: 1;
+  grid-row: 1 / 3; /* 跨两行 */
 }
 
 .vehicle-section .section-title {
@@ -891,6 +1072,8 @@ onMounted(() => {
   flex-direction: column;
   position: relative;
   z-index: 1;
+  grid-column: 2;
+  grid-row: 1;
 }
 
 .map-section .section-header {
@@ -1111,8 +1294,13 @@ onMounted(() => {
 .right-column {
   display: flex;
   flex-direction: column;
-  gap: 2rem;
+  gap: 1.2rem;
   position: relative;
+  max-width: 340px;
+  width: 100%;
+  box-sizing: border-box;
+  grid-column: 3;
+  grid-row: 1;
 }
 
 .cloud-section .section-title {
@@ -1128,24 +1316,29 @@ onMounted(() => {
 /* 统计卡片 */
 .stats-cards {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-  gap: 2rem;
-  margin-bottom: 3rem;
-  padding: 0 1rem;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+  padding: 0;
+  width: 100%;
 }
 
 .stat-card {
   background: var(--card-bg);
   border: 1px solid var(--border-color);
-  border-radius: 16px;
-  padding: 2rem;
+  border-radius: 12px;
+  padding: 1.2rem;
   display: flex;
   align-items: center;
-  gap: 1.5rem;
+  gap: 0.8rem;
   transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
   position: relative;
   overflow: hidden;
-  backdrop-filter: blur(10px);
+  backdrop-filter: blur(15px);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+  min-height: 90px;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 .stat-card::before {
@@ -1156,83 +1349,144 @@ onMounted(() => {
   right: 0;
   bottom: 0;
   background: var(--gradient-secondary);
-  opacity: 0.5;
+  opacity: 0.3;
   z-index: -1;
 }
 
 .stat-card::after {
   content: '';
   position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  border: 1px solid transparent;
-  border-radius: 16px;
-  background: linear-gradient(135deg, var(--primary-color), transparent, var(--accent-color)) border-box;
-  -webkit-mask: linear-gradient(#fff 0 0) padding-box, linear-gradient(#fff 0 0);
-  -webkit-mask-composite: exclude;
-  mask: linear-gradient(#fff 0 0) padding-box, linear-gradient(#fff 0 0);
-  mask-composite: exclude;
+  top: -2px;
+  left: -2px;
+  right: -2px;
+  bottom: -2px;
+  border-radius: 22px;
+  background: var(--gradient-primary);
   opacity: 0;
   transition: opacity 0.4s ease;
+  z-index: -2;
 }
 
 .stat-card:hover {
-  transform: translateY(-4px);
+  transform: translateY(-8px) scale(1.02);
   box-shadow: 
-    0 20px 40px rgba(0, 0, 0, 0.2),
-    0 0 20px var(--glow-color);
+    0 25px 50px rgba(0, 0, 0, 0.25),
+    0 0 30px var(--glow-color);
+  border-color: var(--primary-color);
 }
 
 .stat-card:hover::after {
-  opacity: 1;
+  opacity: 0.6;
 }
 
 .stat-icon {
-  width: 70px;
-  height: 70px;
+  width: 60px;
+  height: 60px;
   border-radius: 16px;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 1.8rem;
+  font-size: 1.5rem;
   color: white;
   position: relative;
-  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+  flex-shrink: 0;
+  box-shadow: 0 12px 24px rgba(0, 0, 0, 0.2);
+  transition: all 0.3s ease;
 }
 
 .stat-icon::before {
   content: '';
   position: absolute;
-  inset: -2px;
-  border-radius: 18px;
+  inset: -3px;
+  border-radius: 23px;
   background: var(--gradient-primary);
   z-index: -1;
+  opacity: 0.8;
 }
 
-.stat-icon.vehicle { background: linear-gradient(135deg, var(--primary-color), var(--primary-dark)); }
-.stat-icon.online { background: linear-gradient(135deg, var(--success-color), #00cc66); }
-.stat-icon.risk-vehicle { background: linear-gradient(135deg, var(--warning-color), #cc7700); }
-.stat-icon.risk-cloud { background: linear-gradient(135deg, var(--danger-color), #cc2222); }
+.stat-icon::after {
+  content: '';
+  position: absolute;
+  inset: -6px;
+  border-radius: 26px;
+  background: var(--gradient-primary);
+  z-index: -2;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.stat-card:hover .stat-icon {
+  transform: scale(1.1) rotate(5deg);
+  box-shadow: 0 16px 32px rgba(0, 0, 0, 0.3);
+}
+
+.stat-card:hover .stat-icon::after {
+  opacity: 0.3;
+}
+
+.stat-icon.vehicle { 
+  background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
+  box-shadow: 0 12px 24px rgba(0, 212, 255, 0.4);
+}
+.stat-icon.online { 
+  background: linear-gradient(135deg, var(--success-color), #00cc66);
+  box-shadow: 0 12px 24px rgba(0, 255, 136, 0.4);
+}
+.stat-icon.risk-vehicle { 
+  background: linear-gradient(135deg, var(--warning-color), #cc7700);
+  box-shadow: 0 12px 24px rgba(255, 170, 0, 0.4);
+}
+.stat-icon.risk-cloud { 
+  background: linear-gradient(135deg, var(--danger-color), #cc2222);
+  box-shadow: 0 12px 24px rgba(255, 68, 68, 0.4);
+}
+
+.stat-info {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
 
 .stat-info h3 {
-  margin: 0 0 0.8rem 0;
-  font-size: 1rem;
+  margin: 0;
+  font-size: 0.9rem;
   color: var(--text-color-secondary);
-  font-weight: 500;
+  font-weight: 600;
   letter-spacing: 0.5px;
+  text-transform: uppercase;
+  opacity: 0.9;
+  transition: color 0.3s ease;
+  line-height: 1.2;
+}
+
+.stat-card:hover .stat-info h3 {
+  color: var(--primary-color);
 }
 
 .stat-number {
   margin: 0;
   font-size: 2.2rem;
-  font-weight: 700;
+  font-weight: 800;
   color: var(--text-color);
   background: var(--gradient-primary);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
+  line-height: 1;
+  transition: all 0.3s ease;
+}
+
+.stat-card:hover .stat-number {
+  transform: scale(1.05);
+  filter: drop-shadow(0 2px 4px rgba(0, 212, 255, 0.3));
+}
+
+.stat-trend {
+  font-size: 0.9rem;
+  color: var(--text-color-secondary);
+  font-weight: 500;
+  opacity: 0.8;
 }
 
 /* 内容网格 */
@@ -1244,7 +1498,7 @@ onMounted(() => {
 }
 
 /* 地图区域 */
-.map-section {
+.content-grid .map-section {
   grid-column: 1;
   background: var(--card-bg);
   border: 1px solid var(--border-color);
@@ -1379,17 +1633,18 @@ onMounted(() => {
 .left-stats, .right-stats {
   display: flex;
   flex-direction: column;
-  gap: 1.5rem;
+  gap: 2rem;
 }
 
 .stats-panel {
   background: var(--card-bg);
   border: 1px solid var(--border-color);
-  border-radius: 16px;
-  padding: 2rem;
+  border-radius: 20px;
+  padding: 2.5rem;
   position: relative;
-  backdrop-filter: blur(10px);
-  transition: all 0.3s ease;
+  backdrop-filter: blur(15px);
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
 }
 
 .stats-panel::before {
@@ -1400,14 +1655,33 @@ onMounted(() => {
   right: 0;
   bottom: 0;
   background: var(--gradient-secondary);
-  opacity: 0.3;
-  border-radius: 16px;
+  opacity: 0.2;
+  border-radius: 20px;
   z-index: -1;
+}
+
+.stats-panel::after {
+  content: '';
+  position: absolute;
+  top: -2px;
+  left: -2px;
+  right: -2px;
+  bottom: -2px;
+  border-radius: 22px;
+  background: var(--gradient-primary);
+  opacity: 0;
+  transition: opacity 0.4s ease;
+  z-index: -2;
 }
 
 .stats-panel:hover {
   border-color: var(--primary-color);
-  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.2);
+  transform: translateY(-4px);
+}
+
+.stats-panel:hover::after {
+  opacity: 0.4;
 }
 
 .stats-panel h3 {
@@ -1446,14 +1720,16 @@ onMounted(() => {
 .chart-btn {
   background: var(--surface-color);
   border: 1px solid var(--border-color);
-  border-radius: 8px;
-  padding: 0.6rem 1.2rem;
+  border-radius: 12px;
+  padding: 0.8rem 1.5rem;
   cursor: pointer;
-  font-size: 0.8rem;
+  font-size: 0.9rem;
+  font-weight: 600;
   color: var(--text-color);
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   position: relative;
   overflow: hidden;
+  backdrop-filter: blur(10px);
 }
 
 .chart-btn::before {
@@ -1463,15 +1739,15 @@ onMounted(() => {
   left: -100%;
   width: 100%;
   height: 100%;
-  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+  background: linear-gradient(90deg, transparent, rgba(0, 212, 255, 0.2), transparent);
   transition: left 0.5s ease;
 }
 
 .chart-btn:hover {
   background: var(--hover-bg);
   border-color: var(--primary-color);
-  transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  transform: translateY(-2px) scale(1.05);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
 }
 
 .chart-btn:hover::before {
@@ -1482,7 +1758,12 @@ onMounted(() => {
   background: var(--gradient-primary);
   color: white;
   border-color: var(--primary-color);
-  box-shadow: 0 0 20px var(--glow-color);
+  box-shadow: 0 0 25px var(--glow-color);
+  transform: translateY(-1px);
+}
+
+.chart-btn.active::before {
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
 }
 
 /* 图表容器 */
@@ -1646,10 +1927,37 @@ onMounted(() => {
   border-bottom: 1px solid var(--border-color);
   font-size: 0.9rem;
   align-items: center;
+  color: var(--text-color);
 }
 
 .risk-item:last-child {
   border-bottom: none;
+}
+
+.risk-item span {
+  color: var(--text-color);
+}
+
+.risk-id {
+  color: var(--text-color-secondary);
+  font-weight: 500;
+}
+
+.risk-vin,
+.risk-company {
+  color: var(--text-color);
+  font-weight: 500;
+}
+
+.risk-stage,
+.risk-operation,
+.risk-event {
+  color: var(--text-color-secondary);
+}
+
+.risk-time {
+  color: var(--text-color-secondary);
+  font-size: 0.85rem;
 }
 
 .risk-level {
@@ -1775,9 +2083,13 @@ onMounted(() => {
 /* 响应式设计 */
 @media (max-width: 1400px) {
   .three-column-layout {
-    grid-template-columns: 1fr 1.5fr 1fr;
+    grid-template-columns: 320px 0.8fr 320px;
     gap: 1.5rem;
     padding: 1.5rem;
+  }
+  
+  .left-column, .right-column {
+    max-width: 320px;
   }
   
   .content-grid {
@@ -1793,6 +2105,11 @@ onMounted(() => {
   .stats-panel {
     flex: 1;
   }
+  
+  /* 1400 以下依然保持四卡单行，利用最小宽度挤压换行 */
+  .stats-cards {
+    grid-template-columns: repeat(4, minmax(200px, 1fr));
+  }
 }
 
 @media (max-width: 1200px) {
@@ -1800,6 +2117,10 @@ onMounted(() => {
     grid-template-columns: 1fr;
     gap: 1.5rem;
     height: auto;
+  }
+  
+  .stats-cards {
+    grid-template-columns: 1fr;
   }
   
   .stats-grid {
@@ -1893,26 +2214,29 @@ onMounted(() => {
   }
 }
 
-/* CSS变量定义 - 基于Figma蓝色科技风格 */
+/* CSS变量定义 - 参考着陆页和登录页的暗色主题风格 */
 :root {
   --primary-color: #00d4ff;
   --primary-dark: #0099cc;
+  --primary-hover: #00b8e6;
   --secondary-color: #4a90e2;
   --accent-color: #00ffff;
   --success-color: #00ff88;
   --warning-color: #ffaa00;
   --danger-color: #ff4444;
-  --background-color: #0a0e1a;
-  --surface-color: #1a1f2e;
-  --card-bg: rgba(26, 31, 46, 0.8);
-  --text-color: #ffffff;
-  --text-color-secondary: #8892b0;
-  --border-color: rgba(0, 212, 255, 0.2);
-  --hover-bg: rgba(0, 212, 255, 0.1);
-  --nav-bg: rgba(10, 14, 26, 0.95);
-  --glow-color: rgba(0, 212, 255, 0.3);
+  --background-color: #0f172a;
+  --surface-color: #1e293b;
+  --card-bg: rgba(30, 41, 59, 0.95);
+  --text-color: #f8fafc;
+  --text-color-secondary: #cbd5e1;
+  --text-color-regular: #e2e8f0;
+  --border-color: rgba(51, 65, 85, 0.6);
+  --border-color-lighter: rgba(71, 85, 105, 0.4);
+  --hover-bg: rgba(51, 65, 85, 0.8);
+  --nav-bg: rgba(15, 23, 42, 0.95);
+  --glow-color: rgba(0, 212, 255, 0.4);
   --gradient-primary: linear-gradient(135deg, #00d4ff 0%, #4a90e2 100%);
-  --gradient-secondary: linear-gradient(135deg, #1a1f2e 0%, #2a3441 100%);
+  --gradient-secondary: linear-gradient(135deg, #1e293b 0%, #334155 100%);
   
   /* 兼容旧变量名 */
   --bg-color: var(--background-color);
@@ -1931,6 +2255,7 @@ onMounted(() => {
 [data-theme="light"] {
   --primary-color: #0066cc;
   --primary-dark: #004499;
+  --primary-hover: #0052a3;
   --secondary-color: #4a90e2;
   --accent-color: #00aaff;
   --success-color: #00aa66;
@@ -1941,7 +2266,9 @@ onMounted(() => {
   --card-bg: rgba(255, 255, 255, 0.9);
   --text-color: #1a1f2e;
   --text-color-secondary: #64748b;
+  --text-color-regular: #475569;
   --border-color: rgba(0, 102, 204, 0.2);
+  --border-color-lighter: rgba(0, 102, 204, 0.1);
   --hover-bg: rgba(0, 102, 204, 0.05);
   --nav-bg: rgba(255, 255, 255, 0.95);
   --glow-color: rgba(0, 102, 204, 0.2);
@@ -1958,5 +2285,387 @@ onMounted(() => {
   --map-bg: var(--surface-color);
   --tooltip-bg: var(--surface-color);
   --table-header-bg: var(--surface-color);
+}
+
+/* 地图弹窗样式 */
+.node-popup {
+  min-width: 200px;
+  padding: 0.5rem;
+}
+
+.node-popup h4 {
+  margin: 0 0 0.5rem 0;
+  color: var(--text-color);
+  font-size: 1rem;
+  font-weight: 600;
+}
+
+.node-popup p {
+  margin: 0.25rem 0;
+  font-size: 0.9rem;
+  color: var(--text-color-secondary);
+}
+
+.node-popup .status.online {
+  color: var(--success-color);
+  font-weight: 600;
+}
+
+.node-popup .status.offline {
+  color: var(--danger-color);
+  font-weight: 600;
+}
+
+.node-popup .risk-level {
+  font-weight: 600;
+}
+
+.node-popup .risk-level.低 {
+  color: var(--success-color);
+}
+
+.node-popup .risk-level.中 {
+  color: var(--warning-color);
+}
+
+.node-popup .risk-level.高 {
+  color: var(--danger-color);
+}
+
+/* 自定义标记样式 */
+.custom-marker {
+  background: transparent !important;
+  border: none !important;
+}
+
+/* Leaflet 弹窗样式覆盖 */
+.leaflet-popup-content-wrapper {
+  background: var(--card-bg) !important;
+  border: 1px solid var(--border-color) !important;
+  border-radius: 8px !important;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15) !important;
+}
+
+.leaflet-popup-tip {
+  background: var(--card-bg) !important;
+  border: 1px solid var(--border-color) !important;
+}
+
+.leaflet-popup-close-button {
+  color: var(--text-color) !important;
+  font-size: 18px !important;
+  font-weight: bold !important;
+}
+
+.leaflet-popup-close-button:hover {
+  color: var(--primary-color) !important;
+}
+
+/* 暗色主题下的额外样式改进 - 参考着陆页和登录页风格 */
+[data-theme="dark"] .section-title,
+[data-theme="dark"] .vehicle-section .section-title,
+[data-theme="dark"] .cloud-section .section-title {
+  color: #f8fafc !important;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+  font-weight: 600;
+}
+
+[data-theme="dark"] .stat-card {
+  background: rgba(15, 23, 42, 0.95) !important;
+  border: 1px solid rgba(71, 85, 105, 0.4) !important;
+  box-shadow: 
+    0 25px 50px rgba(0, 0, 0, 0.6),
+    0 0 0 1px rgba(148, 163, 184, 0.1),
+    inset 0 1px 0 rgba(255, 255, 255, 0.05);
+}
+
+[data-theme="dark"] .stat-card:hover {
+  border-color: #60a5fa !important;
+  box-shadow: 
+    0 25px 50px rgba(0, 0, 0, 0.7),
+    0 0 30px rgba(96, 165, 250, 0.3),
+    0 0 0 1px rgba(148, 163, 184, 0.2);
+  transform: translateY(-8px) scale(1.02);
+}
+
+[data-theme="dark"] .stat-info h3 {
+  color: #cbd5e1 !important;
+  font-weight: 600;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+}
+
+[data-theme="dark"] .stat-number {
+  color: #f8fafc !important;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+  background: linear-gradient(135deg, #3b82f6 0%, #60a5fa 100%) !important;
+  -webkit-background-clip: text !important;
+  -webkit-text-fill-color: transparent !important;
+  background-clip: text !important;
+}
+
+[data-theme="dark"] .stat-trend {
+  color: #94a3b8 !important;
+  font-weight: 500;
+}
+
+[data-theme="dark"] .city-boundary h3 {
+  color: #60a5fa !important;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+  font-weight: 600;
+}
+
+[data-theme="dark"] .section-header h2 {
+  color: #f8fafc !important;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+}
+
+[data-theme="dark"] .node-tooltip h4 {
+  color: #f8fafc !important;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+}
+
+[data-theme="dark"] .node-tooltip p {
+  color: #cbd5e1 !important;
+}
+
+[data-theme="dark"] .stats-panel {
+  background: rgba(15, 23, 42, 0.95) !important;
+  border: 1px solid rgba(71, 85, 105, 0.4) !important;
+  box-shadow: 
+    0 25px 50px rgba(0, 0, 0, 0.6),
+    0 0 0 1px rgba(148, 163, 184, 0.1),
+    inset 0 1px 0 rgba(255, 255, 255, 0.05);
+}
+
+/* 统计面板内通用文本颜色优化 */
+[data-theme="dark"] .stats-panel p,
+[data-theme="dark"] .stats-panel span,
+[data-theme="dark"] .stats-panel li,
+[data-theme="dark"] .stats-panel label,
+[data-theme="dark"] .stats-panel .stat-value,
+[data-theme="dark"] .stats-panel .stat-desc,
+[data-theme="dark"] .stats-panel .chart-value,
+[data-theme="dark"] .stats-panel .data-label {
+  color: #cbd5e1 !important;
+  font-weight: 500;
+}
+
+[data-theme="dark"] .stats-panel .muted,
+[data-theme="dark"] .stats-panel .subtle,
+[data-theme="dark"] .stats-panel .hint,
+[data-theme="dark"] .stats-panel .secondary-text {
+  color: #94a3b8 !important;
+}
+
+[data-theme="dark"] .map-placeholder {
+  background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%) !important;
+}
+
+[data-theme="dark"] .dashboard-header h1 {
+  color: #f8fafc !important;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+/* 头部导航文字优化 */
+[data-theme="dark"] .header-title {
+  color: #f8fafc !important;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+  background: linear-gradient(135deg, #3b82f6 0%, #60a5fa 100%) !important;
+  -webkit-background-clip: text !important;
+  -webkit-text-fill-color: transparent !important;
+  background-clip: text !important;
+}
+
+[data-theme="dark"] .user-name {
+  color: #f8fafc !important;
+  font-weight: 600;
+}
+
+[data-theme="dark"] .logout-btn {
+  color: #cbd5e1 !important;
+}
+
+[data-theme="dark"] .logout-btn:hover {
+  color: #f8fafc !important;
+}
+
+[data-theme="dark"] .nav-item {
+  color: #cbd5e1 !important;
+}
+
+[data-theme="dark"] .nav-item:hover,
+[data-theme="dark"] .nav-item.active {
+  color: #f8fafc !important;
+}
+
+/* 统计面板文字优化 */
+[data-theme="dark"] .stats-panel h3 {
+  /* 取消渐变文字，使用浅色纯文本 */
+  background: none !important;
+  -webkit-background-clip: initial !important;
+  background-clip: initial !important;
+  -webkit-text-fill-color: currentColor !important;
+  color: #f8fafc !important;
+  font-weight: 600;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+}
+
+[data-theme="dark"] .chart-legend .legend-item span {
+  color: #cbd5e1 !important;
+  font-weight: 500;
+}
+
+[data-theme="dark"] .time-filter {
+  color: #f8fafc !important;
+  background: rgba(15, 23, 42, 0.95) !important;
+  border: 1px solid rgba(71, 85, 105, 0.6) !important;
+}
+
+[data-theme="dark"] .chart-btn {
+  color: #cbd5e1 !important;
+  border: 1px solid rgba(71, 85, 105, 0.6) !important;
+  background: rgba(15, 23, 42, 0.8) !important;
+}
+
+[data-theme="dark"] .chart-btn.active,
+[data-theme="dark"] .chart-btn:hover {
+  color: #f8fafc !important;
+  border-color: #60a5fa !important;
+  background: rgba(59, 130, 246, 0.2) !important;
+}
+
+[data-theme="dark"] .filter-btn {
+  color: #cbd5e1 !important;
+  border: 1px solid rgba(71, 85, 105, 0.6) !important;
+  background: rgba(15, 23, 42, 0.8) !important;
+}
+
+[data-theme="dark"] .filter-btn.active,
+[data-theme="dark"] .filter-btn:hover {
+  color: #f8fafc !important;
+  border-color: #60a5fa !important;
+  background: rgba(59, 130, 246, 0.2) !important;
+}
+
+/* 风险列表文字优化 */
+[data-theme="dark"] .risk-item span {
+  color: #cbd5e1 !important;
+}
+
+[data-theme="dark"] .risk-id {
+  color: #f8fafc !important;
+  font-weight: 600;
+}
+
+[data-theme="dark"] .risk-vin,
+[data-theme="dark"] .risk-company {
+  color: #f8fafc !important;
+  font-weight: 500;
+}
+
+/* 地图控件文字优化 */
+[data-theme="dark"] .control-btn {
+  color: #cbd5e1 !important;
+  background: rgba(15, 23, 42, 0.95) !important;
+  border: 1px solid rgba(71, 85, 105, 0.6) !important;
+}
+
+[data-theme="dark"] .control-btn:hover {
+  color: #f8fafc !important;
+  border-color: #60a5fa !important;
+}
+
+/* 地图弹窗文字优化 */
+[data-theme="dark"] .node-popup h4 {
+  color: #f8fafc !important;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+}
+
+[data-theme="dark"] .node-popup p {
+  color: #cbd5e1 !important;
+}
+
+[data-theme="dark"] .node-popup strong {
+  color: #f8fafc !important;
+  font-weight: 600;
+}
+
+/* 活动日志标签页文字优化 */
+[data-theme="dark"] .tab-btn {
+  color: #cbd5e1 !important;
+  border: 1px solid rgba(71, 85, 105, 0.6) !important;
+  background: rgba(15, 23, 42, 0.8) !important;
+}
+
+[data-theme="dark"] .tab-btn.active,
+[data-theme="dark"] .tab-btn:hover {
+  color: #f8fafc !important;
+  border-color: #60a5fa !important;
+  background: rgba(59, 130, 246, 0.2) !important;
+}
+
+/* 表格文字优化 */
+[data-theme="dark"] .activity-table th {
+  color: #f8fafc !important;
+  background: rgba(15, 23, 42, 0.95) !important;
+  border: 1px solid rgba(71, 85, 105, 0.6) !important;
+  font-weight: 600;
+}
+
+[data-theme="dark"] .activity-table td {
+  color: #cbd5e1 !important;
+  border: 1px solid rgba(71, 85, 105, 0.6) !important;
+}
+
+/* 占位内容文字优化 */
+[data-theme="dark"] .placeholder-content h2 {
+  color: #f8fafc !important;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+[data-theme="dark"] .placeholder-content p {
+  color: #cbd5e1 !important;
+}
+
+/* 图表元素文字优化 */
+[data-theme="dark"] .bar-label {
+  color: #cbd5e1 !important;
+  font-weight: 500;
+}
+
+[data-theme="dark"] .pie-center {
+  color: #f8fafc !important;
+  font-weight: 600;
+}
+
+[data-theme="dark"] .line-placeholder {
+  color: #cbd5e1 !important;
+}
+
+/* 风险等级颜色优化 */
+[data-theme="dark"] .risk-level.high {
+  color: #f87171 !important;
+  font-weight: 600;
+}
+
+[data-theme="dark"] .risk-level.medium {
+  color: #fbbf24 !important;
+  font-weight: 600;
+}
+
+[data-theme="dark"] .risk-level.low {
+  color: #34d399 !important;
+  font-weight: 600;
+}
+
+/* 状态颜色优化 */
+[data-theme="dark"] .status.online {
+  color: #34d399 !important;
+  font-weight: 600;
+}
+
+[data-theme="dark"] .status.offline {
+  color: #f87171 !important;
+  font-weight: 600;
 }
 </style>
