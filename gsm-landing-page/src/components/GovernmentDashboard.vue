@@ -185,18 +185,18 @@
               <!-- 车端风险统计 -->
               <div class="stats-panel">
                 <h3>车端风险统计</h3>
-                <div class="chart-controls">
-                  <select v-model="vehicleTimeFilter" class="time-filter">
+                <div class="chart-controls compact">
+                  <select v-model="vehicleTimeFilter" class="time-filter compact">
                     <option value="day">日</option>
                     <option value="week">周</option>
                     <option value="month">月</option>
                     <option value="year">年</option>
                   </select>
-                  <div class="chart-type-buttons">
-                    <button 
-                      v-for="type in chartTypes" 
+                  <div class="chart-type-buttons compact">
+                    <button
+                      v-for="type in chartTypes"
                       :key="type.key"
-                      :class="['chart-btn', { active: vehicleChartType === type.key }]"
+                      :class="['chart-btn compact', { active: vehicleChartType === type.key }]"
                       @click="vehicleChartType = type.key"
                     >
                       {{ type.label }}
@@ -222,50 +222,12 @@
               </div>
 
               <!-- 车端风险事件 -->
-              <div class="stats-panel">
+              <div class="stats-panel compact">
                 <h3>车端风险事件</h3>
-
-                <!-- 过滤查询功能 -->
-                <div class="filter-section">
-                  <div class="filter-row">
-                    <select v-model="vehicleRiskFilters.level" class="filter-select">
-                      <option value="">全部风险等级</option>
-                      <option value="high">高风险</option>
-                      <option value="medium">中风险</option>
-                      <option value="low">低风险</option>
-                    </select>
-                    <select v-model="vehicleRiskFilters.stage" class="filter-select">
-                      <option value="">全部处理阶段</option>
-                      <option value="收集">收集</option>
-                      <option value="存储">存储</option>
-                      <option value="传输">传输</option>
-                    </select>
-                  </div>
-                  <div class="filter-row">
-                    <input
-                      v-model="vehicleRiskFilters.vin"
-                      type="text"
-                      placeholder="搜索VIN码..."
-                      class="filter-input"
-                    />
-                    <button class="filter-clear-btn" @click="clearVehicleFilters">清除</button>
-                  </div>
-                </div>
-
-                <div class="filter-buttons">
-                  <button
-                    v-for="filter in timeFilters"
-                    :key="filter"
-                    :class="['filter-btn', { active: vehicleRiskFilter === filter }]"
-                    @click="vehicleRiskFilter = filter"
-                  >
-                    {{ filter }}
-                  </button>
-                </div>
-                <div class="risk-list">
+                <div class="risk-list compact">
                   <div
                     class="risk-item"
-                    v-for="risk in filteredVehicleRisks"
+                    v-for="risk in vehicleRisks.slice(0, 5)"
                     :key="risk.id"
                     :class="[
                       'risk-item',
@@ -274,15 +236,10 @@
                     ]"
                     :title="`风险等级：${risk.levelText}，处理阶段：${risk.stage}，事件：${risk.event}`"
                   >
-                    <span class="risk-id">{{ risk.id }}</span>
+                    <span class="risk-level-indicator" :class="risk.level"></span>
                     <span class="risk-vin">{{ risk.vin }}</span>
-                    <span :class="['risk-level', risk.level]">{{ risk.levelText }}</span>
-                    <span class="risk-stage">{{ risk.stage }}</span>
                     <span class="risk-event">{{ risk.event }}</span>
-                    <span class="risk-time">{{ risk.time }}</span>
-                  </div>
-                  <div v-if="filteredVehicleRisks.length === 0" class="no-data">
-                    暂无符合条件的风险事件
+                    <span class="risk-time">{{ risk.time.split(' ')[1] }}</span>
                   </div>
                 </div>
               </div>
@@ -291,20 +248,30 @@
             <!-- 中间地图区域 -->
             <div class="center-column map-section">
               <div class="section-header">
+                <h3>地理信息监控</h3>
                 <div class="map-controls">
-                  <button class="control-btn" @click="zoomIn">
+                  <button class="control-btn" @click="toggleMapTheme" :title="currentMapTheme === 'dark' ? '切换到亮色主题' : '切换到暗色主题'">
+                    <svg v-if="currentMapTheme === 'dark'" width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                      <circle cx="12" cy="12" r="5" stroke="currentColor" stroke-width="2"/>
+                      <path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                    <svg v-else width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                      <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                  </button>
+                  <button class="control-btn" @click="zoomIn" title="放大">
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                       <circle cx="11" cy="11" r="8" stroke="currentColor" stroke-width="2"/>
                       <path d="m21 21-4.35-4.35M11 8v6M8 11h6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
                     </svg>
                   </button>
-                  <button class="control-btn" @click="zoomOut">
+                  <button class="control-btn" @click="zoomOut" title="缩小">
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                       <circle cx="11" cy="11" r="8" stroke="currentColor" stroke-width="2"/>
                       <path d="m21 21-4.35-4.35M8 11h6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
                     </svg>
                   </button>
-                  <button class="control-btn" @click="resetView">
+                  <button class="control-btn" @click="resetView" title="重置视图">
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                       <circle cx="12" cy="12" r="3" stroke="currentColor" stroke-width="2"/>
                       <path d="M12 1v6M12 17v6M4.22 4.22l4.24 4.24M15.54 15.54l4.24 4.24M1 12h6M17 12h6M4.22 19.78l4.24-4.24M15.54 8.46l4.24-4.24" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
@@ -320,11 +287,34 @@
                   style="height: 100%; width: 100%;"
                   :options="{ zoomControl: false }"
                 >
+                  <!-- 动态瓦片层 -->
                   <LTileLayer
-                    url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-                    attribution="&copy; <a href='https://www.openstreetmap.org/copyright'>OpenStreetMap</a> contributors"
+                    :key="currentMapTheme"
+                    :url="getCurrentTileLayerUrl()"
+                    :attribution="getCurrentTileLayerAttribution()"
+                    :maxZoom="19"
                   />
 
+                  <!-- 地理围栏 -->
+                  <LPolygon
+                    :lat-lngs="geoFenceData.coordinates"
+                    :color="geoFenceData.style.color"
+                    :weight="geoFenceData.style.weight"
+                    :opacity="geoFenceData.style.opacity"
+                    :fill-color="geoFenceData.style.fillColor"
+                    :fill-opacity="geoFenceData.style.fillOpacity"
+                  >
+                    <LPopup>
+                      <div class="fence-popup">
+                        <h4>{{ geoFenceData.name }}</h4>
+                        <p>监管区域范围</p>
+                        <p>节点总数: {{ mapNodes.length }}</p>
+                        <p>在线节点: {{ mapNodes.filter(n => n.status === '在线').length }}</p>
+                      </div>
+                    </LPopup>
+                  </LPolygon>
+
+                  <!-- 地图节点标记 -->
                   <LMarker
                     v-for="node in mapNodes"
                     :key="node.id"
@@ -346,6 +336,7 @@
                             {{ node.riskLevel }}
                           </span>
                         </p>
+                        <p><strong>坐标:</strong> {{ node.lat.toFixed(4) }}, {{ node.lng.toFixed(4) }}</p>
                       </div>
                     </LPopup>
                   </LMarker>
@@ -460,18 +451,18 @@
               <!-- 云端风险统计 -->
               <div class="stats-panel">
                 <h3>云端风险统计</h3>
-                <div class="chart-controls">
-                  <select v-model="cloudTimeFilter" class="time-filter">
+                <div class="chart-controls compact">
+                  <select v-model="cloudTimeFilter" class="time-filter compact">
                     <option value="day">日</option>
                     <option value="week">周</option>
                     <option value="month">月</option>
                     <option value="year">年</option>
                   </select>
-                  <div class="chart-type-buttons">
-                    <button 
-                      v-for="type in chartTypes" 
+                  <div class="chart-type-buttons compact">
+                    <button
+                      v-for="type in chartTypes"
                       :key="type.key"
-                      :class="['chart-btn', { active: cloudChartType === type.key }]"
+                      :class="['chart-btn compact', { active: cloudChartType === type.key }]"
                       @click="cloudChartType = type.key"
                     >
                       {{ type.label }}
@@ -497,54 +488,12 @@
               </div>
 
               <!-- 云端风险事件 -->
-              <div class="stats-panel">
+              <div class="stats-panel compact">
                 <h3>云端风险事件</h3>
-
-                <!-- 过滤查询功能 -->
-                <div class="filter-section">
-                  <div class="filter-row">
-                    <select v-model="cloudRiskFilters.level" class="filter-select">
-                      <option value="">全部风险等级</option>
-                      <option value="high">高风险</option>
-                      <option value="medium">中风险</option>
-                      <option value="low">低风险</option>
-                    </select>
-                    <select v-model="cloudRiskFilters.stage" class="filter-select">
-                      <option value="">全部操作类型</option>
-                      <option value="数据收集">数据收集</option>
-                      <option value="数据存储">数据存储</option>
-                      <option value="数据传输">数据传输</option>
-                      <option value="数据加工">数据加工</option>
-                      <option value="数据提供">数据提供</option>
-                      <option value="数据公开">数据公开</option>
-                      <option value="数据销毁">数据销毁</option>
-                    </select>
-                  </div>
-                  <div class="filter-row">
-                    <input
-                      v-model="cloudRiskFilters.company"
-                      type="text"
-                      placeholder="搜索企业名称..."
-                      class="filter-input"
-                    />
-                    <button class="filter-clear-btn" @click="clearCloudFilters">清除</button>
-                  </div>
-                </div>
-
-                <div class="filter-buttons">
-                  <button
-                    v-for="filter in timeFilters"
-                    :key="filter"
-                    :class="['filter-btn', { active: cloudRiskFilter === filter }]"
-                    @click="cloudRiskFilter = filter"
-                  >
-                    {{ filter }}
-                  </button>
-                </div>
-                <div class="risk-list">
+                <div class="risk-list compact">
                   <div
                     class="risk-item"
-                    v-for="risk in filteredCloudRisks"
+                    v-for="risk in cloudRisks.slice(0, 5)"
                     :key="risk.id"
                     :class="[
                       'risk-item',
@@ -553,15 +502,10 @@
                     ]"
                     :title="`风险等级：${risk.levelText}，操作类型：${risk.operation}，事件：${risk.event}`"
                   >
-                    <span class="risk-id">{{ risk.id }}</span>
+                    <span class="risk-level-indicator" :class="risk.level"></span>
                     <span class="risk-company">{{ risk.company }}</span>
-                    <span :class="['risk-level', risk.level]">{{ risk.levelText }}</span>
-                    <span class="risk-operation">{{ risk.operation }}</span>
                     <span class="risk-event">{{ risk.event }}</span>
-                    <span class="risk-time">{{ risk.time }}</span>
-                  </div>
-                  <div v-if="filteredCloudRisks.length === 0" class="no-data">
-                    暂无符合条件的风险事件
+                    <span class="risk-time">{{ risk.time.split(' ')[1] }}</span>
                   </div>
                 </div>
               </div>
@@ -583,9 +527,9 @@
 </template>
 
 <script setup lang="ts">
-import { ref, reactive, computed, onMounted, onUnmounted } from 'vue'
+import { ref, reactive, computed, onMounted, onUnmounted, watch } from 'vue'
 import { useRouter } from 'vue-router'
-import { LMap, LTileLayer, LMarker, LPopup } from '@vue-leaflet/vue-leaflet'
+import { LMap, LTileLayer, LMarker, LPopup, LPolygon } from '@vue-leaflet/vue-leaflet'
 import 'leaflet/dist/leaflet.css'
 import L from 'leaflet'
 
@@ -631,17 +575,68 @@ const stats = reactive({
 })
 
 // 地图配置
-const mapCenter = ref([39.0851, 117.1993]) // 天津市中心坐标
-const mapZoom = ref(11)
+const mapCenter = ref([39.114334, 117.220421]) // 天津和平区中心坐标
+const mapZoom = ref(13)
+const currentMapTheme = ref('dark') // 当前地图主题
 
-// 地图节点数据 - 使用真实坐标
-const mapNodes = ref([
-  { id: 1, name: '滨海新区车端节点', type: 'vehicle', lat: 39.0458, lng: 117.7278, status: '在线', riskLevel: '低' },
-  { id: 2, name: '和平区车端节点', type: 'vehicle', lat: 39.1189, lng: 117.2075, status: '在线', riskLevel: '中' },
-  { id: 3, name: '河西区云端节点', type: 'cloud', lat: 39.0851, lng: 117.2075, status: '在线', riskLevel: '低' },
-  { id: 4, name: '南开区车端节点', type: 'vehicle', lat: 39.1042, lng: 117.1767, status: '离线', riskLevel: '高' },
-  { id: 5, name: '河东区云端节点', type: 'cloud', lat: 39.1278, lng: 117.2264, status: '在线', riskLevel: '中' }
-])
+// 地理围栏数据 - 和平区边界
+const geoFenceData = ref({
+  name: '和平区监管区域',
+  coordinates: [
+    [39.146175, 117.264873],
+    [39.146175, 117.168516],
+    [39.068985, 117.168516],
+    [39.068985, 117.264873]
+  ],
+  style: {
+    color: '#3b82f6',
+    weight: 2,
+    opacity: 0.8,
+    fillColor: 'rgba(59, 130, 246, 0.1)',
+    fillOpacity: 0.5
+  }
+})
+
+// 地图节点数据 - 在和平区范围内生成随机坐标
+const generateRandomNodes = () => {
+  const nodes = []
+  const minLat = 39.068985
+  const maxLat = 39.146175
+  const minLng = 117.168516
+  const maxLng = 117.264873
+
+  const getRandomInRange = (min, max) => Math.random() * (max - min) + min
+
+  // 生成车端节点
+  for (let i = 1; i <= 8; i++) {
+    nodes.push({
+      id: `vehicle_${i}`,
+      name: `车端节点 ${i}`,
+      type: 'vehicle',
+      lat: getRandomInRange(minLat, maxLat),
+      lng: getRandomInRange(minLng, maxLng),
+      status: Math.random() > 0.2 ? '在线' : '离线',
+      riskLevel: ['低', '中', '高'][Math.floor(Math.random() * 3)]
+    })
+  }
+
+  // 生成云端节点
+  for (let i = 1; i <= 5; i++) {
+    nodes.push({
+      id: `cloud_${i}`,
+      name: `云端节点 ${i}`,
+      type: 'cloud',
+      lat: getRandomInRange(minLat, maxLat),
+      lng: getRandomInRange(minLng, maxLng),
+      status: Math.random() > 0.1 ? '在线' : '离线',
+      riskLevel: ['低', '中', '高'][Math.floor(Math.random() * 3)]
+    })
+  }
+
+  return nodes
+}
+
+const mapNodes = ref(generateRandomNodes())
 
 // 地图实例引用
 const mapRef = ref(null)
@@ -774,6 +769,40 @@ const resetView = () => {
     mapRef.value.leafletObject.setView(mapCenter.value, mapZoom.value)
   }
 }
+
+// 地图主题切换
+const toggleMapTheme = () => {
+  currentMapTheme.value = currentMapTheme.value === 'dark' ? 'light' : 'dark'
+}
+
+// 获取当前地图瓦片层URL
+const getCurrentTileLayerUrl = () => {
+  if (currentMapTheme.value === 'dark') {
+    return 'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png'
+  } else {
+    return 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png'
+  }
+}
+
+// 获取当前地图瓦片层属性
+const getCurrentTileLayerAttribution = () => {
+  if (currentMapTheme.value === 'dark') {
+    return '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors, &copy; <a href="https://carto.com/attribution">CARTO</a>'
+  } else {
+    return '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+  }
+}
+
+// 监听主题变化，更新地理围栏样式
+watch(currentMapTheme, (newTheme) => {
+  if (newTheme === 'dark') {
+    geoFenceData.value.style.color = '#60a5fa'
+    geoFenceData.value.style.fillColor = 'rgba(96, 165, 250, 0.1)'
+  } else {
+    geoFenceData.value.style.color = '#3b82f6'
+    geoFenceData.value.style.fillColor = 'rgba(59, 130, 246, 0.1)'
+  }
+})
 
 // 创建自定义图标
 const createCustomIcon = (type: string, riskLevel: string) => {
@@ -1162,7 +1191,7 @@ onMounted(() => {
   position: relative;
   width: 100%;
   box-sizing: border-box;
-  margin-bottom: 1rem;
+  margin-bottom: 0rem;
 }
 
 /* 下栏布局 - 三栏区域 + 活动日志 */
@@ -1182,7 +1211,6 @@ onMounted(() => {
   grid-template-columns: 380px 1fr 380px;
   gap: 1.5rem;
   min-height: calc(100vh - 400px);
-  padding: 1.5rem;
   position: relative;
   align-items: start;
   width: 100%;
@@ -1207,7 +1235,6 @@ onMounted(() => {
   flex-direction: column;
   gap: 1.2rem;
   position: relative;
-  max-width: 340px;
   width: 100%;
   box-sizing: border-box;
   grid-column: 1;
@@ -1278,6 +1305,7 @@ onMounted(() => {
   overflow: hidden;
   backdrop-filter: blur(15px);
   transition: all 0.3s ease;
+  margin-bottom: 1rem;
 }
 
 .map-container::before {
@@ -1308,6 +1336,34 @@ onMounted(() => {
 .map-container:hover {
   border-color: var(--primary-color);
   box-shadow: 0 0 30px var(--glow-color);
+}
+
+/* 地图区域标题 */
+.section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+
+.section-header h3 {
+  margin: 0;
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: var(--text-color);
+}
+
+/* 地理围栏弹窗样式 */
+.fence-popup h4 {
+  margin: 0 0 0.5rem 0;
+  color: var(--primary-color);
+  font-size: 1rem;
+}
+
+.fence-popup p {
+  margin: 0.25rem 0;
+  font-size: 0.9rem;
+  color: var(--text-color);
 }
 
 .map-placeholder {
@@ -1454,7 +1510,6 @@ onMounted(() => {
   flex-direction: column;
   gap: 1.2rem;
   position: relative;
-  max-width: 340px;
   width: 100%;
   box-sizing: border-box;
   grid-column: 3;
@@ -1476,7 +1531,7 @@ onMounted(() => {
   display: grid;
   grid-template-columns: repeat(6, 1fr);
   gap: 1rem;
-  margin-bottom: 1.5rem;
+  margin-bottom: 0rem;
   padding: 0;
   width: 100%;
 }
@@ -1484,7 +1539,7 @@ onMounted(() => {
 .stat-card {
   background: var(--card-bg);
   border: 1px solid var(--border-color);
-  border-radius: 12px;
+  border-radius: 10px;
   padding: 1.2rem;
   display: flex;
   align-items: center;
@@ -1805,12 +1860,18 @@ onMounted(() => {
 .stats-panel {
   background: var(--card-bg);
   border: 1px solid var(--border-color);
-  border-radius: 20px;
-  padding: 2.5rem;
+  border-radius: 10px;
+  padding: 0.5rem;
   position: relative;
   backdrop-filter: blur(15px);
   transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+}
+
+/* 紧凑版统计面板 */
+.stats-panel.compact {
+  padding: 1.2rem;
+  border-radius: 12px;
 }
 
 .stats-panel::before {
@@ -1870,6 +1931,12 @@ onMounted(() => {
   gap: 1rem;
 }
 
+/* 紧凑版图表控制 */
+.chart-controls.compact {
+  margin-bottom: 0.5rem;
+  gap: 0.5rem;
+}
+
 .time-filter {
   background: var(--input-bg);
   border: 1px solid var(--border-color);
@@ -1878,9 +1945,21 @@ onMounted(() => {
   color: var(--text-color);
 }
 
+/* 紧凑版时间过滤器 */
+.time-filter.compact {
+  padding: 0.3rem 0.6rem;
+  font-size: 0.8rem;
+  border-radius: 4px;
+}
+
 .chart-type-buttons {
   display: flex;
   gap: 0.5rem;
+}
+
+/* 紧凑版图表按钮组 */
+.chart-type-buttons.compact {
+  gap: 0.3rem;
 }
 
 .chart-btn {
@@ -1896,6 +1975,14 @@ onMounted(() => {
   position: relative;
   overflow: hidden;
   backdrop-filter: blur(10px);
+}
+
+/* 紧凑版图表按钮 */
+.chart-btn.compact {
+  padding: 0.4rem 0.8rem;
+  font-size: 0.8rem;
+  border-radius: 6px;
+  font-weight: 500;
 }
 
 .chart-btn::before {
@@ -2085,6 +2172,11 @@ onMounted(() => {
   overflow-y: auto;
 }
 
+/* 紧凑版风险列表 */
+.risk-list.compact {
+  max-height: 150px;
+}
+
 .risk-item {
   display: grid;
   grid-template-columns: 40px 1fr 60px 80px 1fr 100px;
@@ -2094,6 +2186,38 @@ onMounted(() => {
   font-size: 0.9rem;
   align-items: center;
   color: var(--text-color);
+}
+
+/* 紧凑版风险项目 - 简化布局 */
+.risk-list.compact .risk-item {
+  display: grid;
+  grid-template-columns: 12px 1fr 1fr 60px;
+  gap: 0.5rem;
+  padding: 0.4rem 0.5rem;
+  font-size: 0.8rem;
+}
+
+/* 风险等级指示器 */
+.risk-level-indicator {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  display: inline-block;
+}
+
+.risk-level-indicator.high {
+  background: #ef4444;
+  box-shadow: 0 0 6px rgba(239, 68, 68, 0.5);
+}
+
+.risk-level-indicator.medium {
+  background: #f59e0b;
+  box-shadow: 0 0 6px rgba(245, 158, 11, 0.5);
+}
+
+.risk-level-indicator.low {
+  background: #10b981;
+  box-shadow: 0 0 6px rgba(16, 185, 129, 0.5);
 }
 
 .risk-item:last-child {
