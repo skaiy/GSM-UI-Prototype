@@ -250,15 +250,6 @@
               <div class="section-header">
                 <h3>地理信息监控</h3>
                 <div class="map-controls">
-                  <button class="control-btn" @click="toggleMapTheme" :title="currentMapTheme === 'dark' ? '切换到亮色主题' : '切换到暗色主题'">
-                    <svg v-if="currentMapTheme === 'dark'" width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                      <circle cx="12" cy="12" r="5" stroke="currentColor" stroke-width="2"/>
-                      <path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                    </svg>
-                    <svg v-else width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                      <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                    </svg>
-                  </button>
                   <button class="control-btn" @click="zoomIn" title="放大">
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                       <circle cx="11" cy="11" r="8" stroke="currentColor" stroke-width="2"/>
@@ -289,7 +280,7 @@
                 >
                   <!-- 动态瓦片层 -->
                   <LTileLayer
-                    :key="currentMapTheme"
+                    :key="isDark ? 'dark' : 'light'"
                     :url="getCurrentTileLayerUrl()"
                     :attribution="getCurrentTileLayerAttribution()"
                     :maxZoom="19"
@@ -577,7 +568,6 @@ const stats = reactive({
 // 地图配置
 const mapCenter = ref([39.114334, 117.220421]) // 天津和平区中心坐标
 const mapZoom = ref(13)
-const currentMapTheme = ref('dark') // 当前地图主题
 
 // 地理围栏数据 - 和平区边界
 const geoFenceData = ref({
@@ -589,10 +579,10 @@ const geoFenceData = ref({
     [39.068985, 117.264873]
   ],
   style: {
-    color: '#3b82f6',
+    color: isDark.value ? '#60a5fa' : '#3b82f6',
     weight: 2,
     opacity: 0.8,
-    fillColor: 'rgba(59, 130, 246, 0.1)',
+    fillColor: isDark.value ? 'rgba(96, 165, 250, 0.1)' : 'rgba(59, 130, 246, 0.1)',
     fillOpacity: 0.5
   }
 })
@@ -770,32 +760,27 @@ const resetView = () => {
   }
 }
 
-// 地图主题切换
-const toggleMapTheme = () => {
-  currentMapTheme.value = currentMapTheme.value === 'dark' ? 'light' : 'dark'
-}
-
-// 获取当前地图瓦片层URL
+// 获取当前地图瓦片层URL（基于全局主题状态）
 const getCurrentTileLayerUrl = () => {
-  if (currentMapTheme.value === 'dark') {
+  if (isDark.value) {
     return 'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png'
   } else {
     return 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png'
   }
 }
 
-// 获取当前地图瓦片层属性
+// 获取当前地图瓦片层属性（基于全局主题状态）
 const getCurrentTileLayerAttribution = () => {
-  if (currentMapTheme.value === 'dark') {
+  if (isDark.value) {
     return '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors, &copy; <a href="https://carto.com/attribution">CARTO</a>'
   } else {
     return '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
   }
 }
 
-// 监听主题变化，更新地理围栏样式
-watch(currentMapTheme, (newTheme) => {
-  if (newTheme === 'dark') {
+// 监听全局主题变化，更新地理围栏样式
+watch(isDark, (newIsDark) => {
+  if (newIsDark) {
     geoFenceData.value.style.color = '#60a5fa'
     geoFenceData.value.style.fillColor = 'rgba(96, 165, 250, 0.1)'
   } else {
