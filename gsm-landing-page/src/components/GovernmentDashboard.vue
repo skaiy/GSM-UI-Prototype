@@ -6,26 +6,27 @@
         <div class="header-left">
           <img src="/logo.svg" alt="平台Logo" class="header-logo" />
           <h1 class="header-title">地理信息安全监测平台</h1>
-          
-          <!-- 一级菜单移到header内 -->
-          <nav class="main-nav">
-            <button 
-              v-for="item in mainMenus" 
-              :key="item.key"
-              :class="['nav-item', { active: activeMainMenu === item.key }]"
-              @click="setActiveMainMenu(item.key)"
-            >
-              <svg class="nav-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path v-if="item.key === 'overview'" d="M3 13h8V3H3v10zm0 8h8v-6H3v6zm10 0h8V11h-8v10zm0-18v6h8V3h-8z" fill="currentColor"/>
-                <path v-else-if="item.key === 'vehicle'" d="M18.92 6.01C18.72 5.42 18.16 5 17.5 5h-11c-.66 0-1.22.42-1.42 1.01L3 12v8c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-1h12v1c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-8l-2.08-5.99zM6.5 16c-.83 0-1.5-.67-1.5-1.5S5.67 13 6.5 13s1.5.67 1.5 1.5S7.33 16 6.5 16zm11 0c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5zM5 11l1.5-4.5h11L19 11H5z" fill="currentColor"/>
-                <path v-else-if="item.key === 'cloud'" d="M19.35 10.04C18.67 6.59 15.64 4 12 4 9.11 4 6.6 5.64 5.35 8.04 2.34 8.36 0 10.91 0 14c0 3.31 2.69 6 6 6h13c2.76 0 5-2.24 5-5 0-2.64-2.05-4.78-4.65-4.96z" fill="currentColor"/>
-                <path v-else-if="item.key === 'enterprise'" d="M12 7V3H2v18h20V7H12zM6 19H4v-2h2v2zm0-4H4v-2h2v2zm0-4H4V9h2v2zm0-4H4V5h2v2zm4 12H8v-2h2v2zm0-4H8v-2h2v2zm0-4H8V9h2v2zm0-4H8V5h2v2zm10 12h-8v-2h2v-2h-2v-2h2v-2h-2V9h8v10zm-2-8h-2v2h2v-2zm0 4h-2v2h2v-2z" fill="currentColor"/>
-                <path v-else d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" fill="currentColor"/>
-              </svg>
-              {{ item.label }}
-            </button>
-          </nav>
         </div>
+
+        <!-- 中间主导航区域 -->
+        <nav class="main-nav">
+          <button
+            v-for="item in mainMenus"
+            :key="item.key"
+            :class="['nav-item', { active: activeMainMenu === item.key }]"
+            @click="setActiveMainMenu(item.key)"
+          >
+            <svg class="nav-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path v-if="item.key === 'overview'" d="M3 13h8V3H3v10zm0 8h8v-6H3v6zm10 0h8V11h-8v10zm0-18v6h8V3h-8z" fill="currentColor"/>
+              <path v-else-if="item.key === 'vehicle'" d="M18.92 6.01C18.72 5.42 18.16 5 17.5 5h-11c-.66 0-1.22.42-1.42 1.01L3 12v8c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-1h12v1c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-8l-2.08-5.99zM6.5 16c-.83 0-1.5-.67-1.5-1.5S5.67 13 6.5 13s1.5.67 1.5 1.5S7.33 16 6.5 16zm11 0c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5zM5 11l1.5-4.5h11L19 11H5z" fill="currentColor"/>
+              <path v-else-if="item.key === 'cloud'" d="M19.35 10.04C18.67 6.59 15.64 4 12 4 9.11 4 6.6 5.64 5.35 8.04 2.34 8.36 0 10.91 0 14c0 3.31 2.69 6 6 6h13c2.76 0 5-2.24 5-5 0-2.64-2.05-4.78-4.65-4.96z" fill="currentColor"/>
+              <path v-else-if="item.key === 'enterprise'" d="M12 7V3H2v18h20V7H12zM6 19H4v-2h2v2zm0-4H4v-2h2v2zm0-4H4V9h2v2zm0-4H4V5h2v2zm4 12H8v-2h2v2zm0-4H8v-2h2v2zm0-4H8V9h2v2zm0-4H8V5h2v2zm10 12h-8v-2h2v-2h-2v-2h2v-2h-2V9h8v10zm-2-8h-2v2h2v-2zm0 4h-2v2h2v-2z" fill="currentColor"/>
+              <path v-else d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" fill="currentColor"/>
+            </svg>
+            {{ item.label }}
+          </button>
+        </nav>
+
         <div class="header-right">
           <button
             class="theme-switch"
@@ -899,14 +900,15 @@ onMounted(() => {
   justify-content: space-between;
   align-items: center;
   padding: 1rem 2rem;
-  max-width: 1400px;
-  margin: 0 auto;
+  width: 100%;
+  margin: 0;
 }
 
 .header-left {
   display: flex;
   align-items: center;
   gap: 1rem;
+  flex-shrink: 0;
 }
 
 .header-logo {
@@ -929,6 +931,7 @@ onMounted(() => {
   display: flex;
   align-items: center;
   gap: 1rem;
+  flex-shrink: 0;
 }
 
 /* VitePress风格的主题切换按钮 */
@@ -1044,26 +1047,14 @@ onMounted(() => {
 /* 主导航 */
 .main-nav {
   display: flex;
-  background: var(--nav-bg);
-  border-top: 1px solid var(--border-color);
-  padding: 1rem 2rem;
-  gap: 1.5rem;
+  justify-content: center;
   align-items: center;
-  backdrop-filter: blur(20px);
-  position: relative;
+  gap: 1.5rem;
+  flex: 1;
+  margin: 0 2rem;
 }
 
-.main-nav::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: var(--gradient-secondary);
-  opacity: 0.1;
-  z-index: -1;
-}
+
 
 .nav-item {
   background: rgba(255, 255, 255, 0.03);

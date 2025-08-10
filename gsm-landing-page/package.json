@@ -29,6 +29,7 @@
   },
   "devDependencies": {
     "@tsconfig/node22": "^22.0.2",
+    "@types/leaflet": "^1.9.20",
     "@types/node": "^22.16.5",
     "@vue/tsconfig": "^0.7.0",
     "vite-plugin-vue-devtools": "^8.0.0"
