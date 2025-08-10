@@ -63,18 +63,21 @@
           <!-- 上栏：顶部统计卡片 -->
           <div class="top-section">
             <div class="stats-cards">
-              <div class="stat-card">
+              <!-- 接入车辆总数 -->
+              <div class="stat-card" :title="'当前平台接入的车辆总数：' + stats.totalVehicles.toLocaleString() + '辆'">
                 <div class="stat-icon vehicle">
                   <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                     <path d="M18.92 6.01C18.72 5.42 18.16 5 17.5 5h-11c-.66 0-1.22.42-1.42 1.01L3 12v8c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-1h12v1c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-8l-2.08-5.99zM6.5 16c-.83 0-1.5-.67-1.5-1.5S5.67 13 6.5 13s1.5.67 1.5 1.5S7.33 16 6.5 16zm11 0c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5zM5 11l1.5-4.5h11L19 11H5z" fill="currentColor"/>
                   </svg>
                 </div>
                 <div class="stat-info">
-                  <h3>车辆总数</h3>
+                  <h3>接入车辆总数</h3>
                   <p class="stat-number">{{ stats.totalVehicles.toLocaleString() }}</p>
                 </div>
               </div>
-              <div class="stat-card">
+
+              <!-- 在线车辆总数 -->
+              <div class="stat-card" :title="'当前在线车辆数量：' + stats.onlineVehicles.toLocaleString() + '辆，在线率：' + ((stats.onlineVehicles / stats.totalVehicles) * 100).toFixed(1) + '%'">
                 <div class="stat-icon online">
                   <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                     <circle cx="12" cy="12" r="10" fill="#10B981"/>
@@ -86,7 +89,9 @@
                   <p class="stat-number">{{ stats.onlineVehicles.toLocaleString() }}</p>
                 </div>
               </div>
-              <div class="stat-card">
+
+              <!-- 累计车端风险总数 -->
+              <div class="stat-card" :title="'车端累计发现的安全风险总数：' + stats.vehicleRisks.toLocaleString() + '个'">
                 <div class="stat-icon risk-vehicle">
                   <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                     <path d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z" stroke="#F59E0B" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="#F59E0B"/>
@@ -97,7 +102,22 @@
                   <p class="stat-number">{{ stats.vehicleRisks.toLocaleString() }}</p>
                 </div>
               </div>
-              <div class="stat-card">
+
+              <!-- 车端累计上报事件 -->
+              <div class="stat-card" :title="'车端累计上报的安全事件总数：' + stats.vehicleEvents.toLocaleString() + '个'">
+                <div class="stat-icon event-vehicle">
+                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                  </svg>
+                </div>
+                <div class="stat-info">
+                  <h3>车端累计上报事件</h3>
+                  <p class="stat-number">{{ stats.vehicleEvents.toLocaleString() }}</p>
+                </div>
+              </div>
+
+              <!-- 累计云端风险总数 -->
+              <div class="stat-card" :title="'云端累计发现的安全风险总数：' + stats.cloudRisks.toLocaleString() + '个'">
                 <div class="stat-icon risk-cloud">
                   <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                     <path d="M19.35 10.04C18.67 6.59 15.64 4 12 4 9.11 4 6.6 5.64 5.35 8.04 2.34 8.36 0 10.91 0 14c0 3.31 2.69 6 6 6h13c2.76 0 5-2.24 5-5 0-2.64-2.05-4.78-4.65-4.96z" fill="currentColor"/>
@@ -106,6 +126,21 @@
                 <div class="stat-info">
                   <h3>累计云端风险总数</h3>
                   <p class="stat-number">{{ stats.cloudRisks.toLocaleString() }}</p>
+                </div>
+              </div>
+
+              <!-- 云端累计上报事件 -->
+              <div class="stat-card" :title="'云端累计上报的安全事件总数：' + stats.cloudEvents.toLocaleString() + '个'">
+                <div class="stat-icon event-cloud">
+                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M19.35 10.04C18.67 6.59 15.64 4 12 4 9.11 4 6.6 5.64 5.35 8.04 2.34 8.36 0 10.91 0 14c0 3.31 2.69 6 6 6h13c2.76 0 5-2.24 5-5 0-2.64-2.05-4.78-4.65-4.96z" fill="currentColor"/>
+                    <circle cx="12" cy="14" r="2" fill="white"/>
+                    <path d="M12 10v2M12 16v2" stroke="white" stroke-width="1.5" stroke-linecap="round"/>
+                  </svg>
+                </div>
+                <div class="stat-info">
+                  <h3>云端累计上报事件</h3>
+                  <p class="stat-number">{{ stats.cloudEvents.toLocaleString() }}</p>
                 </div>
               </div>
             </div>
@@ -125,19 +160,19 @@
                     <div class="pie-chart">
                       <div class="chart-legend">
                         <div class="legend-item">
-                          <span class="legend-color" style="background: #409EFF"></span>
+                          <span class="legend-color" style="background: #8B4513"></span>
                           <span>M类 (45%)</span>
                         </div>
                         <div class="legend-item">
-                          <span class="legend-color" style="background: #67C23A"></span>
+                          <span class="legend-color" style="background: #4B0082"></span>
                           <span>N类 (30%)</span>
                         </div>
                         <div class="legend-item">
-                          <span class="legend-color" style="background: #E6A23C"></span>
+                          <span class="legend-color" style="background: #B8860B"></span>
                           <span>O类 (15%)</span>
                         </div>
                         <div class="legend-item">
-                          <span class="legend-color" style="background: #F56C6C"></span>
+                          <span class="legend-color" style="background: #8B0000"></span>
                           <span>低速无人驾驶 (10%)</span>
                         </div>
                       </div>
@@ -185,12 +220,40 @@
                 </div>
               </div>
 
-              <!-- 车端风险预警 -->
+              <!-- 车端风险事件 -->
               <div class="stats-panel">
-                <h3>车端风险预警</h3>
+                <h3>车端风险事件</h3>
+
+                <!-- 过滤查询功能 -->
+                <div class="filter-section">
+                  <div class="filter-row">
+                    <select v-model="vehicleRiskFilters.level" class="filter-select">
+                      <option value="">全部风险等级</option>
+                      <option value="high">高风险</option>
+                      <option value="medium">中风险</option>
+                      <option value="low">低风险</option>
+                    </select>
+                    <select v-model="vehicleRiskFilters.stage" class="filter-select">
+                      <option value="">全部处理阶段</option>
+                      <option value="收集">收集</option>
+                      <option value="存储">存储</option>
+                      <option value="传输">传输</option>
+                    </select>
+                  </div>
+                  <div class="filter-row">
+                    <input
+                      v-model="vehicleRiskFilters.vin"
+                      type="text"
+                      placeholder="搜索VIN码..."
+                      class="filter-input"
+                    />
+                    <button class="filter-clear-btn" @click="clearVehicleFilters">清除</button>
+                  </div>
+                </div>
+
                 <div class="filter-buttons">
-                  <button 
-                    v-for="filter in timeFilters" 
+                  <button
+                    v-for="filter in timeFilters"
                     :key="filter"
                     :class="['filter-btn', { active: vehicleRiskFilter === filter }]"
                     @click="vehicleRiskFilter = filter"
@@ -199,13 +262,26 @@
                   </button>
                 </div>
                 <div class="risk-list">
-                  <div class="risk-item" v-for="risk in vehicleRisks" :key="risk.id">
+                  <div
+                    class="risk-item"
+                    v-for="risk in filteredVehicleRisks"
+                    :key="risk.id"
+                    :class="[
+                      'risk-item',
+                      { 'risk-high-blink': risk.level === 'high' },
+                      { 'risk-medium-pulse': risk.level === 'medium' }
+                    ]"
+                    :title="`风险等级：${risk.levelText}，处理阶段：${risk.stage}，事件：${risk.event}`"
+                  >
                     <span class="risk-id">{{ risk.id }}</span>
                     <span class="risk-vin">{{ risk.vin }}</span>
                     <span :class="['risk-level', risk.level]">{{ risk.levelText }}</span>
                     <span class="risk-stage">{{ risk.stage }}</span>
                     <span class="risk-event">{{ risk.event }}</span>
                     <span class="risk-time">{{ risk.time }}</span>
+                  </div>
+                  <div v-if="filteredVehicleRisks.length === 0" class="no-data">
+                    暂无符合条件的风险事件
                   </div>
                 </div>
               </div>
@@ -247,7 +323,7 @@
                     url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
                     attribution="&copy; <a href='https://www.openstreetmap.org/copyright'>OpenStreetMap</a> contributors"
                   />
-                  
+
                   <LMarker
                     v-for="node in mapNodes"
                     :key="node.id"
@@ -259,12 +335,12 @@
                       <div class="node-popup">
                         <h4>{{ node.name }}</h4>
                         <p><strong>类型:</strong> {{ node.type === 'vehicle' ? '车端节点' : '云端节点' }}</p>
-                        <p><strong>状态:</strong> 
+                        <p><strong>状态:</strong>
                           <span :class="['status', node.status === '在线' ? 'online' : 'offline']">
                             {{ node.status }}
                           </span>
                         </p>
-                        <p><strong>风险等级:</strong> 
+                        <p><strong>风险等级:</strong>
                           <span :class="['risk-level', node.riskLevel]">
                             {{ node.riskLevel }}
                           </span>
@@ -273,6 +349,78 @@
                     </LPopup>
                   </LMarker>
                 </LMap>
+              </div>
+
+              <!-- 风险预警信息 - 移动到地图下方 -->
+              <div class="activity-section">
+                <div class="activity-tabs">
+                  <button
+                    :class="['tab-btn', { active: activeActivityTab === 'vehicle' }]"
+                    @click="activeActivityTab = 'vehicle'"
+                  >
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                      <path d="M18.92 6.01C18.72 5.42 18.16 5 17.5 5h-11c-.66 0-1.22.42-1.42 1.01L3 12v8c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-1h12v1c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-8l-2.08-5.99zM6.5 16c-.83 0-1.5-.67-1.5-1.5S5.67 13 6.5 13s1.5.67 1.5 1.5S7.33 16 6.5 16zm11 0c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5zM5 11l1.5-4.5h11L19 11H5z" fill="currentColor"/>
+                    </svg>
+                    车端风险预警
+                  </button>
+                  <button
+                    :class="['tab-btn', { active: activeActivityTab === 'cloud' }]"
+                    @click="activeActivityTab = 'cloud'"
+                  >
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                      <path d="M19.35 10.04C18.67 6.59 15.64 4 12 4 9.11 4 6.6 5.64 5.35 8.04 2.34 8.36 0 10.91 0 14c0 3.31 2.69 6 6 6h13c2.76 0 5-2.24 5-5 0-2.64-2.05-4.78-4.65-4.96z" fill="currentColor"/>
+                    </svg>
+                    云端风险预警
+                  </button>
+                </div>
+                <div class="activity-content">
+                  <div v-if="activeActivityTab === 'vehicle'" class="activity-table">
+                    <table>
+                      <thead>
+                        <tr>
+                          <th>序号</th>
+                          <th>VIN码</th>
+                          <th>车辆品牌</th>
+                          <th>车辆型号</th>
+                          <th>处理阶段</th>
+                          <th>处理时间</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        <tr v-for="log in vehicleLogs" :key="log.id">
+                          <td>{{ log.id }}</td>
+                          <td>{{ log.vin }}</td>
+                          <td>{{ log.brand }}</td>
+                          <td>{{ log.model }}</td>
+                          <td>{{ log.stage }}</td>
+                          <td>{{ log.time }}</td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </div>
+                  <div v-else class="activity-table">
+                    <table>
+                      <thead>
+                        <tr>
+                          <th>序号</th>
+                          <th>企业名称</th>
+                          <th>企业类型</th>
+                          <th>处理阶段</th>
+                          <th>处理时间</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        <tr v-for="log in cloudLogs" :key="log.id">
+                          <td>{{ log.id }}</td>
+                          <td>{{ log.company }}</td>
+                          <td>{{ log.type }}</td>
+                          <td>{{ log.stage }}</td>
+                          <td>{{ log.time }}</td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
               </div>
             </div>
 
@@ -287,19 +435,19 @@
                     <div class="pie-chart">
                       <div class="chart-legend">
                         <div class="legend-item">
-                          <span class="legend-color" style="background: #409EFF"></span>
+                          <span class="legend-color" style="background: #6B46C1"></span>
                           <span>地图服务商 (35%)</span>
                         </div>
                         <div class="legend-item">
-                          <span class="legend-color" style="background: #67C23A"></span>
+                          <span class="legend-color" style="background: #DC2626"></span>
                           <span>汽车企业 (40%)</span>
                         </div>
                         <div class="legend-item">
-                          <span class="legend-color" style="background: #E6A23C"></span>
+                          <span class="legend-color" style="background: #D97706"></span>
                           <span>智驾方案提供商 (15%)</span>
                         </div>
                         <div class="legend-item">
-                          <span class="legend-color" style="background: #F56C6C"></span>
+                          <span class="legend-color" style="background: #7C2D12"></span>
                           <span>平台运营方 (10%)</span>
                         </div>
                       </div>
@@ -347,12 +495,44 @@
                 </div>
               </div>
 
-              <!-- 云端风险预警 -->
+              <!-- 云端风险事件 -->
               <div class="stats-panel">
-                <h3>云端风险预警</h3>
+                <h3>云端风险事件</h3>
+
+                <!-- 过滤查询功能 -->
+                <div class="filter-section">
+                  <div class="filter-row">
+                    <select v-model="cloudRiskFilters.level" class="filter-select">
+                      <option value="">全部风险等级</option>
+                      <option value="high">高风险</option>
+                      <option value="medium">中风险</option>
+                      <option value="low">低风险</option>
+                    </select>
+                    <select v-model="cloudRiskFilters.stage" class="filter-select">
+                      <option value="">全部操作类型</option>
+                      <option value="数据收集">数据收集</option>
+                      <option value="数据存储">数据存储</option>
+                      <option value="数据传输">数据传输</option>
+                      <option value="数据加工">数据加工</option>
+                      <option value="数据提供">数据提供</option>
+                      <option value="数据公开">数据公开</option>
+                      <option value="数据销毁">数据销毁</option>
+                    </select>
+                  </div>
+                  <div class="filter-row">
+                    <input
+                      v-model="cloudRiskFilters.company"
+                      type="text"
+                      placeholder="搜索企业名称..."
+                      class="filter-input"
+                    />
+                    <button class="filter-clear-btn" @click="clearCloudFilters">清除</button>
+                  </div>
+                </div>
+
                 <div class="filter-buttons">
-                  <button 
-                    v-for="filter in timeFilters" 
+                  <button
+                    v-for="filter in timeFilters"
                     :key="filter"
                     :class="['filter-btn', { active: cloudRiskFilter === filter }]"
                     @click="cloudRiskFilter = filter"
@@ -361,7 +541,17 @@
                   </button>
                 </div>
                 <div class="risk-list">
-                  <div class="risk-item" v-for="risk in cloudRisks" :key="risk.id">
+                  <div
+                    class="risk-item"
+                    v-for="risk in filteredCloudRisks"
+                    :key="risk.id"
+                    :class="[
+                      'risk-item',
+                      { 'risk-high-blink': risk.level === 'high' },
+                      { 'risk-medium-pulse': risk.level === 'medium' }
+                    ]"
+                    :title="`风险等级：${risk.levelText}，操作类型：${risk.operation}，事件：${risk.event}`"
+                  >
                     <span class="risk-id">{{ risk.id }}</span>
                     <span class="risk-company">{{ risk.company }}</span>
                     <span :class="['risk-level', risk.level]">{{ risk.levelText }}</span>
@@ -369,79 +559,10 @@
                     <span class="risk-event">{{ risk.event }}</span>
                     <span class="risk-time">{{ risk.time }}</span>
                   </div>
+                  <div v-if="filteredCloudRisks.length === 0" class="no-data">
+                    暂无符合条件的风险事件
+                  </div>
                 </div>
-              </div>
-            </div>
-          </div>
-
-          <!-- 处理活动信息 -->
-          <div class="activity-section">
-            <div class="activity-tabs">
-              <button 
-                :class="['tab-btn', { active: activeActivityTab === 'vehicle' }]"
-                @click="activeActivityTab = 'vehicle'"
-              >
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                  <path d="M18.92 6.01C18.72 5.42 18.16 5 17.5 5h-11c-.66 0-1.22.42-1.42 1.01L3 12v8c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-1h12v1c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-8l-2.08-5.99zM6.5 16c-.83 0-1.5-.67-1.5-1.5S5.67 13 6.5 13s1.5.67 1.5 1.5S7.33 16 6.5 16zm11 0c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5zM5 11l1.5-4.5h11L19 11H5z" fill="currentColor"/>
-                </svg>
-                车端操作日志
-              </button>
-              <button 
-                :class="['tab-btn', { active: activeActivityTab === 'cloud' }]"
-                @click="activeActivityTab = 'cloud'"
-              >
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                  <path d="M19.35 10.04C18.67 6.59 15.64 4 12 4 9.11 4 6.6 5.64 5.35 8.04 2.34 8.36 0 10.91 0 14c0 3.31 2.69 6 6 6h13c2.76 0 5-2.24 5-5 0-2.64-2.05-4.78-4.65-4.96z" fill="currentColor"/>
-                </svg>
-                云端操作日志
-              </button>
-            </div>
-            <div class="activity-content">
-              <div v-if="activeActivityTab === 'vehicle'" class="activity-table">
-                <table>
-                  <thead>
-                    <tr>
-                      <th>序号</th>
-                      <th>VIN码</th>
-                      <th>车辆品牌</th>
-                      <th>车辆型号</th>
-                      <th>处理阶段</th>
-                      <th>处理时间</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    <tr v-for="log in vehicleLogs" :key="log.id">
-                      <td>{{ log.id }}</td>
-                      <td>{{ log.vin }}</td>
-                      <td>{{ log.brand }}</td>
-                      <td>{{ log.model }}</td>
-                      <td>{{ log.stage }}</td>
-                      <td>{{ log.time }}</td>
-                    </tr>
-                  </tbody>
-                </table>
-              </div>
-              <div v-else class="activity-table">
-                <table>
-                  <thead>
-                    <tr>
-                      <th>序号</th>
-                      <th>企业名称</th>
-                      <th>企业类型</th>
-                      <th>处理阶段</th>
-                      <th>处理时间</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    <tr v-for="log in cloudLogs" :key="log.id">
-                      <td>{{ log.id }}</td>
-                      <td>{{ log.company }}</td>
-                      <td>{{ log.type }}</td>
-                      <td>{{ log.stage }}</td>
-                      <td>{{ log.time }}</td>
-                    </tr>
-                  </tbody>
-                </table>
               </div>
             </div>
           </div>
@@ -503,7 +624,9 @@ const stats = reactive({
   totalVehicles: 125680,
   onlineVehicles: 98432,
   vehicleRisks: 1247,
-  cloudRisks: 856
+  vehicleEvents: 3456,  // 新增：车端累计上报事件
+  cloudRisks: 856,
+  cloudEvents: 2134     // 新增：云端累计上报事件
 })
 
 // 地图配置
@@ -549,21 +672,34 @@ const timeFilters = ['年', '月', '日']
 // 活动日志标签页
 const activeActivityTab = ref('vehicle')
 
-// 风险数据
+// 过滤器状态
+const vehicleRiskFilters = reactive({
+  level: '',
+  stage: '',
+  vin: ''
+})
+
+const cloudRiskFilters = reactive({
+  level: '',
+  stage: '',
+  company: ''
+})
+
+// 风险数据 - 使用专业色彩搭配
 const vehicleRiskData = [
-  { stage: '收集', value: 60, color: '#409EFF' },
-  { stage: '存储', value: 80, color: '#67C23A' },
-  { stage: '传输', value: 45, color: '#E6A23C' }
+  { stage: '收集', value: 60, color: '#8B4513' },  // 暗棕色
+  { stage: '存储', value: 80, color: '#4B0082' },  // 暗紫色
+  { stage: '传输', value: 45, color: '#B8860B' }   // 暗金色
 ]
 
 const cloudRiskData = [
-  { stage: '收集', value: 70, color: '#409EFF' },
-  { stage: '存储', value: 55, color: '#67C23A' },
-  { stage: '传输', value: 65, color: '#E6A23C' },
-  { stage: '加工', value: 40, color: '#F56C6C' },
-  { stage: '提供', value: 30, color: '#909399' },
-  { stage: '公开', value: 20, color: '#C0C4CC' },
-  { stage: '销毁', value: 15, color: '#E4E7ED' }
+  { stage: '收集', value: 70, color: '#8B4513' },  // 暗棕色
+  { stage: '存储', value: 55, color: '#4B0082' },  // 暗紫色
+  { stage: '传输', value: 65, color: '#B8860B' },  // 暗金色
+  { stage: '加工', value: 40, color: '#8B0000' },  // 暗红色
+  { stage: '提供', value: 30, color: '#2F4F4F' },  // 暗灰绿色
+  { stage: '公开', value: 20, color: '#556B2F' },  // 暗橄榄绿
+  { stage: '销毁', value: 15, color: '#483D8B' }   // 暗蓝紫色
 ]
 
 // 风险列表数据
@@ -671,6 +807,38 @@ const createCustomIcon = (type: string, riskLevel: string) => {
 const logout = () => {
   router.push('/')
 }
+
+// 过滤器方法
+const clearVehicleFilters = () => {
+  vehicleRiskFilters.level = ''
+  vehicleRiskFilters.stage = ''
+  vehicleRiskFilters.vin = ''
+}
+
+const clearCloudFilters = () => {
+  cloudRiskFilters.level = ''
+  cloudRiskFilters.stage = ''
+  cloudRiskFilters.company = ''
+}
+
+// 过滤后的风险数据
+const filteredVehicleRisks = computed(() => {
+  return vehicleRisks.value.filter(risk => {
+    const levelMatch = !vehicleRiskFilters.level || risk.level === vehicleRiskFilters.level
+    const stageMatch = !vehicleRiskFilters.stage || risk.stage === vehicleRiskFilters.stage
+    const vinMatch = !vehicleRiskFilters.vin || risk.vin.toLowerCase().includes(vehicleRiskFilters.vin.toLowerCase())
+    return levelMatch && stageMatch && vinMatch
+  })
+})
+
+const filteredCloudRisks = computed(() => {
+  return cloudRisks.value.filter(risk => {
+    const levelMatch = !cloudRiskFilters.level || risk.level === cloudRiskFilters.level
+    const stageMatch = !cloudRiskFilters.stage || risk.operation === cloudRiskFilters.stage
+    const companyMatch = !cloudRiskFilters.company || risk.company.toLowerCase().includes(cloudRiskFilters.company.toLowerCase())
+    return levelMatch && stageMatch && companyMatch
+  })
+})
 
 // 生命周期
 onMounted(() => {
@@ -1020,8 +1188,7 @@ onMounted(() => {
 /* 三列布局 */
 .three-column-layout {
   display: grid;
-  grid-template-columns: 340px 0.8fr 340px;
-  grid-template-rows: auto auto;
+  grid-template-columns: 380px 1fr 380px;
   gap: 1.5rem;
   min-height: calc(100vh - 400px);
   padding: 1.5rem;
@@ -1053,7 +1220,7 @@ onMounted(() => {
   width: 100%;
   box-sizing: border-box;
   grid-column: 1;
-  grid-row: 1 / 3; /* 跨两行 */
+  grid-row: 1;
 }
 
 .vehicle-section .section-title {
@@ -1316,7 +1483,7 @@ onMounted(() => {
 /* 统计卡片 */
 .stats-cards {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
+  grid-template-columns: repeat(6, 1fr);
   gap: 1rem;
   margin-bottom: 1.5rem;
   padding: 0;
@@ -1424,21 +1591,29 @@ onMounted(() => {
   opacity: 0.3;
 }
 
-.stat-icon.vehicle { 
+.stat-icon.vehicle {
   background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
   box-shadow: 0 12px 24px rgba(0, 212, 255, 0.4);
 }
-.stat-icon.online { 
+.stat-icon.online {
   background: linear-gradient(135deg, var(--success-color), #00cc66);
   box-shadow: 0 12px 24px rgba(0, 255, 136, 0.4);
 }
-.stat-icon.risk-vehicle { 
+.stat-icon.risk-vehicle {
   background: linear-gradient(135deg, var(--warning-color), #cc7700);
   box-shadow: 0 12px 24px rgba(255, 170, 0, 0.4);
 }
-.stat-icon.risk-cloud { 
+.stat-icon.event-vehicle {
+  background: linear-gradient(135deg, #8B5CF6, #7C3AED);
+  box-shadow: 0 12px 24px rgba(139, 92, 246, 0.4);
+}
+.stat-icon.risk-cloud {
   background: linear-gradient(135deg, var(--danger-color), #cc2222);
   box-shadow: 0 12px 24px rgba(255, 68, 68, 0.4);
+}
+.stat-icon.event-cloud {
+  background: linear-gradient(135deg, #EC4899, #DB2777);
+  box-shadow: 0 12px 24px rgba(236, 72, 153, 0.4);
 }
 
 .stat-info {
@@ -2667,5 +2842,128 @@ onMounted(() => {
 [data-theme="dark"] .status.offline {
   color: #f87171 !important;
   font-weight: 600;
+}
+
+/* 风险预警动画效果 */
+/* 高风险：闪烁效果 */
+.risk-high-blink {
+  animation: riskBlink 1s infinite;
+  border-left: 4px solid #ef4444 !important;
+  position: relative;
+}
+
+@keyframes riskBlink {
+  0%, 50% {
+    background-color: rgba(239, 68, 68, 0.1);
+    box-shadow: 0 0 10px rgba(239, 68, 68, 0.3);
+  }
+  51%, 100% {
+    background-color: rgba(239, 68, 68, 0.2);
+    box-shadow: 0 0 15px rgba(239, 68, 68, 0.5);
+  }
+}
+
+/* 中风险：呼吸灯效果 */
+.risk-medium-pulse {
+  animation: riskPulse 2s ease-in-out infinite;
+  border-left: 4px solid #f59e0b !important;
+  position: relative;
+}
+
+@keyframes riskPulse {
+  0%, 100% {
+    background-color: rgba(245, 158, 11, 0.05);
+    box-shadow: 0 0 5px rgba(245, 158, 11, 0.2);
+  }
+  50% {
+    background-color: rgba(245, 158, 11, 0.15);
+    box-shadow: 0 0 20px rgba(245, 158, 11, 0.4);
+  }
+}
+
+/* 低风险：静态样式 */
+.risk-item:not(.risk-high-blink):not(.risk-medium-pulse) {
+  border-left: 4px solid #10b981 !important;
+  background-color: rgba(16, 185, 129, 0.05);
+}
+
+/* 深色主题下的风险预警效果 */
+[data-theme="dark"] .risk-high-blink {
+  border-left: 4px solid #f87171 !important;
+}
+
+[data-theme="dark"] .risk-medium-pulse {
+  border-left: 4px solid #fbbf24 !important;
+}
+
+[data-theme="dark"] .risk-item:not(.risk-high-blink):not(.risk-medium-pulse) {
+  border-left: 4px solid #34d399 !important;
+  background-color: rgba(52, 211, 153, 0.05);
+}
+
+/* 过滤器样式 */
+.filter-section {
+  margin-bottom: 1rem;
+  padding: 1rem;
+  background: var(--surface-color);
+  border-radius: 8px;
+  border: 1px solid var(--border-color);
+}
+
+.filter-row {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 0.5rem;
+}
+
+.filter-row:last-child {
+  margin-bottom: 0;
+}
+
+.filter-select {
+  flex: 1;
+  padding: 0.5rem;
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+  background: var(--input-bg);
+  color: var(--text-color);
+  font-size: 0.9rem;
+}
+
+.filter-input {
+  flex: 1;
+  padding: 0.5rem;
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+  background: var(--input-bg);
+  color: var(--text-color);
+  font-size: 0.9rem;
+}
+
+.filter-input::placeholder {
+  color: var(--text-color-secondary);
+}
+
+.filter-clear-btn {
+  padding: 0.5rem 1rem;
+  background: var(--danger-color);
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  transition: all 0.3s ease;
+}
+
+.filter-clear-btn:hover {
+  background: #dc2626;
+  transform: translateY(-1px);
+}
+
+.no-data {
+  text-align: center;
+  padding: 2rem;
+  color: var(--text-color-secondary);
+  font-style: italic;
 }
 </style>
