@@ -41,7 +41,7 @@
           </div>
         </div>
         <div class="hero-actions">
-          <button class="btn btn-primary btn-large" @click="$router.push('/login/enterprise')">
+          <button class="btn btn-primary btn-large" @click="openComplianceApplication">
             企业合规接入
           </button>
           <button class="btn btn-outline btn-large" @click="scrollToSection('features')">
@@ -103,6 +103,11 @@ const scrollToSection = (sectionId: string) => {
   if (element) {
     element.scrollIntoView({ behavior: 'smooth' })
   }
+}
+
+// 打开企业合规接入申请页面
+const openComplianceApplication = () => {
+  window.open('/content/compliance/default', '_blank')
 }
 
 // 组件挂载时开始预加载和轮播
@@ -240,7 +245,7 @@ onMounted(() => {
 }
 
 [data-theme="light"] .hero-subtitle {
-  color: #374151;
+  color: #6ba0f5;
   text-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
   font-weight: 500;
   letter-spacing: 0.01em;
