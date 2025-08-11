@@ -4,8 +4,19 @@
       <div class="login-card">
         <div class="login-header">
           <div class="login-brand">
-            <img src="/logo.svg" alt="平台Logo" class="logo" />
-            <h1 class="login-title">地理信息安全监测平台</h1>
+            <div class="flex items-center space-x-3">
+              <div class="relative">
+                <div class="w-10 h-10 flex items-center justify-center">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-shield w-8 h-8 text-blue-400 drop-shadow-lg filter hover:text-cyan-400 transition-colors duration-300" style="filter: drop-shadow(rgba(59, 130, 246, 0.3) 0px 0px 8px);">
+                    <path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z"></path>
+                  </svg>
+                </div>
+              </div>
+              <div>
+                <h1 class="text-xl font-bold text-white login-title">地理信息安全监测平台</h1>
+                <p class="text-xs text-slate-400 login-subtitle">Geospatial Security Monitoring Platform</p>
+              </div>
+            </div>
           </div>
           <p class="login-subtitle">
             {{ userType === 'government' ? '政府端登录' : '企业端登录' }}
