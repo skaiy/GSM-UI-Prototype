@@ -1,0 +1,40 @@
+{
+  "envId": "535492311",
+  "framework": {
+    "name": "vue",
+    "plugins": {
+      "client": {
+        "use": "@cloudbase/framework-plugin-website",
+        "inputs": {
+          "buildCommand": "npm run build",
+          "outputPath": "dist",
+          "cloudPath": "/",
+          "ignore": [
+            ".git",
+            ".github",
+            "node_modules",
+            ".gitignore",
+            "*.md",
+            "src",
+            "public",
+            "*.config.*",
+            "*.json",
+            "*.lock"
+          ],
+          "envVariables": {},
+          "installCommand": "npm ci",
+          "hooks": {
+            "preDeploy": {
+              "type": "execCommand",
+              "commands": ["echo 'Starting deployment...'"]
+            },
+            "postDeploy": {
+              "type": "execCommand", 
+              "commands": ["echo 'Deployment completed!'"]
+            }
+          }
+        }
+      }
+    }
+  }
+}

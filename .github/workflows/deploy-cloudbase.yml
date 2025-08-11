@@ -1,0 +1,55 @@
+name: Deploy to Tencent CloudBase
+
+on:
+  push:
+    branches: [ main, master ]
+  pull_request:
+    branches: [ main, master ]
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20'
+        cache: 'npm'
+        cache-dependency-path: 'gsm-landing-page/package-lock.json'
+        
+    - name: Install dependencies
+      run: |
+        cd gsm-landing-page
+        npm ci
+        
+    - name: Build project
+      run: |
+        cd gsm-landing-page
+        npm run build
+        
+    - name: Install CloudBase CLI and Framework
+      run: |
+        npm install -g @cloudbase/cli @cloudbase/framework-core
+      
+    - name: Deploy to CloudBase
+      env:
+        CLOUDBASE_SECRET_ID: ${{ secrets.CLOUDBASE_SECRET_ID }}
+        CLOUDBASE_SECRET_KEY: ${{ secrets.CLOUDBASE_SECRET_KEY }}
+        CLOUDBASE_ENV_ID: ${{ secrets.CLOUDBASE_ENV_ID }}
+      run: |
+        cd gsm-landing-page
+        # 登录 CloudBase
+        tcb login --apiKeyId $CLOUDBASE_SECRET_ID --apiKey $CLOUDBASE_SECRET_KEY
+        
+        # 使用 Framework 部署
+        tcb framework deploy --verbose
+        
+        # 备用方案：直接部署静态文件
+        # tcb hosting deploy dist -e $CLOUDBASE_ENV_ID
+        
+    - name: Deployment Success
+      run: echo "🎉 Deployment completed successfully!"

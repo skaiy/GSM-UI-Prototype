@@ -12,7 +12,10 @@
     "vercel-build": "vite build",
     "preview": "vite preview",
     "build-only": "vite build",
-    "type-check": "vue-tsc --build"
+    "type-check": "vue-tsc --build",
+    "deploy": "npm run build && tcb framework deploy",
+    "deploy:cloudbase": "tcb framework deploy",
+    "login:cloudbase": "tcb login"
   },
   "dependencies": {
     "@vitejs/plugin-vue": "^6.0.1",
