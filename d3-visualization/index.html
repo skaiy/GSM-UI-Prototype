@@ -1,0 +1,1872 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>智能网联汽车数据溯源追踪系统 - 实时监控平台</title>
+    <script src="assets/js/d3.v7.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'SF Pro Display', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: radial-gradient(ellipse at center, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+            min-height: 100vh;
+            overflow: hidden;
+            color: white;
+        }
+
+        .container {
+            width: 100vw;
+            height: 100vh;
+            position: relative;
+        }
+
+        .header {
+            position: absolute;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            text-align: center;
+            z-index: 1000;
+        }
+
+        .title {
+            font-size: 24px;
+            font-weight: 700;
+            color: #00d4ff;
+            margin-bottom: 5px;
+            text-shadow: 0 0 10px rgba(0, 212, 255, 0.5);
+        }
+
+        .subtitle {
+            font-size: 14px;
+            color: #8892b0;
+            opacity: 0.8;
+        }
+
+        .controls {
+            position: absolute;
+            top: 80px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 10px;
+            z-index: 1000;
+        }
+
+        .data-trace-panel {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            background: rgba(0, 20, 40, 0.9);
+            border: 1px solid #00d4ff;
+            border-radius: 10px;
+            padding: 15px;
+            min-width: 320px;
+            backdrop-filter: blur(10px);
+            z-index: 1000;
+        }
+
+        .trace-title {
+            font-size: 14px;
+            font-weight: 600;
+            color: #00d4ff;
+            margin-bottom: 12px;
+            text-align: center;
+            border-bottom: 1px solid rgba(0, 212, 255, 0.3);
+            padding-bottom: 8px;
+        }
+
+        .data-packet-info {
+            margin-bottom: 15px;
+        }
+
+        .packet-item {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 6px;
+            font-size: 11px;
+        }
+
+        .packet-label {
+            color: #8892b0;
+            font-weight: 500;
+        }
+
+        .packet-value {
+            color: #00ff88;
+            font-weight: 600;
+            font-family: 'SF Mono', monospace;
+        }
+
+        .vin-code {
+            color: #fbbf24;
+            font-weight: 700;
+        }
+
+        .credit-code {
+            color: #ff6b35;
+            font-weight: 700;
+        }
+
+        .trace-status {
+            background: rgba(0, 255, 136, 0.1);
+            border: 1px solid #00ff88;
+            border-radius: 5px;
+            padding: 8px;
+            margin-top: 10px;
+        }
+
+        .status-indicator-text {
+            font-size: 10px;
+            color: #00ff88;
+            text-align: center;
+        }
+
+        .trace-progress {
+            width: 100%;
+            height: 4px;
+            background: rgba(0, 212, 255, 0.2);
+            border-radius: 2px;
+            margin: 8px 0;
+            overflow: hidden;
+        }
+
+        .progress-bar {
+            height: 100%;
+            background: linear-gradient(90deg, #00d4ff, #00ff88);
+            border-radius: 2px;
+            width: 0%;
+            transition: width 3s ease-in-out;
+        }
+
+        .progress-bar.active {
+            width: 100%;
+        }
+
+        .btn {
+            padding: 8px 16px;
+            border: 1px solid #00d4ff;
+            border-radius: 20px;
+            background: rgba(0, 212, 255, 0.1);
+            color: #00d4ff;
+            font-size: 12px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        /* Icon size within buttons */
+        .btn svg {
+            width: 16px;
+            height: 16px;
+        }
+
+        .btn:hover {
+            background: rgba(0, 212, 255, 0.2);
+            box-shadow: 0 0 15px rgba(0, 212, 255, 0.3);
+            transform: translateY(-2px);
+        }
+
+        #visualization {
+            width: 100%;
+            height: 100%;
+            position: relative;
+        }
+
+        .node-group {
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .node-group:hover {
+            filter: brightness(1.3);
+        }
+
+        .node-circle {
+            filter: drop-shadow(0 0 8px currentColor);
+            transition: all 0.3s ease;
+        }
+
+        .node-text {
+            font-family: 'SF Pro Display', sans-serif;
+            font-size: 11px;
+            font-weight: 600;
+            text-anchor: middle;
+            dominant-baseline: middle;
+            fill: white;
+            text-shadow: 0 0 3px rgba(0,0,0,0.8);
+            pointer-events: none;
+        }
+
+        .node-label {
+            font-family: 'SF Mono', monospace;
+            font-size: 9px;
+            text-anchor: middle;
+            fill: #8892b0;
+            pointer-events: none;
+        }
+
+        .node-status {
+            font-size: 8px;
+            text-anchor: middle;
+            fill: #00ff88;
+            pointer-events: none;
+        }
+
+        .link-path {
+            fill: none;
+            stroke-width: 2;
+            opacity: 0.6;
+            transition: all 0.3s ease;
+        }
+
+        .link-path.straight {
+            stroke-dasharray: none;
+        }
+
+        /* 2D视图动画与交互（恢复） */
+        .link-path:hover {
+            opacity: 1;
+            stroke-width: 3;
+        }
+
+        .data-flow {
+            stroke-dasharray: 8,4;
+            animation: flowAnimation 2s linear infinite;
+        }
+
+        @keyframes flowAnimation {
+            0% { stroke-dashoffset: 0; }
+            100% { stroke-dashoffset: -12; }
+        }
+
+        .highlight-path {
+            stroke: #ff6b35;
+            stroke-width: 3;
+            opacity: 0.9;
+            filter: drop-shadow(0 0 5px #ff6b35);
+        }
+
+        .pulse {
+            animation: pulseAnimation 2s infinite;
+        }
+
+        @keyframes pulseAnimation {
+            0% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.7; transform: scale(1.1); }
+            100% { opacity: 1; transform: scale(1); }
+        }
+
+        /* 2D视图拖拽指针提示 */
+        #visualization svg { cursor: grab; }
+        #visualization svg:active { cursor: grabbing; }
+
+        /* 3D球体与业务节点样式（恢复） */
+        .sphere-container {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 800px;
+            height: 600px;
+            perspective: 1200px;
+            z-index: 100;
+            display: none;
+        }
+
+        .business-sphere {
+            width: 100%;
+            height: 100%;
+            position: relative;
+            transform-style: preserve-3d;
+            transform: rotateX(15deg) rotateY(0deg) rotateZ(0deg);
+            transition: transform 0.3s ease;
+            cursor: grab;
+        }
+        .business-sphere:active { cursor: grabbing; }
+        .business-sphere.auto-rotate { animation: businessRotate 60s linear infinite; }
+        @keyframes businessRotate {
+            0% { transform: rotateX(15deg) rotateY(0deg) rotateZ(0deg); }
+            100% { transform: rotateX(15deg) rotateY(360deg) rotateZ(0deg); }
+        }
+
+        .data-layer {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            transform-style: preserve-3d;
+            opacity: 0.9;
+        }
+        .sphere-layer-1 { transform: translateZ(250px) rotateX(0deg); }
+        .sphere-layer-2 { transform: translateZ(150px) rotateX(20deg); }
+        .sphere-layer-3 { transform: translateZ(0px) rotateX(0deg); }
+        .sphere-layer-4 { transform: translateZ(-150px) rotateX(-20deg); }
+        .sphere-layer-5 { transform: translateZ(-250px) rotateX(0deg); }
+
+        .layer-title {
+            position: absolute;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            color: #00d4ff;
+            font-size: 14px;
+            font-weight: 600;
+            text-shadow: 0 0 10px rgba(0, 212, 255, 0.5);
+            z-index: 10;
+        }
+
+        .business-node {
+            position: absolute;
+            width: 80px;
+            height: 80px;
+            background: rgba(0, 20, 40, 0.8);
+            border: 2px solid #00d4ff;
+            border-radius: 50%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 0 20px rgba(0, 212, 255, 0.3);
+        }
+        .business-node:hover { transform: scale(1.2); box-shadow: 0 0 30px rgba(0, 212, 255, 0.6); border-color: #00ff88; }
+        .node-icon { margin-bottom: 4px; }
+.node-icon svg { width: 20px; height: 20px; display: block; }
+        .node-label { font-size: 10px; color: white; text-align: center; font-weight: 500; }
+
+        /* 业务节点颜色主题 */
+        .vehicle-node { border-color: #ff6b35; box-shadow: 0 0 20px rgba(255, 107, 53, 0.3); }
+        .sensor-node { border-color: #4f46e5; box-shadow: 0 0 20px rgba(79, 70, 229, 0.3); }
+        .gateway-node { border-color: #059669; box-shadow: 0 0 20px rgba(5, 150, 105, 0.3); }
+        .etl-node { border-color: #10b981; box-shadow: 0 0 20px rgba(16, 185, 129, 0.3); }
+        .storage-node { border-color: #dc2626; box-shadow: 0 0 20px rgba(220, 38, 38, 0.3); }
+        .ai-node { border-color: #fbbf24; box-shadow: 0 0 20px rgba(251, 191, 36, 0.3); }
+        .api-node { border-color: #8b5cf6; box-shadow: 0 0 20px rgba(139, 92, 246, 0.3); }
+        .blockchain-node { border-color: #7c3aed; box-shadow: 0 0 20px rgba(124, 58, 237, 0.3); }
+        .enterprise-node { border-color: #06b6d4; box-shadow: 0 0 20px rgba(6, 182, 212, 0.3); }
+
+        .sphere-connections {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            transform-style: preserve-3d;
+        }
+        .connection-line-3d {
+            position: absolute;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, #00d4ff, transparent);
+            transform-origin: left center;
+            opacity: 0.8;
+            animation: dataFlow3D 3s linear infinite;
+            box-shadow: 0 0 10px rgba(0, 212, 255, 0.5);
+        }
+        @keyframes dataFlow3D {
+            0% { opacity: 0.3; box-shadow: 0 0 5px rgba(0, 212, 255, 0.3); }
+            50% { opacity: 1; box-shadow: 0 0 15px rgba(0, 212, 255, 0.8); }
+            100% { opacity: 0.3; box-shadow: 0 0 5px rgba(0, 212, 255, 0.3); }
+        }
+        .sphere-ring {
+            position: absolute;
+            border: 2px solid rgba(0, 212, 255, 0.4);
+            border-radius: 50%;
+            animation: ringPulse 4s ease-in-out infinite;
+            box-shadow: 0 0 20px rgba(0, 212, 255, 0.3), inset 0 0 20px rgba(0, 212, 255, 0.1);
+        }
+
+        @keyframes ringPulse {
+            0%, 100% {
+                opacity: 0.4;
+                transform: scale(1) rotateX(0deg);
+                border-color: rgba(0, 212, 255, 0.4);
+            }
+            25% {
+                opacity: 0.8;
+                transform: scale(1.05) rotateX(90deg);
+                border-color: rgba(0, 255, 136, 0.6);
+            }
+            50% {
+                opacity: 0.6;
+                transform: scale(1.1) rotateX(180deg);
+                border-color: rgba(255, 107, 53, 0.5);
+            }
+            75% {
+                opacity: 0.9;
+                transform: scale(1.05) rotateX(270deg);
+                border-color: rgba(124, 58, 237, 0.6);
+            }
+        }
+
+        .data-particle {
+            position: absolute;
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            animation: particleFloat 6s ease-in-out infinite;
+        }
+
+        .particle-type-1 {
+            background: #00ff88;
+            box-shadow: 0 0 12px #00ff88, 0 0 24px rgba(0, 255, 136, 0.3);
+        }
+
+        .particle-type-2 {
+            background: #00d4ff;
+            box-shadow: 0 0 12px #00d4ff, 0 0 24px rgba(0, 212, 255, 0.3);
+        }
+
+        .particle-type-3 {
+            background: #ff6b35;
+            box-shadow: 0 0 12px #ff6b35, 0 0 24px rgba(255, 107, 53, 0.3);
+        }
+
+        .particle-type-4 {
+            background: #7c3aed;
+            box-shadow: 0 0 12px #7c3aed, 0 0 24px rgba(124, 58, 237, 0.3);
+        }
+
+        @keyframes particleFloat {
+            0% {
+                transform: translateZ(0px) translateX(0px) translateY(0px);
+                opacity: 1;
+            }
+            25% {
+                transform: translateZ(80px) translateX(20px) translateY(-20px);
+                opacity: 0.8;
+            }
+            50% {
+                transform: translateZ(120px) translateX(-15px) translateY(25px);
+                opacity: 0.4;
+            }
+            75% {
+                transform: translateZ(80px) translateX(-25px) translateY(-10px);
+                opacity: 0.7;
+            }
+            100% {
+                transform: translateZ(0px) translateX(0px) translateY(0px);
+                opacity: 1;
+            }
+        }
+
+        .metrics-panel {
+            position: absolute;
+            bottom: 20px;
+            right: 20px;
+            background: rgba(0, 20, 40, 0.8);
+            border: 1px solid #00d4ff;
+            border-radius: 10px;
+            padding: 15px;
+            min-width: 200px;
+            backdrop-filter: blur(10px);
+        }
+
+        .metrics-title {
+            font-size: 14px;
+            font-weight: 600;
+            color: #00d4ff;
+            margin-bottom: 10px;
+            text-align: center;
+        }
+
+        .metric-item {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 8px;
+            font-size: 11px;
+        }
+
+        .metric-label {
+            color: #8892b0;
+        }
+
+        .metric-value {
+            color: #00ff88;
+            font-weight: 600;
+        }
+
+        .tooltip {
+            position: absolute;
+            background: rgba(0, 20, 40, 0.95);
+            color: #00d4ff;
+            padding: 10px;
+            border-radius: 8px;
+            font-size: 11px;
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            z-index: 2000;
+            border: 1px solid #00d4ff;
+            backdrop-filter: blur(10px);
+        }
+
+        .connection-line {
+            position: absolute;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, #00d4ff, transparent);
+            opacity: 0.6;
+            animation: connectionPulse 3s ease-in-out infinite;
+        }
+
+        @keyframes connectionPulse {
+            0%, 100% { opacity: 0.3; }
+            50% { opacity: 0.8; }
+        }
+
+        .status-indicator {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 12px;
+            color: #00ff88;
+        }
+
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            background: #00ff88;
+            border-radius: 50%;
+            animation: statusBlink 2s infinite;
+        }
+
+        @keyframes statusBlink {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.3; }
+        }
+
+        /* 时间轴溯源追踪样式 */
+        .trace-timeline {
+            position: absolute;
+            bottom: 20px;
+            left: 20px;
+            width: 380px;
+            max-height: 350px;
+            background: rgba(0, 20, 40, 0.95);
+            border: 1px solid #00d4ff;
+            border-radius: 10px;
+            backdrop-filter: blur(10px);
+            z-index: 1001;
+            overflow-y: auto;
+            box-shadow: 0 0 20px rgba(0, 212, 255, 0.3);
+        }
+
+        .timeline-header {
+            padding: 15px;
+            border-bottom: 1px solid rgba(0, 212, 255, 0.3);
+            background: rgba(0, 212, 255, 0.1);
+        }
+
+        .timeline-header h3 {
+            margin: 0 0 8px 0;
+            font-size: 14px;
+            color: #00d4ff;
+            text-align: center;
+        }
+
+        .timeline-info {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+            font-size: 10px;
+            color: #8892b0;
+        }
+
+        .timeline-steps {
+            padding: 15px;
+            max-height: 250px;
+            overflow-y: auto;
+        }
+
+        .timeline-step {
+            display: flex;
+            align-items: flex-start;
+            margin-bottom: 15px;
+            opacity: 0.3;
+            transition: all 0.5s ease;
+            position: relative;
+        }
+
+        .timeline-step.active {
+            opacity: 1;
+            animation: stepHighlight 0.8s ease-in-out;
+        }
+
+        @keyframes stepHighlight {
+            0% { transform: translateX(-10px); opacity: 0; }
+            100% { transform: translateX(0); opacity: 1; }
+        }
+
+        .timeline-step:not(:last-child)::after {
+            content: '';
+            position: absolute;
+            left: 15px;
+            top: 30px;
+            bottom: -15px;
+            width: 2px;
+            background: linear-gradient(to bottom, #00d4ff, rgba(0, 212, 255, 0.3));
+        }
+
+        .step-marker {
+            min-width: 30px;
+            height: 30px;
+            background: #00d4ff;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            font-weight: bold;
+            color: #0a0a0a;
+            margin-right: 12px;
+            box-shadow: 0 0 10px rgba(0, 212, 255, 0.5);
+        }
+
+        .step-content {
+            flex: 1;
+        }
+
+        .step-title {
+            font-size: 12px;
+            font-weight: 600;
+            color: #00ff88;
+            margin-bottom: 4px;
+        }
+
+        .step-time {
+            font-size: 10px;
+            color: #fbbf24;
+            font-family: 'SF Mono', monospace;
+            margin-bottom: 4px;
+        }
+
+        .step-details {
+            font-size: 10px;
+            color: #8892b0;
+            line-height: 1.4;
+        }
+
+        /* 2D节点和链接高亮样式 */
+        .node-group.trace-active .node-circle {
+            stroke: #ff6b35;
+            stroke-width: 4;
+            filter: drop-shadow(0 0 15px #ff6b35);
+            animation: nodeTraceGlow 1.5s ease-in-out infinite alternate;
+        }
+
+        @keyframes nodeTraceGlow {
+            0% { 
+                stroke-width: 4;
+                filter: drop-shadow(0 0 15px #ff6b35);
+            }
+            100% { 
+                stroke-width: 6;
+                filter: drop-shadow(0 0 25px #ff6b35);
+            }
+        }
+
+        .link-path.trace-active {
+            stroke: #ff6b35;
+            stroke-width: 4;
+            opacity: 1;
+            filter: drop-shadow(0 0 8px #ff6b35);
+            animation: linkTraceFlow 2s linear infinite;
+        }
+
+        @keyframes linkTraceFlow {
+            0% { 
+                stroke-dasharray: 10,5;
+                stroke-dashoffset: 0; 
+            }
+            100% { 
+                stroke-dasharray: 10,5;
+                stroke-dashoffset: -15; 
+            }
+        }
+
+        /* 增强的数据包工具提示 */
+        .packet-tooltip {
+            background: rgba(0, 20, 40, 0.98);
+            border: 2px solid #00ff88;
+            border-radius: 8px;
+            padding: 12px;
+            font-size: 11px;
+            color: #00ff88;
+            min-width: 200px;
+            box-shadow: 0 0 20px rgba(0, 255, 136, 0.4);
+        }
+
+        .packet-tooltip .tooltip-header {
+            font-weight: bold;
+            color: #00d4ff;
+            border-bottom: 1px solid rgba(0, 212, 255, 0.3);
+            padding-bottom: 4px;
+            margin-bottom: 6px;
+        }
+
+        .packet-tooltip .tooltip-item {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 3px;
+        }
+
+        .packet-tooltip .tooltip-label {
+            color: #8892b0;
+        }
+
+        .packet-tooltip .tooltip-value {
+            color: #00ff88;
+            font-weight: 600;
+        }
+
+        /* 3D业务节点和连线高亮样式 */
+        .business-node.trace-active {
+            border-color: #ff6b35;
+            box-shadow: 0 0 30px rgba(255, 107, 53, 0.8);
+            animation: businessNodePulse 1.5s ease-in-out infinite;
+            transform: scale(1.2);
+        }
+
+        @keyframes businessNodePulse {
+            0%, 100% { 
+                box-shadow: 0 0 30px rgba(255, 107, 53, 0.8);
+            }
+            50% { 
+                box-shadow: 0 0 40px rgba(255, 107, 53, 1), 0 0 60px rgba(255, 107, 53, 0.5);
+            }
+        }
+
+        .connection-line-3d.trace-active {
+            background: linear-gradient(90deg, transparent, #ff6b35, transparent);
+            box-shadow: 0 0 15px #ff6b35, 0 0 30px rgba(255, 107, 53, 0.5);
+            animation: connection3DTrace 1.5s linear infinite;
+            height: 4px;
+        }
+
+        @keyframes connection3DTrace {
+            0% { 
+                opacity: 0.6;
+                box-shadow: 0 0 15px #ff6b35;
+            }
+            50% { 
+                opacity: 1;
+                box-shadow: 0 0 25px #ff6b35, 0 0 40px rgba(255, 107, 53, 0.7);
+            }
+            100% { 
+                opacity: 0.6;
+                box-shadow: 0 0 15px #ff6b35;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- SVG 图标精灵 -->
+    <svg style="display: none;">
+        <defs>
+            <!-- 开始溯源图标 -->
+            <symbol id="icon-play" viewBox="0 0 24 24">
+                <path d="M8 5v14l11-7z" fill="currentColor"/>
+            </symbol>
+            
+            <!-- 高亮路径图标 -->
+            <symbol id="icon-highlight" viewBox="0 0 24 24">
+                <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" fill="currentColor"/>
+            </symbol>
+            
+            <!-- 3D视图图标 -->
+            <symbol id="icon-3d" viewBox="0 0 24 24">
+                <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" stroke="currentColor" stroke-width="2" fill="none"/>
+            </symbol>
+            
+            <!-- 2D视图图标 -->
+            <symbol id="icon-2d" viewBox="0 0 24 24">
+                <rect x="3" y="3" width="7" height="7" rx="1" stroke="currentColor" stroke-width="2" fill="none"/>
+                <rect x="14" y="3" width="7" height="7" rx="1" stroke="currentColor" stroke-width="2" fill="none"/>
+                <rect x="3" y="14" width="7" height="7" rx="1" stroke="currentColor" stroke-width="2" fill="none"/>
+                <rect x="14" y="14" width="7" height="7" rx="1" stroke="currentColor" stroke-width="2" fill="none"/>
+            </symbol>
+            
+            <!-- 新数据包图标 -->
+            <symbol id="icon-refresh" viewBox="0 0 24 24">
+                <path d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" stroke="currentColor" stroke-width="2" fill="none"/>
+            </symbol>
+            
+            <!-- 车载终端图标 -->
+            <symbol id="icon-vehicle" viewBox="0 0 24 24">
+                <path d="M5 11L6.5 6.5h11L19 11m-5 5h1.5a2 2 0 002-2v-2H6.5v2a2 2 0 002 2H10" stroke="currentColor" stroke-width="2" fill="none"/>
+                <circle cx="8.5" cy="15.5" r="2.5" fill="currentColor"/>
+                <circle cx="15.5" cy="15.5" r="2.5" fill="currentColor"/>
+            </symbol>
+            
+            <!-- 传感器图标 -->
+            <symbol id="icon-sensor" viewBox="0 0 24 24">
+                <path d="M12 2L8 7h8l-4-5zm0 20l4-5H8l4 5zm6-10L7 8v8l11-4zm-6-4v8m-4-4h8" stroke="currentColor" stroke-width="2" fill="none"/>
+            </symbol>
+            
+            <!-- 网关图标 -->
+            <symbol id="icon-gateway" viewBox="0 0 24 24">
+                <path d="M2 3h20v18H2V3zm2 2v14h16V5H4zm4 2h8v2H8V7zm0 4h8v2H8v-2zm0 4h8v2H8v-2z" fill="currentColor"/>
+            </symbol>
+            
+            <!-- ETL处理图标 -->
+            <symbol id="icon-etl" viewBox="0 0 24 24">
+                <path d="M3 6h18v2H3V6zm0 5h18v2H3v-2zm0 5h18v2H3v-2zm0-10h18v2H3V4z" stroke="currentColor" stroke-width="2" fill="none"/>
+                <path d="M9 8l3 3-3 3m6-6l-3 3 3 3" stroke="currentColor" stroke-width="2" fill="none"/>
+            </symbol>
+            
+            <!-- 数据湖图标 -->
+            <symbol id="icon-storage" viewBox="0 0 24 24">
+                <path d="M3 9v10a2 2 0 002 2h14a2 2 0 002-2V9M3 9V7a2 2 0 012-2h14a2 2 0 012 2v2M3 9l9 5 9-5" stroke="currentColor" stroke-width="2" fill="none"/>
+            </symbol>
+            
+            <!-- AI分析图标 -->
+            <symbol id="icon-ai" viewBox="0 0 24 24">
+                <circle cx="12" cy="12" r="3" stroke="currentColor" stroke-width="2" fill="none"/>
+                <path d="M12 1v6m0 10v6m11-7h-6m-10 0H1m15.5-8.5l-4.24 4.24M8.5 8.5L4.26 4.26m12.48 15.48l-4.24-4.24M8.5 15.5l-4.24 4.24" stroke="currentColor" stroke-width="2"/>
+            </symbol>
+            
+            <!-- API服务图标 -->
+            <symbol id="icon-api" viewBox="0 0 24 24">
+                <path d="M10 13a5 5 0 007.54.54l3-3a5 5 0 00-7.07-7.07l-1.72 1.71" stroke="currentColor" stroke-width="2" fill="none"/>
+                <path d="M14 11a5 5 0 00-7.54-.54l-3 3a5 5 0 007.07 7.07l1.71-1.71" stroke="currentColor" stroke-width="2" fill="none"/>
+            </symbol>
+            
+            <!-- 区块链图标 -->
+            <symbol id="icon-blockchain" viewBox="0 0 24 24">
+                <rect x="2" y="2" width="6" height="6" rx="1" stroke="currentColor" stroke-width="2" fill="none"/>
+                <rect x="9" y="9" width="6" height="6" rx="1" stroke="currentColor" stroke-width="2" fill="none"/>
+                <rect x="16" y="16" width="6" height="6" rx="1" stroke="currentColor" stroke-width="2" fill="none"/>
+                <path d="M8 5h1m6 3h1m-9 6v1m3 3h1" stroke="currentColor" stroke-width="2"/>
+            </symbol>
+            
+            <!-- 企业平台图标 -->
+            <symbol id="icon-enterprise" viewBox="0 0 24 24">
+                <path d="M3 21h18M3 10h18M5 6l7-3 7 3v15H5V6z" stroke="currentColor" stroke-width="2" fill="none"/>
+                <path d="M9 9v3m3-3v3m3-3v3" stroke="currentColor" stroke-width="2"/>
+            </symbol>
+            
+            <!-- 监控图标 -->
+            <symbol id="icon-monitor" viewBox="0 0 24 24">
+                <rect x="2" y="4" width="20" height="12" rx="2" stroke="currentColor" stroke-width="2" fill="none"/>
+                <path d="M8 20h8m-4-4v4" stroke="currentColor" stroke-width="2"/>
+                <path d="M6 8l4 4 2-2 4 4" stroke="currentColor" stroke-width="2" fill="none"/>
+            </symbol>
+        </defs>
+    </svg>
+
+    <div class="container">
+        <div class="header">
+            <h1 class="title">智能网联汽车数据溯源追踪系统</h1>
+            <p class="subtitle">Vehicle Data Lineage & Traceability Platform</p>
+        </div>
+
+        <div class="data-trace-panel">
+            <div class="trace-title">📦 数据包溯源追踪</div>
+            <div class="data-packet-info">
+                <div class="packet-item">
+                    <span class="packet-label">数据包ID:</span>
+                    <span class="packet-value" id="packetId">PKT-20241212-001847</span>
+                </div>
+                <div class="packet-item">
+                    <span class="packet-label">车辆VIN码:</span>
+                    <span class="packet-value vin-code" id="vinCode">LSGWB54E8KS123456</span>
+                </div>
+                <div class="packet-item">
+                    <span class="packet-label">企业信用代码:</span>
+                    <span class="packet-value credit-code" id="creditCode">91110000MA01234567</span>
+                </div>
+                <div class="packet-item">
+                    <span class="packet-label">数据类型:</span>
+                    <span class="packet-value" id="dataType">位置轨迹+驾驶行为</span>
+                </div>
+                <div class="packet-item">
+                    <span class="packet-label">采集时间:</span>
+                    <span class="packet-value" id="collectTime">2024-12-12 14:18:47</span>
+                </div>
+                <div class="packet-item">
+                    <span class="packet-label">数据大小:</span>
+                    <span class="packet-value" id="dataSize">2.34 MB</span>
+                </div>
+            </div>
+            <div class="trace-status">
+                <div class="status-indicator-text" id="traceStatus">正在追踪数据流向...</div>
+                <div class="trace-progress">
+                    <div class="progress-bar" id="progressBar"></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="controls">
+            <button class="btn" onclick="startDataTrace()">
+                <svg aria-hidden="true"><use href="#icon-play"></use></svg>
+                <span>开始溯源</span>
+            </button>
+            <button class="btn" onclick="highlightTraceability()">
+                <svg aria-hidden="true"><use href="#icon-highlight"></use></svg>
+                <span>高亮路径</span>
+            </button>
+            <button class="btn" onclick="toggle3DView()" id="toggle3DButton">
+                <svg aria-hidden="true"><use href="#icon-3d"></use></svg>
+                <span>3D视图</span>
+            </button>
+            <button class="btn" onclick="generateNewPacket()">
+                <svg aria-hidden="true"><use href="#icon-refresh"></use></svg>
+                <span>新数据包</span>
+            </button>
+        </div>
+
+        <div class="status-indicator">
+            <div class="status-dot"></div>
+            <span>系统运行中</span>
+        </div>
+
+        <div id="visualization">
+            <!-- 3D业务数据溯源球体 -->
+            <div class="sphere-container" id="sphereContainer">
+                <div class="business-sphere" id="businessSphere">
+                    <!-- 数据源层 (最外层) -->
+                    <div class="data-layer sphere-layer-1" id="sourceLayer">
+                        <div class="layer-title">数据源层</div>
+                        <div class="business-node vehicle-node" data-business="车载终端" data-node-id="vehicle" style="left: 200px; top: 150px;">
+                            <div class="node-icon"><svg aria-hidden="true"><use href="#icon-vehicle"></use></svg></div>
+                            <div class="node-label">车载终端</div>
+                        </div>
+                        <div class="business-node sensor-node" data-business="传感器" data-node-id="sensor" style="left: 500px; top: 200px;">
+                            <div class="node-icon"><svg aria-hidden="true"><use href="#icon-sensor"></use></svg></div>
+                            <div class="node-label">传感器</div>
+                        </div>
+                    </div>
+
+                    <!-- 采集处理层 -->
+                    <div class="data-layer sphere-layer-2" id="processLayer">
+                        <div class="layer-title">采集处理层</div>
+                        <div class="business-node gateway-node" data-business="数据网关" data-node-id="gateway" style="left: 150px; top: 250px;">
+                            <div class="node-icon"><svg aria-hidden="true"><use href="#icon-gateway"></use></svg></div>
+                            <div class="node-label">数据网关</div>
+                        </div>
+                        <div class="business-node etl-node" data-business="ETL处理" data-node-id="etl" style="left: 550px; top: 180px;">
+                            <div class="node-icon"><svg aria-hidden="true"><use href="#icon-etl"></use></svg></div>
+                            <div class="node-label">ETL处理</div>
+                        </div>
+                    </div>
+
+                    <!-- 存储分析层 (中心层) -->
+                    <div class="data-layer sphere-layer-3" id="storageLayer">
+                        <div class="layer-title">存储分析层</div>
+                        <div class="business-node storage-node" data-business="数据湖" data-node-id="storage" style="left: 300px; top: 300px;">
+                            <div class="node-icon"><svg aria-hidden="true"><use href="#icon-storage"></use></svg></div>
+                            <div class="node-label">数据湖</div>
+                        </div>
+                        <div class="business-node ai-node" data-business="AI分析" data-node-id="ai" style="left: 450px; top: 150px;">
+                            <div class="node-icon"><svg aria-hidden="true"><use href="#icon-ai"></use></svg></div>
+                            <div class="node-label">AI分析</div>
+                        </div>
+                    </div>
+
+                    <!-- 应用服务层 -->
+                    <div class="data-layer sphere-layer-4" id="serviceLayer">
+                        <div class="layer-title">应用服务层</div>
+                        <div class="business-node api-node" data-business="API服务" data-node-id="api" style="left: 250px; top: 350px;">
+                            <div class="node-icon"><svg aria-hidden="true"><use href="#icon-api"></use></svg></div>
+                            <div class="node-label">API服务</div>
+                        </div>
+                        <div class="business-node blockchain-node" data-business="区块链" data-node-id="blockchain" style="left: 500px; top: 300px;">
+                            <div class="node-icon"><svg aria-hidden="true"><use href="#icon-blockchain"></use></svg></div>
+                            <div class="node-label">区块链</div>
+                        </div>
+                    </div>
+
+                    <!-- 业务应用层 (最内层) -->
+                    <div class="data-layer sphere-layer-5" id="applicationLayer">
+                        <div class="layer-title">业务应用层</div>
+                        <div class="business-node enterprise-node" data-business="企业平台" data-node-id="enterprise" style="left: 375px; top: 275px;">
+                            <div class="node-icon"><svg aria-hidden="true"><use href="#icon-enterprise"></use></svg></div>
+                            <div class="node-label">企业平台</div>
+                        </div>
+                    </div>
+
+                    <!-- 3D连线容器 -->
+                    <div class="sphere-connections" id="sphereConnections"></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="metrics-panel">
+            <div class="metrics-title"><svg aria-hidden="true"><use href="#icon-monitor"></use></svg><span style="margin-left:8px;">实时监控</span></div>
+            <div class="metric-item">
+                <span class="metric-label">数据吞吐:</span>
+                <span class="metric-value" id="throughput">2.3 GB/s</span>
+            </div>
+            <div class="metric-item">
+                <span class="metric-label">响应延迟:</span>
+                <span class="metric-value" id="latency">8ms</span>
+            </div>
+            <div class="metric-item">
+                <span class="metric-label">成功率:</span>
+                <span class="metric-value" id="successRate">99.97%</span>
+            </div>
+            <div class="metric-item">
+                <span class="metric-label">活跃节点:</span>
+                <span class="metric-value" id="activeNodes">11</span>
+            </div>
+            <div class="metric-item">
+                <span class="metric-label">溯源深度:</span>
+                <span class="metric-value" id="traceDepth">5层</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="tooltip" id="tooltip"></div>
+
+    <script>
+        // 数据定义
+        const nodes = [
+            { id: 'edge', name: 'Edge IoT', label: '车载传感器', x: 200, y: 300, color: '#ff6b35', size: 30, status: 'active', angle: 0 },
+            { id: 'cloud', name: 'Cloud Storage', label: '分布式存储', x: 350, y: 200, color: '#4f46e5', size: 35, status: 'active', angle: 45 },
+            { id: 'backup', name: 'Backup', label: '备份存储', x: 350, y: 400, color: '#6366f1', size: 25, status: 'normal', angle: 90 },
+            { id: 'ml', name: 'ML Model', label: '模型训练', x: 500, y: 150, color: '#059669', size: 28, status: 'normal', angle: 135 },
+            { id: 'ai', name: 'AI Engine', label: '深度学习处理', x: 600, y: 300, color: '#10b981', size: 40, status: 'selected', gpu: '87%', angle: 180 },
+            { id: 'feature', name: 'Feature', label: '特征工程', x: 500, y: 450, color: '#34d399', size: 25, status: 'normal', angle: 225 },
+            { id: 'gateway', name: 'Gateway', label: 'API网关', x: 750, y: 200, color: '#dc2626', size: 22, status: 'normal', angle: 270 },
+            { id: 'api', name: 'Secure API', label: '加密传输', x: 850, y: 300, color: '#ef4444', size: 32, status: 'active', security: 'TLS 1.3', angle: 315 },
+            { id: 'monitor', name: 'Monitor', label: '监控中心', x: 750, y: 400, color: '#f87171', size: 20, status: 'normal', angle: 360 },
+            { id: 'blockchain', name: 'Blockchain', label: '存证链', x: 1000, y: 350, color: '#7c3aed', size: 30, status: 'active', block: '#1247', angle: 45 },
+            { id: 'enterprise', name: 'Enterprise', label: '企业接收方', x: 1150, y: 300, color: '#8b5cf6', size: 35, status: 'online', angle: 90 }
+        ];
+
+        const links = [
+            { source: 'edge', target: 'cloud', type: 'main', strength: 0.8 },
+            { source: 'edge', target: 'backup', type: 'backup', strength: 0.3 },
+            { source: 'cloud', target: 'ai', type: 'main', strength: 0.9 },
+            { source: 'cloud', target: 'ml', type: 'normal', strength: 0.5 },
+            { source: 'backup', target: 'feature', type: 'normal', strength: 0.4 },
+            { source: 'ai', target: 'api', type: 'main', strength: 0.9 },
+            { source: 'ai', target: 'gateway', type: 'normal', strength: 0.6 },
+            { source: 'feature', target: 'monitor', type: 'normal', strength: 0.4 },
+            { source: 'api', target: 'enterprise', type: 'main', strength: 0.8 },
+            { source: 'api', target: 'blockchain', type: 'security', strength: 0.7 },
+            { source: 'blockchain', target: 'enterprise', type: 'main', strength: 0.8 }
+        ];
+
+        // 创建SVG
+        const width = window.innerWidth;
+        const height = window.innerHeight;
+        const svg = d3.select('#visualization')
+            .append('svg')
+            .attr('width', width)
+            .attr('height', height)
+            .style('position', 'absolute')
+            .style('top', 0)
+            .style('left', 0);
+
+        // 添加拖拽和缩放功能
+        const zoom = d3.zoom()
+            .scaleExtent([0.5, 3])
+            .on('zoom', function(event) {
+                const { transform } = event;
+                nodeGroup.attr('transform', transform);
+                linkGroup.attr('transform', transform);
+            });
+
+        svg.call(zoom);
+
+        // 创建渐变和滤镜
+        const defs = svg.append('defs');
+
+        // 发光滤镜
+        const glowFilter = defs.append('filter')
+            .attr('id', 'glow')
+            .attr('x', '-50%')
+            .attr('y', '-50%')
+            .attr('width', '200%')
+            .attr('height', '200%');
+
+        glowFilter.append('feGaussianBlur')
+            .attr('stdDeviation', '4')
+            .attr('result', 'coloredBlur');
+
+        const feMerge = glowFilter.append('feMerge');
+        feMerge.append('feMergeNode').attr('in', 'coloredBlur');
+        feMerge.append('feMergeNode').attr('in', 'SourceGraphic');
+
+        // 箭头标记
+        const arrowMarker = defs.append('marker')
+            .attr('id', 'arrowhead')
+            .attr('viewBox', '0 -5 10 10')
+            .attr('refX', 8)
+            .attr('refY', 0)
+            .attr('markerWidth', 6)
+            .attr('markerHeight', 6)
+            .attr('orient', 'auto');
+
+        arrowMarker.append('path')
+            .attr('d', 'M0,-5L10,0L0,5')
+            .attr('fill', '#00d4ff');
+
+        // 创建连线组
+        const linkGroup = svg.append('g').attr('class', 'links');
+        const nodeGroup = svg.append('g').attr('class', 'nodes');
+
+        // 绘制连线
+        const linkElements = linkGroup.selectAll('.link-path')
+            .data(links)
+            .enter()
+            .append('line')
+            .attr('class', 'link-path straight')
+            .attr('stroke', d => {
+                switch(d.type) {
+                    case 'main': return '#00d4ff';
+                    case 'security': return '#ff6b35';
+                    case 'backup': return '#6366f1';
+                    default: return '#8892b0';
+                }
+            })
+            .attr('stroke-width', d => 2 + d.strength * 2)
+            .attr('marker-end', 'url(#arrowhead)')
+            .attr('x1', d => {
+                const source = nodes.find(n => n.id === d.source);
+                return source.x;
+            })
+            .attr('y1', d => {
+                const source = nodes.find(n => n.id === d.source);
+                return source.y;
+            })
+            .attr('x2', d => {
+                const target = nodes.find(n => n.id === d.target);
+                return target.x;
+            })
+            .attr('y2', d => {
+                const target = nodes.find(n => n.id === d.target);
+                return target.y;
+            });
+
+        // 绘制节点
+        const nodeElements = nodeGroup.selectAll('.node-group')
+            .data(nodes)
+            .enter()
+            .append('g')
+            .attr('class', 'node-group')
+            .attr('transform', d => `translate(${d.x}, ${d.y})`);
+
+        // 节点外圈（选中状态）
+        nodeElements.filter(d => d.status === 'selected')
+            .append('circle')
+            .attr('r', d => d.size + 8)
+            .attr('fill', 'none')
+            .attr('stroke', '#fbbf24')
+            .attr('stroke-width', 2)
+            .attr('class', 'pulse');
+
+        // 节点主体
+        nodeElements.append('circle')
+            .attr('class', 'node-circle')
+            .attr('r', d => d.size)
+            .attr('fill', d => d.color)
+            .attr('filter', 'url(#glow)')
+            .style('color', d => d.color);
+
+        // 节点文字
+        nodeElements.append('text')
+            .attr('class', 'node-text')
+            .attr('y', 0)
+            .text(d => d.name);
+
+        // 节点标签
+        nodeElements.append('text')
+            .attr('class', 'node-label')
+            .attr('y', d => d.size + 18)
+            .text(d => d.label);
+
+        // 状态指示器
+        nodeElements.filter(d => d.gpu)
+            .append('text')
+            .attr('class', 'node-status')
+            .attr('y', d => -d.size - 8)
+            .text(d => `GPU: ${d.gpu}`);
+
+        nodeElements.filter(d => d.security)
+            .append('text')
+            .attr('class', 'node-status')
+            .attr('y', d => -d.size - 8)
+            .text(d => d.security);
+
+        nodeElements.filter(d => d.block)
+            .append('text')
+            .attr('class', 'node-status')
+            .attr('y', d => -d.size - 8)
+            .text(d => `Block ${d.block}`);
+
+        // 活跃状态指示点
+        nodeElements.filter(d => d.status === 'active' || d.status === 'online')
+            .append('circle')
+            .attr('cx', d => d.size - 8)
+            .attr('cy', d => -d.size + 8)
+            .attr('r', 4)
+            .attr('fill', '#00ff88')
+            .attr('class', 'pulse');
+
+        // 工具提示
+        const tooltip = d3.select('#tooltip');
+
+        nodeElements
+            .on('mouseover', function(event, d) {
+                tooltip
+                    .style('opacity', 1)
+                    .style('left', (event.pageX + 10) + 'px')
+                    .style('top', (event.pageY - 10) + 'px')
+                    .html(`
+                        <strong>${d.name}</strong><br/>
+                        类型: ${d.label}<br/>
+                        状态: ${d.status}<br/>
+                        ${d.gpu ? `GPU利用率: ${d.gpu}<br/>` : ''}
+                        ${d.security ? `安全协议: ${d.security}<br/>` : ''}
+                        ${d.block ? `区块高度: ${d.block}<br/>` : ''}
+                    `);
+            })
+            .on('mouseout', function() {
+                tooltip.style('opacity', 0);
+            });
+
+        // 添加数据粒子到3D球体
+        function addDataParticles() {
+            const sphereContainer = document.getElementById('sphereConnections'); // 修复ID
+            const particleTypes = ['particle-type-1', 'particle-type-2', 'particle-type-3', 'particle-type-4'];
+
+            for (let i = 0; i < 40; i++) {
+                const particle = document.createElement('div');
+                const typeClass = particleTypes[Math.floor(Math.random() * particleTypes.length)];
+                particle.className = `data-particle ${typeClass}`;
+
+                // 在球体范围内随机分布
+                const angle = Math.random() * Math.PI * 2;
+                const radius = Math.random() * 120 + 20;
+                const x = Math.cos(angle) * radius + 150;
+                const y = Math.sin(angle) * radius + 150;
+
+                particle.style.left = x + 'px';
+                particle.style.top = y + 'px';
+                particle.style.animationDelay = Math.random() * 6 + 's';
+                particle.style.animationDuration = (4 + Math.random() * 4) + 's';
+
+                if (sphereContainer) sphereContainer.appendChild(particle); // 容错处理
+            }
+
+            // 添加中心核心粒子
+            const coreParticle = document.createElement('div');
+            coreParticle.className = 'data-particle particle-type-2';
+            coreParticle.style.left = '147px';
+            coreParticle.style.top = '147px';
+            coreParticle.style.width = '12px';
+            coreParticle.style.height = '12px';
+            coreParticle.style.animationDuration = '3s';
+            coreParticle.style.zIndex = '200';
+            if (sphereContainer) sphereContainer.appendChild(coreParticle);
+        }
+
+        // 功能函数
+        let animationActive = false;
+
+        function startDataFlow() {
+            if (animationActive) return;
+            animationActive = true;
+
+            linkElements
+                .filter(d => d.type === 'main')
+                .classed('data-flow', true);
+
+            setTimeout(() => {
+                linkElements.classed('data-flow', false);
+                animationActive = false;
+            }, 5000);
+        }
+
+        function startDataTrace() {
+            // 重置进度条
+            const progressBar = document.getElementById('progressBar');
+            progressBar.classList.remove('active');
+            
+            // 新增：开始数据溯源演示
+            // 生成新的数据包数据
+            const newPacketData = generateRandomPacketData();
+            
+            // 更新时空溯源追踪数据
+            Object.assign(currentPacketData, newPacketData);
+            currentPacketData.traceSequence = [
+                { step: 1, timestamp: new Date(Date.now() + 0).toISOString().slice(0, -1), node: 'edge', action: '数据采集', location: '车载终端', details: '采集GPS位置、速度、方向角等车辆状态信息' },
+                { step: 2, timestamp: new Date(Date.now() + 1000).toISOString().slice(0, -1), node: 'cloud', action: '数据传输', location: '数据网关', details: '通过4G/5G网络上传，TLS加密传输' },
+                { step: 3, timestamp: new Date(Date.now() + 2000).toISOString().slice(0, -1), node: 'ai', action: '数据处理', location: 'AI分析引擎', details: '数据清洗、格式转换、异常检测' },
+                { step: 4, timestamp: new Date(Date.now() + 3000).toISOString().slice(0, -1), node: 'backup', action: '数据存储', location: '分布式存储', details: '建立索引关系，多副本备份' },
+                { step: 5, timestamp: new Date(Date.now() + 4000).toISOString().slice(0, -1), node: 'api', action: '服务封装', location: 'API服务', details: '生成标准化RESTful API接口' },
+                { step: 6, timestamp: new Date(Date.now() + 5000).toISOString().slice(0, -1), node: 'blockchain', action: '存证上链', location: '区块链网络', details: '数据哈希存证，确保不可篡改性' },
+                { step: 7, timestamp: new Date(Date.now() + 6000).toISOString().slice(0, -1), node: 'enterprise', action: '数据交付', location: '企业监管平台', details: '推送至企业数据治理平台' }
+            ];
+            
+            // 更新数据包显示信息
+            updatePacketDisplay(currentPacketData);
+            
+            // 显示时间轴
+            showTraceTimeline(currentPacketData);
+            
+            // 启动进度条一次性动画
+            setTimeout(() => {
+                progressBar.classList.add('active');
+            }, 100);
+            
+            // 启动节点和链接分步高亮（移除3D模式）
+            startStepByStepTrace();
+        }
+
+        function generateNewPacket() {
+            // 新增：生成新数据包演示
+            if (is3DView) {
+                render3DLinksFrom2D();
+            } else {
+                // 2D模式下清除现有动画，重新开始
+                linkElements.classed('data-flow highlight-path', false);
+                setTimeout(() => startDataFlow(), 200);
+            }
+        }
+
+        function highlightTraceability() {
+            const mainPath = links.filter(d => d.type === 'main');
+            linkElements
+                .filter(d => d.type === 'main')
+                .classed('highlight-path', true);
+
+            setTimeout(() => {
+                linkElements.classed('highlight-path', false);
+            }, 4000);
+        }
+
+        // 2D模式分步高亮追踪
+        function startStepByStepTrace() {
+            // 清除现有高亮
+            nodeElements.classed('trace-active', false);
+            linkElements.classed('trace-active', false);
+            
+            currentPacketData.traceSequence.forEach((step, index) => {
+                setTimeout(() => {
+                    // 高亮当前节点
+                    nodeElements
+                        .filter(d => d.id === step.node)
+                        .classed('trace-active', true);
+                    
+                    // 高亮到达该节点的链接
+                    if (index > 0) {
+                        const prevStep = currentPacketData.traceSequence[index - 1];
+                        linkElements
+                            .filter(d => d.source === prevStep.node && d.target === step.node)
+                            .classed('trace-active', true);
+                    }
+                    
+                    // 更新溯源状态
+                    document.getElementById('traceStatus').textContent = 
+                        `Step ${step.step}: ${step.action} - ${step.location}`;
+                        
+                }, index * 800);
+            });
+            
+            // 清除所有高亮
+            setTimeout(() => {
+                nodeElements.classed('trace-active', false);
+                linkElements.classed('trace-active', false);
+                document.getElementById('traceStatus').textContent = '数据溯源追踪完成';
+            }, currentPacketData.traceSequence.length * 800 + 2000);
+        }
+
+        // 3D模式增强业务节点追踪动画
+        function startBusinessTraceAnimationWithHighlight() {
+            const connectionsContainer = document.getElementById('sphereConnections');
+            
+            // 清除现有高亮和连线
+            document.querySelectorAll('.business-node').forEach(node => {
+                node.classList.remove('trace-active');
+            });
+            document.querySelectorAll('.connection-line-3d').forEach(conn => {
+                conn.remove();
+            });
+            
+            // 3D节点映射
+            const nodeMapping = {
+                edge: 'vehicle',
+                cloud: 'gateway', 
+                ai: 'ai',
+                backup: 'storage',
+                api: 'api',
+                blockchain: 'blockchain',
+                enterprise: 'enterprise'
+            };
+            
+            currentPacketData.traceSequence.forEach((step, index) => {
+                setTimeout(() => {
+                    const nodeId = nodeMapping[step.node];
+                    if (nodeId) {
+                        // 高亮3D业务节点
+                        const businessNode = document.querySelector(`[data-node-id="${nodeId}"]`);
+                        if (businessNode) {
+                            businessNode.classList.add('trace-active');
+                        }
+                        
+                        // 创建连线到下一个节点
+                        if (index < currentPacketData.traceSequence.length - 1) {
+                            const nextStep = currentPacketData.traceSequence[index + 1];
+                            const nextNodeId = nodeMapping[nextStep.node];
+                            if (nextNodeId) {
+                                setTimeout(() => {
+                                    const connection = create3DConnection(nodeId, nextNodeId, '#ff6b35');
+                                    if (connection) {
+                                        connection.classList.add('trace-active');
+                                    }
+                                }, 400);
+                            }
+                        }
+                    }
+                    
+                    // 更新溯源状态
+                    document.getElementById('traceStatus').textContent = 
+                        `Step ${step.step}: ${step.action} - ${step.location}`;
+                        
+                }, index * 1000);
+            });
+            
+            // 清除高亮
+            setTimeout(() => {
+                document.querySelectorAll('.business-node').forEach(node => {
+                    node.classList.remove('trace-active');
+                });
+                document.querySelectorAll('.connection-line-3d').forEach(conn => {
+                    conn.classList.remove('trace-active');
+                });
+                document.getElementById('traceStatus').textContent = '3D数据溯源追踪完成';
+            }, currentPacketData.traceSequence.length * 1000 + 3000);
+        }
+
+        let is3DView = false;
+        let sphereRotation = { x: 15, y: 0, z: 0 };
+        let isDraggingSphere = false;
+        let lastMouse = { x: 0, y: 0 };
+
+        function applySphereRotation() {
+            const el = document.getElementById('businessSphere');
+            if (!el) return;
+            el.style.transform = `rotateX(${sphereRotation.x}deg) rotateY(${sphereRotation.y}deg) rotateZ(${sphereRotation.z}deg)`;
+        }
+
+        function setupSphereInteractions() {
+            const sphere = document.getElementById('businessSphere');
+            if (!sphere || sphere.__interactionBound) return;
+
+            sphere.addEventListener('mousedown', (e) => {
+                isDraggingSphere = true;
+                lastMouse.x = e.clientX;
+                lastMouse.y = e.clientY;
+            });
+            window.addEventListener('mousemove', (e) => {
+                if (!isDraggingSphere) return;
+                const dx = e.clientX - lastMouse.x;
+                const dy = e.clientY - lastMouse.y;
+                lastMouse.x = e.clientX;
+                lastMouse.y = e.clientY;
+                sphereRotation.y += dx * 0.3;
+                sphereRotation.x -= dy * 0.3;
+                applySphereRotation();
+            });
+            window.addEventListener('mouseup', () => {
+                isDraggingSphere = false;
+            });
+
+            // 新增：移动端触控拖拽支持
+            sphere.addEventListener('touchstart', (e) => {
+                if (!e.touches || e.touches.length === 0) return;
+                const t = e.touches[0];
+                isDraggingSphere = true;
+                lastMouse.x = t.clientX;
+                lastMouse.y = t.clientY;
+            }, { passive: true });
+            window.addEventListener('touchmove', (e) => {
+                if (!isDraggingSphere || !e.touches || e.touches.length === 0) return;
+                const t = e.touches[0];
+                const dx = t.clientX - lastMouse.x;
+                const dy = t.clientY - lastMouse.y;
+                lastMouse.x = t.clientX;
+                lastMouse.y = t.clientY;
+                sphereRotation.y += dx * 0.3;
+                sphereRotation.x -= dy * 0.3;
+                applySphereRotation();
+            }, { passive: true });
+            window.addEventListener('touchend', () => {
+                isDraggingSphere = false;
+            }, { passive: true });
+
+            // 阻止文本选中影响拖拽体验
+            sphere.addEventListener('dragstart', e => e.preventDefault());
+            sphere.__interactionBound = true;
+        }
+
+        function render3DLinksFrom2D() {
+            // 使用与2D相同的数据：links中source/target映射到3D业务节点id
+            const map2DTo3D = {
+                edge: 'vehicle',
+                cloud: 'etl', // 近似映射：云存储->ETL处理
+                backup: 'storage',
+                ml: 'ai',
+                ai: 'ai',
+                feature: 'storage',
+                gateway: 'api',
+                api: 'api',
+                monitor: 'enterprise', // 近似映射
+                blockchain: 'blockchain',
+                enterprise: 'enterprise'
+            };
+            const connectionsContainer = document.getElementById('sphereConnections');
+            if (!connectionsContainer) return;
+            
+            // 清理现有连线，但保留粒子
+            const existingConnections = connectionsContainer.querySelectorAll('.connection-line-3d');
+            existingConnections.forEach(conn => conn.remove());
+
+            links.forEach(l => {
+                const from = map2DTo3D[l.source];
+                const to = map2DTo3D[l.target];
+                if (!from || !to) return;
+                const color = (l.type === 'main') ? '#00d4ff' : (l.type === 'security' ? '#ff6b35' : '#8892b0');
+                create3DConnection(from, to, color);
+            });
+        }
+
+        function toggle3DView() {
+            const sphereContainer = document.getElementById('sphereContainer');
+            const svgVisualization = svg.node();
+
+            if (!is3DView) {
+                // 切换到3D业务视图
+                sphereContainer.style.display = 'block';
+                svgVisualization.style.display = 'none';
+                is3DView = true;
+
+                // 停止自动旋转，启用交互拖拽
+                const bs = document.getElementById('businessSphere');
+                bs.classList.remove('auto-rotate');
+                setupSphereInteractions();
+                applySphereRotation();
+
+                // 让3D连线与2D数据一致
+                render3DLinksFrom2D();
+
+                // 更新按钮图标与文字
+                const btn = document.getElementById('toggle3DButton');
+                const btnIcon = btn.querySelector('use');
+                const btnText = btn.querySelector('span');
+                if (btnIcon) btnIcon.setAttribute('href', '#icon-2d');
+                if (btnText) btnText.textContent = '2D视图';
+            } else {
+                // 切换回2D网络视图
+                sphereContainer.style.display = 'none';
+                svgVisualization.style.display = 'block';
+                is3DView = false;
+
+                // 清理3D连线
+                const connectionsContainer = document.getElementById('sphereConnections');
+                if (connectionsContainer) {
+                    const existingConnections = connectionsContainer.querySelectorAll('.connection-line-3d');
+                    existingConnections.forEach(conn => conn.remove());
+                }
+
+                // 更新按钮图标与文字
+                const btn = document.getElementById('toggle3DButton');
+                const btnIcon = btn.querySelector('use');
+                const btnText = btn.querySelector('span');
+                if (btnIcon) btnIcon.setAttribute('href', '#icon-3d');
+                if (btnText) btnText.textContent = '3D视图';
+            }
+        }
+
+        function startBusinessTraceAnimation() {
+            const connectionsContainer = document.getElementById('sphereConnections');
+
+            // 仅清除现有3D连线，保留粒子
+            const existingConnections = connectionsContainer.querySelectorAll('.connection-line-3d');
+            existingConnections.forEach(conn => conn.remove());
+
+            // 定义3D业务数据流连接
+            const businessConnections = [
+                { from: 'vehicle', to: 'gateway', color: '#ff6b35', delay: 0 },
+                { from: 'sensor', to: 'etl', color: '#4f46e5', delay: 500 },
+                { from: 'gateway', to: 'storage', color: '#059669', delay: 1000 },
+                { from: 'etl', to: 'ai', color: '#10b981', delay: 1500 },
+                { from: 'storage', to: 'api', color: '#dc2626', delay: 2000 },
+                { from: 'ai', to: 'blockchain', color: '#fbbf24', delay: 2500 },
+                { from: 'api', to: 'enterprise', color: '#8b5cf6', delay: 3000 },
+                { from: 'blockchain', to: 'enterprise', color: '#7c3aed', delay: 3500 }
+            ];
+
+            // 创建3D连线
+            businessConnections.forEach((connection, index) => {
+                setTimeout(() => {
+                    create3DConnection(connection.from, connection.to, connection.color);
+                }, connection.delay);
+            });
+        }
+
+        function create3DConnection(fromNodeId, toNodeId, color) {
+            const fromNode = document.querySelector(`[data-node-id="${fromNodeId}"]`);
+            const toNode = document.querySelector(`[data-node-id="${toNodeId}"]`);
+
+            if (!fromNode || !toNode) return;
+
+            // 获取节点位置
+            const fromRect = fromNode.getBoundingClientRect();
+            const toRect = toNode.getBoundingClientRect();
+            const containerRect = document.getElementById('sphereConnections').getBoundingClientRect();
+
+            const fromX = fromRect.left - containerRect.left + fromRect.width / 2;
+            const fromY = fromRect.top - containerRect.top + fromRect.height / 2;
+            const toX = toRect.left - containerRect.left + toRect.width / 2;
+            const toY = toRect.top - containerRect.top + toRect.height / 2;
+
+            // 计算连线长度和角度
+            const dx = toX - fromX;
+            const dy = toY - fromY;
+            const length = Math.sqrt(dx * dx + dy * dy);
+            const angle = Math.atan2(dy, dx) * 180 / Math.PI;
+
+            // 创建连线元素
+            const connectionLine = document.createElement('div');
+            connectionLine.className = 'connection-line-3d';
+            connectionLine.style.left = fromX + 'px';
+            connectionLine.style.top = fromY + 'px';
+            connectionLine.style.width = length + 'px';
+            connectionLine.style.transform = `rotate(${angle}deg)`;
+            connectionLine.style.background = `linear-gradient(90deg, transparent, ${color}, transparent)`;
+            connectionLine.style.boxShadow = `0 0 10px ${color}`;
+            connectionLine.style.animationDelay = Math.random() * 2 + 's';
+
+            document.getElementById('sphereConnections').appendChild(connectionLine);
+            return connectionLine;
+        }
+
+        function resetView() {
+            linkElements
+                .classed('highlight-path', false)
+                .classed('data-flow', false);
+            animationActive = false;
+        }
+
+        // 实时更新指标
+        function updateMetrics() {
+            document.getElementById('throughput').textContent = (2.1 + Math.random() * 0.4).toFixed(1) + ' GB/s';
+            document.getElementById('latency').textContent = Math.floor(6 + Math.random() * 4) + 'ms';
+            document.getElementById('successRate').textContent = (99.95 + Math.random() * 0.04).toFixed(2) + '%';
+            document.getElementById('traceDepth').textContent = Math.floor(4 + Math.random() * 3) + '层';
+        }
+
+        // 业务节点交互
+        function initBusinessNodeInteractions() {
+            const businessNodes = document.querySelectorAll('.business-node');
+            const tooltip = document.getElementById('tooltip');
+
+            businessNodes.forEach(node => {
+                node.addEventListener('mouseenter', function(e) {
+                    const business = this.getAttribute('data-business');
+                    const layer = this.closest('.data-layer').querySelector('.layer-title').textContent;
+
+                    tooltip.style.opacity = '1';
+                    tooltip.style.left = (e.pageX + 10) + 'px';
+                    tooltip.style.top = (e.pageY - 10) + 'px';
+                    tooltip.innerHTML = `
+                        <strong>${business}</strong><br/>
+                        所属层级: ${layer}<br/>
+                        状态: 运行中<br/>
+                        数据流量: ${(Math.random() * 100).toFixed(1)} MB/s<br/>
+                        处理延迟: ${Math.floor(Math.random() * 50 + 10)}ms
+                    `;
+                });
+
+                node.addEventListener('mouseleave', function() {
+                    tooltip.style.opacity = '0';
+                });
+
+                node.addEventListener('click', function() {
+                    // 高亮该节点相关的数据流路径
+                    const business = this.getAttribute('data-business');
+                    highlightBusinessPath(business);
+                });
+            });
+        }
+
+        function highlightBusinessPath(businessType) {
+            // 根据业务类型高亮相关路径
+            const paths = document.querySelectorAll('.trace-path');
+            paths.forEach(path => {
+                path.style.opacity = '0.3';
+            });
+
+            // 这里可以根据具体业务逻辑来高亮特定路径
+            setTimeout(() => {
+                paths.forEach(path => {
+                    path.style.opacity = '0.7';
+                });
+            }, 2000);
+        }
+
+        // 初始化
+        addDataParticles();
+        initBusinessNodeInteractions();
+        setInterval(updateMetrics, 2000);
+
+        // 自动启动演示
+        setTimeout(() => {
+            startDataFlow();
+        }, 1500);
+        // 数据包时空溯源追踪数据结构
+        const currentPacketData = {
+            id: 'PKT-20241212-001847',
+            vin: 'LSGWB54E8KS123456',
+            creditCode: '91110000MA01234567',
+            dataType: '位置轨迹+驾驶行为',
+            collectTime: '2024-12-12 14:18:47',
+            dataSize: '2.34 MB',
+            vehicleModel: '理想L9',
+            manufacturer: '北京理想汽车有限公司',
+            location: { lat: 39.9042, lng: 116.4074, address: '北京市朝阳区' },
+            traceSequence: [
+                { step: 1, timestamp: '2024-12-12 14:18:47.123', node: 'vehicle', action: '数据采集', location: '车载终端', details: '采集GPS位置、速度、方向角' },
+                { step: 2, timestamp: '2024-12-12 14:18:47.456', node: 'gateway', action: '数据传输', location: '数据网关', details: '通过4G/5G网络上传，加密传输' },
+                { step: 3, timestamp: '2024-12-12 14:18:47.789', node: 'etl', action: '数据处理', location: 'ETL处理', details: '数据清洗、格式转换、质量检查' },
+                { step: 4, timestamp: '2024-12-12 14:18:48.012', node: 'storage', action: '数据存储', location: '数据湖', details: '分布式存储，建立索引关系' },
+                { step: 5, timestamp: '2024-12-12 14:18:48.345', node: 'ai', action: 'AI分析', location: 'AI分析引擎', details: '轨迹异常检测、行为模式分析' },
+                { step: 6, timestamp: '2024-12-12 14:18:48.678', node: 'api', action: '服务封装', location: 'API服务', details: '生成标准化API接口' },
+                { step: 7, timestamp: '2024-12-12 14:18:48.901', node: 'blockchain', action: '存证上链', location: '区块链', details: '数据哈希存证，确保不可篡改' },
+                { step: 8, timestamp: '2024-12-12 14:18:49.234', node: 'enterprise', action: '数据交付', location: '企业平台', details: '推送至企业监管平台' }
+            ]
+        };
+
+        // 车辆VIN码和企业信用代码映射关系
+        const vehicleEnterpriseMapping = {
+            'LSGWB54E8KS123456': {
+                creditCode: '91110000MA01234567',
+                company: '北京理想汽车有限公司',
+                vehicleModel: '理想L9',
+                productionDate: '2023-08-15',
+                registrationLocation: '北京市朝阳区'
+            },
+            'LVGB34E2XMF123789': {
+                creditCode: '91310000MA1FL23456',
+                company: '上海蔚来汽车有限公司',
+                vehicleModel: 'ES8',
+                productionDate: '2023-09-20',
+                registrationLocation: '上海市浦东新区'
+            },
+            'LBVCU31E8LF456123': {
+                creditCode: '91440300MA5EQRJX8X',
+                company: '比亚迪汽车工业有限公司',
+                vehicleModel: '唐DM-i',
+                productionDate: '2023-07-10',
+                registrationLocation: '深圳市南山区'
+            }
+        };
+
+        // 生成新数据包信息
+        function generateRandomPacketData() {
+            const vins = Object.keys(vehicleEnterpriseMapping);
+            const randomVin = vins[Math.floor(Math.random() * vins.length)];
+            const vehicleInfo = vehicleEnterpriseMapping[randomVin];
+            
+            const now = new Date();
+            const timestamp = now.toISOString().slice(0, 19).replace('T', ' ');
+            const packetId = `PKT-${now.getFullYear()}${String(now.getMonth()+1).padStart(2,'0')}${String(now.getDate()).padStart(2,'0')}-${String(now.getHours()).padStart(2,'0')}${String(now.getMinutes()).padStart(2,'0')}${String(now.getSeconds()).padStart(2,'0')}`;
+            
+            const dataTypes = [
+                '位置轨迹+驾驶行为', 
+                '车辆状态+环境感知', 
+                '充电数据+能耗分析', 
+                '行驶路径+交通状况',
+                '车载诊断+故障预警'
+            ];
+            
+            return {
+                id: packetId,
+                vin: randomVin,
+                creditCode: vehicleInfo.creditCode,
+                dataType: dataTypes[Math.floor(Math.random() * dataTypes.length)],
+                collectTime: timestamp,
+                dataSize: (Math.random() * 5 + 0.5).toFixed(2) + ' MB',
+                vehicleModel: vehicleInfo.vehicleModel,
+                manufacturer: vehicleInfo.company,
+                location: {
+                    lat: 39.9 + (Math.random() - 0.5) * 0.2,
+                    lng: 116.4 + (Math.random() - 0.5) * 0.2,
+                    address: vehicleInfo.registrationLocation
+                }
+            };
+        }
+
+        // 更新数据包显示信息
+        function updatePacketDisplay(packetData) {
+            document.getElementById('packetId').textContent = packetData.id;
+            document.getElementById('vinCode').textContent = packetData.vin;
+            document.getElementById('creditCode').textContent = packetData.creditCode;
+            document.getElementById('dataType').textContent = packetData.dataType;
+            document.getElementById('collectTime').textContent = packetData.collectTime;
+            document.getElementById('dataSize').textContent = packetData.dataSize;
+            
+            // 更新溯源状态
+            document.getElementById('traceStatus').textContent = `正在追踪数据包 ${packetData.id} 的传播路径...`;
+        }
+
+        // 创建时间轴追踪序列
+        function showTraceTimeline(packetData) {
+            const timelineContainer = document.createElement('div');
+            timelineContainer.className = 'trace-timeline';
+            timelineContainer.innerHTML = `
+                <div class="timeline-header">
+                    <h3>📋 数据包传播路径时间轴</h3>
+                    <div class="timeline-info">
+                        <span>数据包ID: ${packetData.id}</span>
+                        <span>车辆: ${packetData.vehicleModel} (${packetData.vin})</span>
+                    </div>
+                </div>
+                <div class="timeline-steps" id="timelineSteps"></div>
+            `;
+            
+            // 插入到主容器
+            const container = document.querySelector('.container');
+            const existingTimeline = container.querySelector('.trace-timeline');
+            if (existingTimeline) existingTimeline.remove();
+            container.appendChild(timelineContainer);
+            
+            // 动态添加时间轴步骤
+            const stepsContainer = document.getElementById('timelineSteps');
+            currentPacketData.traceSequence.forEach((step, index) => {
+                setTimeout(() => {
+                    const stepElement = document.createElement('div');
+                    stepElement.className = 'timeline-step active';
+                    stepElement.innerHTML = `
+                        <div class="step-marker">${step.step}</div>
+                        <div class="step-content">
+                            <div class="step-title">${step.action} - ${step.location}</div>
+                            <div class="step-time">${step.timestamp}</div>
+                            <div class="step-details">${step.details}</div>
+                        </div>
+                    `;
+                    stepsContainer.appendChild(stepElement);
+                }, index * 400);
+            });
+        }
+    </script>
+</body>
+</html>
