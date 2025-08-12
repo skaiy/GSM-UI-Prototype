@@ -1043,7 +1043,6 @@ onMounted(() => {
 .text-slate-400 {
   color: #94a3b8;
 }
-}
 
 .header-subtitle {
   font-size: 0.75rem;
