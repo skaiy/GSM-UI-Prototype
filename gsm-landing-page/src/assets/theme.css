@@ -1,0 +1,67 @@
+/* Global theme variables and shared utility styles */
+:root {
+  --primary-color: #00d4ff;
+  --primary-dark: #0099cc;
+  --primary-hover: #00b8e6;
+  --secondary-color: #4a90e2;
+  --accent-color: #00ffff;
+  --success-color: #00ff88;
+  --warning-color: #ffaa00;
+  --danger-color: #ff4444;
+  --background-color: #0f172a;
+  --surface-color: #1e293b;
+  --card-bg: rgba(30, 41, 59, 0.95);
+  --text-color: #f8fafc;
+  --text-color-secondary: #cbd5e1;
+  --text-color-regular: #e2e8f0;
+  --border-color: rgba(51, 65, 85, 0.6);
+  --border-color-lighter: rgba(71, 85, 105, 0.4);
+  --hover-bg: rgba(51, 65, 85, 0.8);
+  --nav-bg: rgba(15, 23, 42, 0.95);
+  --glow-color: rgba(0, 212, 255, 0.4);
+  --gradient-primary: linear-gradient(135deg, #00d4ff 0%, #4a90e2 100%);
+  --gradient-secondary: linear-gradient(135deg, #1e293b 0%, #334155 100%);
+
+  /* Compat */
+  --bg-color: var(--background-color);
+  --text-secondary: var(--text-color-secondary);
+  --header-bg: var(--surface-color);
+  --button-bg: var(--surface-color);
+  --input-bg: var(--surface-color);
+  --chart-bg: var(--surface-color);
+  --map-bg: var(--surface-color);
+  --tooltip-bg: var(--surface-color);
+  --table-header-bg: var(--surface-color);
+}
+
+[data-theme="light"] {
+  --primary-color: #0066cc;
+  --primary-dark: #004499;
+  --primary-hover: #0052a3;
+  --secondary-color: #4a90e2;
+  --accent-color: #00aaff;
+  --success-color: #00aa66;
+  --warning-color: #ff8800;
+  --danger-color: #cc3333;
+  --background-color: #f0f4f8;
+  --surface-color: #ffffff;
+  --card-bg: rgba(255, 255, 255, 0.9);
+  --text-color: #1a1f2e;
+  --text-color-secondary: #64748b;
+  --text-color-regular: #475569;
+  --border-color: rgba(0, 102, 204, 0.2);
+  --border-color-lighter: rgba(0, 102, 204, 0.1);
+  --hover-bg: rgba(0, 102, 204, 0.05);
+  --nav-bg: rgba(255, 255, 255, 0.95);
+  --glow-color: rgba(0, 102, 204, 0.2);
+  --gradient-primary: linear-gradient(135deg, #0066cc 0%, #4a90e2 100%);
+  --gradient-secondary: linear-gradient(135deg, #ffffff 0%, #f0f4f8 100%);
+}
+
+/* Shared utilities (minimal) */
+.container { max-width: 1280px; margin: 0 auto; padding: 0 1rem; }
+.card { background: var(--card-bg); border: 1px solid var(--border-color); border-radius: 12px; }
+.btn { display: inline-flex; align-items: center; gap: 0.5rem; padding: 0.5rem 1rem; border-radius: 8px; border: 1px solid var(--border-color); background: var(--button-bg); color: var(--text-color); cursor: pointer; }
+.btn-primary { background: var(--gradient-primary); color: #fff; border-color: var(--primary-color); }
+.text-muted { color: var(--text-color-secondary); }
+
