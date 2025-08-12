@@ -8,14 +8,14 @@
         </p>
       </div>
       <div class="news-grid">
-        <div v-for="news in newsItems" :key="news.id" class="news-card">
+        <div v-for="news in newsItems" :key="news.id" class="news-card" @click="openPolicyDetail(news.id)">
           <div class="news-meta">
             <span class="news-badge">{{ news.category }}</span>
             <span class="news-date">{{ news.date }}</span>
           </div>
           <h3 class="news-title">{{ news.title }}</h3>
           <p class="news-summary">{{ news.summary }}</p>
-          <button class="btn btn-ghost btn-small news-link">
+          <button class="btn btn-ghost btn-small news-link" @click.stop="openPolicyDetail(news.id)">
             查看详情 →
           </button>
         </div>
@@ -55,6 +55,11 @@ const newsItems = [
     summary: '发布《关于加强智能网联汽车有关测绘地理信息安全管理的通知》，规范智能网联汽车地理信息数据安全管理。'
   }
 ]
+
+// 打开政策详情页面
+const openPolicyDetail = (newsId: number) => {
+  window.open(`/content/policy/${newsId}`, '_blank')
+}
 </script>
 
 <style scoped>
@@ -104,6 +109,7 @@ const newsItems = [
   transition: all 0.3s ease;
   position: relative;
   overflow: hidden;
+  cursor: pointer;
 }
 
 .news-card::before {

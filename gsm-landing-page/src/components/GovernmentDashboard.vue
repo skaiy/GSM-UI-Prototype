@@ -1043,6 +1043,14 @@ onMounted(() => {
 .text-slate-400 {
   color: #94a3b8;
 }
+}
+
+.header-subtitle {
+  font-size: 0.75rem;
+  line-height: 1rem;
+  color: #94a3b8;
+  margin: 0;
+}
 
 .header-right {
   display: flex;
