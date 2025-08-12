@@ -4,8 +4,21 @@
     <header class="dashboard-header">
       <div class="header-content">
         <div class="header-left">
-          <img src="/logo.svg" alt="平台Logo" class="header-logo" />
-          <h1 class="header-title">地理信息安全监测平台</h1>
+          <div class="nav-brand">
+            <div class="flex items-center space-x-3">
+              <div class="relative">
+                <div class="w-10 h-10 flex items-center justify-center">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-shield w-8 h-8 text-blue-400 drop-shadow-lg filter hover:text-cyan-400 transition-colors duration-300" style="filter: drop-shadow(rgba(59, 130, 246, 0.3) 0px 0px 8px);">
+                    <path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z"></path>
+                  </svg>
+                </div>
+              </div>
+              <div>
+                <h1 class="text-xl font-bold text-white brand-title">地理信息安全监测平台</h1>
+                <p class="text-xs text-slate-400 brand-subtitle">Geospatial Security Monitoring Platform</p>
+              </div>
+            </div>
+          </div>
         </div>
 
         <!-- 中间主导航区域 -->
@@ -925,20 +938,110 @@ onMounted(() => {
   flex-shrink: 0;
 }
 
-.header-logo {
-  width: 40px;
-  height: 40px;
-  filter: drop-shadow(0 0 8px var(--primary-color));
+.nav-brand {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
 }
 
-.header-title {
-  font-size: 1.5rem;
-  font-weight: 600;
+/* Utility classes for the new logo structure */
+.flex {
+  display: flex;
+}
+
+.items-center {
+  align-items: center;
+}
+
+.space-x-3 > * + * {
+  margin-left: 0.75rem;
+}
+
+.relative {
+  position: relative;
+}
+
+.w-10 {
+  width: 2.5rem;
+}
+
+.h-10 {
+  height: 2.5rem;
+}
+
+.justify-center {
+  justify-content: center;
+}
+
+.w-8 {
+  width: 2rem;
+}
+
+.h-8 {
+  height: 2rem;
+}
+
+.text-blue-400 {
+  color: #60a5fa;
+}
+
+.drop-shadow-lg {
+  filter: drop-shadow(0 10px 8px rgb(0 0 0 / 0.04)) drop-shadow(0 4px 3px rgb(0 0 0 / 0.1));
+}
+
+.filter {
+  filter: var(--tw-blur) var(--tw-brightness) var(--tw-contrast) var(--tw-grayscale) var(--tw-hue-rotate) var(--tw-invert) var(--tw-saturate) var(--tw-sepia) var(--tw-drop-shadow);
+}
+
+.hover\:text-cyan-400:hover {
+  color: #22d3ee;
+}
+
+.transition-colors {
+  transition-property: color, background-color, border-color, text-decoration-color, fill, stroke;
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+  transition-duration: 150ms;
+}
+
+.duration-300 {
+  transition-duration: 300ms;
+}
+
+.brand-title {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: white;
   margin: 0;
-  background: var(--gradient-primary);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
+  line-height: 1.75rem;
+}
+
+.brand-subtitle {
+  font-size: 0.75rem;
+  line-height: 1rem;
+  color: #94a3b8;
+  margin: 0;
+}
+
+.text-xl {
+  font-size: 1.25rem;
+  line-height: 1.75rem;
+}
+
+.font-bold {
+  font-weight: 700;
+}
+
+.text-white {
+  color: rgb(255 255 255);
+}
+
+.text-xs {
+  font-size: 0.75rem;
+  line-height: 1rem;
+}
+
+.text-slate-400 {
+  color: #94a3b8;
 }
 
 .header-right {
@@ -2736,19 +2839,12 @@ onMounted(() => {
   background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%) !important;
 }
 
-[data-theme="dark"] .dashboard-header h1 {
-  color: #f8fafc !important;
-  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+[data-theme="dark"] .brand-title {
+  color: #f8fafc;
 }
 
-/* 头部导航文字优化 */
-[data-theme="dark"] .header-title {
-  color: #f8fafc !important;
-  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
-  background: linear-gradient(135deg, #3b82f6 0%, #60a5fa 100%) !important;
-  -webkit-background-clip: text !important;
-  -webkit-text-fill-color: transparent !important;
-  background-clip: text !important;
+[data-theme="dark"] .brand-subtitle {
+  color: #94a3b8;
 }
 
 [data-theme="dark"] .user-name {

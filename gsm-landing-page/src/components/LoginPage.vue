@@ -520,23 +520,18 @@ onBeforeUnmount(() => {
 }
 
 .login-title {
-  font-size: 1.75rem;
+  font-size: 1.25rem;
   font-weight: 700;
-  color: #1e293b;
+  color: white;
   margin: 0;
-  letter-spacing: -0.025em;
-  background: linear-gradient(135deg, #1e293b, #475569);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
+  line-height: 1.75rem;
 }
 
 .login-subtitle {
-  color: #64748b;
+  font-size: 0.75rem;
+  line-height: 1rem;
+  color: #94a3b8;
   margin: 0;
-  font-size: 1rem;
-  font-weight: 400;
-  letter-spacing: 0.025em;
 }
 
 /* 登录方式切换 */
@@ -577,15 +572,10 @@ onBeforeUnmount(() => {
 
 [data-theme="dark"] .login-title {
   color: #f8fafc;
-  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
-  background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
 }
 
 [data-theme="dark"] .login-subtitle {
-  color: #cbd5e1;
+  color: #94a3b8;
 }
 
 [data-theme="dark"] .form-label {
