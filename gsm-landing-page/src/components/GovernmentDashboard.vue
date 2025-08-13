@@ -600,12 +600,12 @@ const chartTypes = [
 
 // 车端相关状态
 const vehicleTimeFilter = ref('day')
-const vehicleChartType = ref('bar')
+const vehicleChartType = ref('pie')
 const vehicleRiskFilter = ref('日')
 
 // 云端相关状态
 const cloudTimeFilter = ref('day')
-const cloudChartType = ref('bar')
+const cloudChartType = ref('pie')
 const cloudRiskFilter = ref('日')
 
 // 时间过滤器
