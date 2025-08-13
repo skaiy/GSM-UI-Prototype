@@ -8,13 +8,6 @@
           <p class="page-subtitle">Enterprise Compliance Access Application for Connected Vehicle Geospatial Data Security</p>
         </div>
         <div class="action-buttons">
-          <button class="btn btn-outline" @click="previewApplication">
-            <svg class="btn-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
-              <circle cx="12" cy="12" r="3"></circle>
-            </svg>
-            预览申请单
-          </button>
           <button class="btn btn-primary" @click="downloadApplication">
             <svg class="btn-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
               <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
@@ -156,11 +149,6 @@ defineProps<{
   contentData?: any
 }>()
 
-// 预览申请单
-const previewApplication = () => {
-  // 这里可以打开预览模态框或新窗口
-  alert('申请单预览功能开发中...')
-}
 
 // 下载申请单
 const downloadApplication = () => {

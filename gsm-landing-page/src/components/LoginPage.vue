@@ -638,9 +638,9 @@ onBeforeUnmount(() => {
 }
 
 .mode-btn.active {
-  background: linear-gradient(135deg, #409eff, #66b3ff);
-  color: white;
-  box-shadow: 0 2px 8px rgba(64, 158, 255, 0.3);
+  background: var(--gradient-primary);
+  color: #fff;
+  box-shadow: 0 2px 8px var(--glow-color);
   transform: translateY(-1px);
 }
 
@@ -847,8 +847,8 @@ onBeforeUnmount(() => {
 
 .sms-btn {
   padding: 0.75rem 1rem;
-  background: linear-gradient(135deg, #409eff, #66b3ff);
-  color: white;
+  background: var(--gradient-primary);
+  color: #fff;
   border: none;
   border-radius: 12px;
   font-weight: 500;
@@ -857,7 +857,7 @@ onBeforeUnmount(() => {
   white-space: nowrap;
   font-size: 0.875rem;
   min-width: 100px;
-  box-shadow: 0 2px 8px rgba(64, 158, 255, 0.3);
+  box-shadow: 0 2px 8px var(--glow-color);
 }
 
 .sms-btn:hover:not(:disabled) {
@@ -1057,16 +1057,16 @@ onBeforeUnmount(() => {
   width: 100%;
   margin-top: 1.5rem;
   padding: 0.625rem;
-  background: linear-gradient(135deg, #409eff, #66b3ff);
-  color: white;
+  background: var(--gradient-primary);
+  color: #fff;
   border: none;
   border-radius: 6px;
   font-size: 0.875rem;
   font-weight: 600;
   cursor: pointer;
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  box-shadow: 
-    0 4px 12px rgba(64, 158, 255, 0.3),
+  box-shadow:
+    0 4px 12px var(--glow-color),
     inset 0 1px 2px rgba(255, 255, 255, 0.2);
   position: relative;
   overflow: hidden;
@@ -1118,9 +1118,9 @@ onBeforeUnmount(() => {
 }
 
 [data-theme="dark"] .login-button:hover:not(:disabled) {
-  background: linear-gradient(135deg, #2563eb, #3b82f6);
-  box-shadow: 
-    0 8px 25px rgba(59, 130, 246, 0.5),
+  filter: brightness(1.05);
+  box-shadow:
+    0 8px 25px var(--glow-color),
     inset 0 1px 2px rgba(255, 255, 255, 0.1);
 }
 

@@ -432,21 +432,33 @@ onMounted(() => {
   font-size: 3.5rem;
   font-weight: 700;
   margin-bottom: 1.5rem;
-  background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-active) 100%);
+  color: var(--text-color);
+  line-height: 1.2;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+/* 暗色模式下使用渐变文字 */
+[data-theme="dark"] .hero-title {
+  background: linear-gradient(135deg, #60a5fa 0%, #93c5fd 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
-  line-height: 1.2;
-  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  text-shadow: none;
 }
 
 .hero-subtitle {
   font-size: 1.35rem;
   margin-bottom: 3rem;
-  color: var(--text-color-regular);
+  color: var(--text-color);
   line-height: 1.6;
   text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
   font-weight: 500;
+}
+
+/* 暗色模式下的副标题样式 */
+[data-theme="dark"] .hero-subtitle {
+  color: #e2e8f0;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
 }
 
 .hero-stats {

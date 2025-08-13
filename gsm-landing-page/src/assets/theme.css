@@ -1,8 +1,8 @@
 /* Global theme variables and shared utility styles */
 :root {
-  --primary-color: #00d4ff;
-  --primary-dark: #0099cc;
-  --primary-hover: #00b8e6;
+  --primary-color: #0080cc;
+  --primary-dark: #005599;
+  --primary-hover: #0066aa;
   --secondary-color: #4a90e2;
   --accent-color: #00ffff;
   --success-color: #00ff88;

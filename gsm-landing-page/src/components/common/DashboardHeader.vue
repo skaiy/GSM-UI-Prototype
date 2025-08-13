@@ -114,11 +114,11 @@ defineEmits<{
 .hover\:text-cyan-400:hover { color: #22d3ee; }
 .transition-colors { transition-property: color, background-color, border-color, text-decoration-color, fill, stroke; transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1); transition-duration: 150ms; }
 .duration-300 { transition-duration: 300ms; }
-.brand-title { font-size: 1.25rem; font-weight: 700; color: white; margin: 0; line-height: 1.75rem; }
+.brand-title { font-size: 1.25rem; font-weight: 700; color: var(--text-color); margin: 0; line-height: 1.75rem; }
 .brand-subtitle { font-size: 0.75rem; line-height: 1rem; color: #94a3b8; margin: 0; }
 .text-xl { font-size: 1.25rem; line-height: 1.75rem; }
 .font-bold { font-weight: 700; }
-.text-white { color: rgb(255 255 255); }
+.text-white { color: var(--text-color); }
 .text-xs { font-size: 0.75rem; line-height: 1rem; }
 .text-slate-400 { color: #94a3b8; }
 
