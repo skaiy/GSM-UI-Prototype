@@ -494,7 +494,10 @@ const router = useRouter()
 const isDark = ref(false)
 const toggleTheme = () => {
   isDark.value = !isDark.value
-  document.documentElement.setAttribute('data-theme', isDark.value ? 'dark' : 'light')
+  const theme = isDark.value ? 'dark' : 'light'
+  document.documentElement.setAttribute('data-theme', theme)
+  // 保存主题设置到 localStorage
+  localStorage.setItem('theme', theme)
 }
 
 // 菜单状态
@@ -813,11 +816,20 @@ const filteredCloudRisks = computed(() => {
 
 // 生命周期
 onMounted(() => {
-  // 初始化主题
+  // 初始化主题 - 确保在组件挂载时立即应用正确的主题
   const savedTheme = localStorage.getItem('theme')
   if (savedTheme === 'dark') {
     isDark.value = true
     document.documentElement.setAttribute('data-theme', 'dark')
+    // 强制更新地理围栏样式
+    geoFenceData.value.style.color = '#60a5fa'
+    geoFenceData.value.style.fillColor = 'rgba(96, 165, 250, 0.1)'
+  } else {
+    // 确保亮色主题也被正确设置
+    isDark.value = false
+    document.documentElement.setAttribute('data-theme', 'light')
+    geoFenceData.value.style.color = '#3b82f6'
+    geoFenceData.value.style.fillColor = 'rgba(59, 130, 246, 0.1)'
   }
 })
 </script>
