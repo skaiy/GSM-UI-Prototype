@@ -4,7 +4,6 @@
 
 @layer base {
   :root {
-    /* shadcn-vue colors - mapped to existing theme */
     --background: 0 0% 100%;
     --foreground: 222.2 84% 4.9%;
     
@@ -77,9 +76,4 @@
     background-color: hsl(var(--background));
     color: hsl(var(--foreground));
   }
-}
-
-/* Bridge: keep existing CSS variables from theme.css working */
-:root {
-  color-scheme: light dark;
 }

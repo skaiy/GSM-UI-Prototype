@@ -17,7 +17,9 @@ const routes = [
   { path: '/login/enterprise', name: 'enterprise-login', component: LoginPage, props: { userType: 'enterprise' } },
   { path: '/dashboard/government', name: 'government-dashboard', component: GovernmentDashboard },
   { path: '/content/:type/:id?', name: 'content-detail', component: ContentDetailPage },
-  { path: '/overview/activity-stats', name: 'P007-activity-stats', component: () => import('./components/pages/P007ActivityStats.vue') }
+  { path: '/overview/activity-stats', name: 'P007-activity-stats', component: () => import('./components/pages/P007ActivityStats.vue') },
+  { path: '/test/shadcn-vue', name: 'shadcn-vue-test', component: () => import('./test/ShadcnVueTest.vue') },
+  { path: '/test/shadcn-inline', name: 'shadcn-inline-test', component: () => import('./test/ShadcnInlineTest.vue') }
 ]
 
 const router = createRouter({

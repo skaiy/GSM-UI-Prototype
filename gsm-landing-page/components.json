@@ -1,15 +1,15 @@
 {
+  "$schema": "https://www.shadcn-vue.com/schema.json",
   "style": "default",
+  "typescript": true,
   "tailwind": {
     "config": "tailwind.config.js",
     "css": "src/assets/tailwind.css",
     "baseColor": "zinc",
     "cssVariables": true
   },
-  "typescript": true,
   "aliases": {
-    "utils": "@/lib/utils",
-    "components": "@/components"
+    "components": "@/components",
+    "utils": "@/lib/utils"
   }
 }
-

@@ -10,92 +10,85 @@
       @logout="goHome"
     />
 
-    <div class="container mx-auto px-4 py-6 grid grid-cols-12 gap-4">
-      <aside class="col-span-12 md:col-span-3">
-        <SideSubMenu
-          title="综合概览"
-          :items="subMenus"
-          :active-key="activeSubMenu"
-          @select="onSubMenuSelect"
-        />
-      </aside>
+    <DashboardLayout>
+      <template #sidebar>
+        <Sidebar08 :items="subMenus" :active-key="activeSubMenu" @select="onSubMenuSelect" />
+      </template>
 
-      <main class="col-span-12 md:col-span-9 space-y-6">
-        <section class="rounded-lg border border-[var(--border-color)] bg-[var(--card-bg)] p-6 shadow-sm">
-          <h2 class="text-xl font-semibold text-[var(--text-color)] mb-2">处理活动信息统计</h2>
-          <p class="text-[var(--text-color-secondary)]">分栏显示车端操作日志和云端操作日志，支持时间过滤。</p>
-        </section>
+      <section class="rounded-lg border border-[var(--border-color)] bg-[var(--card-bg)] p-6 shadow-sm">
+        <h2 class="text-xl font-semibold text-[var(--text-color)] mb-2">处理活动信息统计</h2>
+        <p class="text-[var(--text-color-secondary)]">分栏显示车端操作日志和云端操作日志，支持时间过滤。</p>
+      </section>
 
-        <section class="grid gap-4 md:grid-cols-2">
-          <div class="rounded-lg border border-[var(--border-color)] bg-[var(--card-bg)] p-4">
-            <div class="flex items-center justify-between mb-3">
-              <h3 class="text-lg font-semibold text-[var(--text-color)]">车端操作日志</h3>
-              <select v-model="vehicleTime" class="rounded-md border border-[var(--border-color)] bg-[var(--input-bg)] px-2 py-1 text-[var(--text-color)]">
-                <option value="day">日</option>
-                <option value="week">周</option>
-                <option value="month">月</option>
-              </select>
-            </div>
-            <div class="rounded-md border border-[var(--border-color)] overflow-hidden">
-              <table class="w-full text-sm">
-                <thead class="bg-[var(--surface-color)] text-[var(--text-color-secondary)]">
-                  <tr>
-                    <th class="text-left p-2">#</th>
-                    <th class="text-left p-2">VIN码</th>
-                    <th class="text-left p-2">品牌</th>
-                    <th class="text-left p-2">车型</th>
-                    <th class="text-left p-2">阶段</th>
-                    <th class="text-left p-2">时间</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr v-for="log in vehicleLogs" :key="log.id" class="border-t border-[var(--border-color)] text-[var(--text-color)]">
-                    <td class="p-2">{{ log.id }}</td>
-                    <td class="p-2">{{ log.vin }}</td>
-                    <td class="p-2">{{ log.brand }}</td>
-                    <td class="p-2">{{ log.model }}</td>
-                    <td class="p-2">{{ log.stage }}</td>
-                    <td class="p-2">{{ log.time }}</td>
-                  </tr>
-                </tbody>
-              </table>
-            </div>
+      <section class="grid gap-4 md:grid-cols-2">
+        <div class="rounded-lg border border-[var(--border-color)] bg-[var(--card-bg)] p-4">
+          <div class="flex items-center justify-between mb-3">
+            <h3 class="text-lg font-semibold text-[var(--text-color)]">车端操作日志</h3>
+            <select v-model="vehicleTime" class="rounded-md border border-[var(--border-color)] bg-[var(--input-bg)] px-2 py-1 text-[var(--text-color)]">
+              <option value="day">日</option>
+              <option value="week">周</option>
+              <option value="month">月</option>
+            </select>
           </div>
-          <div class="rounded-lg border border-[var(--border-color)] bg-[var(--card-bg)] p-4">
-            <div class="flex items-center justify-between mb-3">
-              <h3 class="text-lg font-semibold text-[var(--text-color)]">云端操作日志</h3>
-              <select v-model="cloudTime" class="rounded-md border border-[var(--border-color)] bg-[var(--input-bg)] px-2 py-1 text-[var(--text-color)]">
-                <option value="day">日</option>
-                <option value="week">周</option>
-                <option value="month">月</option>
-              </select>
-            </div>
-            <div class="rounded-md border border-[var(--border-color)] overflow-hidden">
-              <table class="w-full text-sm">
-                <thead class="bg-[var(--surface-color)] text-[var(--text-color-secondary)]">
-                  <tr>
-                    <th class="text-left p-2">#</th>
-                    <th class="text-left p-2">企业名称</th>
-                    <th class="text-left p-2">类型</th>
-                    <th class="text-left p-2">阶段</th>
-                    <th class="text-left p-2">时间</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr v-for="log in cloudLogs" :key="log.id" class="border-t border-[var(--border-color)] text-[var(--text-color)]">
-                    <td class="p-2">{{ log.id }}</td>
-                    <td class="p-2">{{ log.company }}</td>
-                    <td class="p-2">{{ log.type }}</td>
-                    <td class="p-2">{{ log.stage }}</td>
-                    <td class="p-2">{{ log.time }}</td>
-                  </tr>
-                </tbody>
-              </table>
-            </div>
+          <div class="rounded-md border border-[var(--border-color)] overflow-hidden">
+            <table class="w-full text-sm">
+              <thead class="bg-[var(--surface-color)] text-[var(--text-color-secondary)]">
+                <tr>
+                  <th class="text-left p-2">#</th>
+                  <th class="text-left p-2">VIN码</th>
+                  <th class="text-left p-2">品牌</th>
+                  <th class="text-left p-2">车型</th>
+                  <th class="text-left p-2">阶段</th>
+                  <th class="text-left p-2">时间</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr v-for="log in vehicleLogs" :key="log.id" class="border-t border-[var(--border-color)] text-[var(--text-color)]">
+                  <td class="p-2">{{ log.id }}</td>
+                  <td class="p-2">{{ log.vin }}</td>
+                  <td class="p-2">{{ log.brand }}</td>
+                  <td class="p-2">{{ log.model }}</td>
+                  <td class="p-2">{{ log.stage }}</td>
+                  <td class="p-2">{{ log.time }}</td>
+                </tr>
+              </tbody>
+            </table>
           </div>
-        </section>
-      </main>
-    </div>
+        </div>
+        <div class="rounded-lg border border-[var(--border-color)] bg-[var(--card-bg)] p-4">
+          <div class="flex items-center justify-between mb-3">
+            <h3 class="text-lg font-semibold text-[var(--text-color)]">云端操作日志</h3>
+            <select v-model="cloudTime" class="rounded-md border border-[var(--border-color)] bg-[var(--input-bg)] px-2 py-1 text-[var(--text-color)]">
+              <option value="day">日</option>
+              <option value="week">周</option>
+              <option value="month">月</option>
+            </select>
+          </div>
+          <div class="rounded-md border border-[var(--border-color)] overflow-hidden">
+            <table class="w-full text-sm">
+              <thead class="bg-[var(--surface-color)] text-[var(--text-color-secondary)]">
+                <tr>
+                  <th class="text-left p-2">#</th>
+                  <th class="text-left p-2">企业名称</th>
+                  <th class="text-left p-2">类型</th>
+                  <th class="text-left p-2">阶段</th>
+                  <th class="text-left p-2">时间</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr v-for="log in cloudLogs" :key="log.id" class="border-t border-[var(--border-color)] text-[var(--text-color)]">
+                  <td class="p-2">{{ log.id }}</td>
+                  <td class="p-2">{{ log.company }}</td>
+                  <td class="p-2">{{ log.type }}</td>
+                  <td class="p-2">{{ log.stage }}</td>
+                  <td class="p-2">{{ log.time }}</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+    </DashboardLayout>
   </div>
 </template>
 
@@ -103,7 +96,8 @@
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 import DashboardHeader from '@/components/common/DashboardHeader.vue'
-import SideSubMenu from '@/components/common/SideSubMenu.vue'
+import DashboardLayout from '@/components/layouts/DashboardLayout.vue'
+import Sidebar08 from '@/components/ui/sidebar/Sidebar08.vue'
 
 const router = useRouter()
 const isDark = ref(document.documentElement.getAttribute('data-theme') === 'dark')
