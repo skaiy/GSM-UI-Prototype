@@ -16,7 +16,8 @@ const routes = [
   { path: '/login/government', name: 'government-login', component: LoginPage, props: { userType: 'government' } },
   { path: '/login/enterprise', name: 'enterprise-login', component: LoginPage, props: { userType: 'enterprise' } },
   { path: '/dashboard/government', name: 'government-dashboard', component: GovernmentDashboard },
-  { path: '/content/:type/:id?', name: 'content-detail', component: ContentDetailPage }
+  { path: '/content/:type/:id?', name: 'content-detail', component: ContentDetailPage },
+  { path: '/overview/activity-stats', name: 'P007-activity-stats', component: () => import('./components/pages/P007ActivityStats.vue') }
 ]
 
 const router = createRouter({
