@@ -1337,7 +1337,7 @@ onMounted(() => {
 .map-container {
   background: var(--card-bg);
   border: 2px solid var(--border-color);
-  border-radius: 20px;
+  border-radius: 0.5rem; /* shadcn rounded-lg */
   height: 500px;
   position: relative;
   overflow: hidden;
@@ -1366,7 +1366,7 @@ onMounted(() => {
   right: -2px;
   bottom: -2px;
   background: var(--gradient-primary);
-  border-radius: 22px;
+  border-radius: 0.5rem; /* shadcn rounded-lg */
   z-index: -2;
   opacity: 0.3;
 }
@@ -1898,7 +1898,7 @@ onMounted(() => {
 .stats-panel {
   background: var(--card-bg);
   border: 1px solid var(--border-color);
-  border-radius: 10px;
+  border-radius: 0.5rem; /* shadcn rounded-lg */
   padding: 0.5rem;
   position: relative;
   backdrop-filter: blur(15px);
@@ -2003,7 +2003,7 @@ onMounted(() => {
 .chart-btn {
   background: var(--surface-color);
   border: 1px solid var(--border-color);
-  border-radius: 12px;
+  border-radius: 0.5rem; /* shadcn rounded-lg */
   padding: 0.8rem 1.5rem;
   cursor: pointer;
   font-size: 0.9rem;

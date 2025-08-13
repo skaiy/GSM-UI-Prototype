@@ -13,8 +13,8 @@
                 </div>
               </div>
               <div>
-                <h1 class="text-xl font-bold text-white login-title">地理信息安全监测平台</h1>
-                <p class="text-xs text-slate-400 login-subtitle">Geospatial Security Monitoring Platform</p>
+                <h1 class="text-xl font-bold login-title">地理信息安全监测平台</h1>
+                <p class="text-xs login-subtitle">Geospatial Security Monitoring Platform</p>
               </div>
             </div>
           </div>
@@ -601,7 +601,7 @@ onBeforeUnmount(() => {
 .login-title {
   font-size: 1.25rem;
   font-weight: 700;
-  color: white;
+  color: var(--text-color);
   margin: 0;
   line-height: 1.75rem;
 }
@@ -609,7 +609,7 @@ onBeforeUnmount(() => {
 .login-subtitle {
   font-size: 0.75rem;
   line-height: 1rem;
-  color: #94a3b8;
+  color: var(--text-color-secondary);
   margin: 0;
 }
 
@@ -647,6 +647,15 @@ onBeforeUnmount(() => {
 .mode-btn:hover:not(.active) {
   background: rgba(64, 158, 255, 0.1);
   color: #409eff;
+}
+
+/* 亮色模式下的标题样式 */
+[data-theme="light"] .login-title {
+  color: #1a1f2e;
+}
+
+[data-theme="light"] .login-subtitle {
+  color: #64748b;
 }
 
 [data-theme="dark"] .login-title {
