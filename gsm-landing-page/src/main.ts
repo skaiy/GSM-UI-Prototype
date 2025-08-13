@@ -12,6 +12,7 @@ import ContentDetailPage from './components/ContentDetailPage.vue'
 
 const routes = [
   { path: '/', component: LandingPage },
+  { path: '/portal/intro', name: 'P001-platform-intro', component: () => import('./components/pages/P001PlatformIntro.vue') },
   { path: '/login/government', name: 'government-login', component: LoginPage, props: { userType: 'government' } },
   { path: '/login/enterprise', name: 'enterprise-login', component: LoginPage, props: { userType: 'enterprise' } },
   { path: '/dashboard/government', name: 'government-dashboard', component: GovernmentDashboard },
